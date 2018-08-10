@@ -1,0 +1,46 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:jsf="http://xmlns.jcp.org/jsf" xmlns:p="http://primefaces.org/ui"
+	xmlns:o="http://omnifaces.org/ui" template="/WEB-INF/template.xhtml">
+
+	<ui:define name="title">Detalhes Padre</ui:define>
+
+	<f:metadata>
+		<o:viewParam name="padre" value="#{detalhesPadreBean.padre}" />
+		<f:viewAction action="#{detalhesPadreBean.inicializar()}" />
+	</f:metadata>
+	<ui:define name="toolbar">
+		<p:button outcome="/padre/pesquisa-padre" value="Pesquisar"
+			icon="fa fa-search" />
+		<p:commandButton value="Editar" icon="fa fa-pencil-square-o"
+			action="#{detalhesPadreBean.editar()}" process="@this" />
+	</ui:define>
+	<ui:define name="cancelar">
+		<p:button value="Cancelar" style="width: auto; margin-left: 15px;"
+			outcome="pesquisa-padre" icon="fa fa-remove" />
+	</ui:define>
+	<ui:define name="content">
+		<h:form id="form-cadastro" enctype="multipart/form-data">
+			<ui:include
+				src="/WEB-INF/facelets/padre/padre-detalhes-toolbar.xhtml" />
+			<div class="ui-fluid">
+				<div class="ui-g-12">
+					<div class="card card-w-title">
+						<h1>Ficha do Padre/Bispo #{detalhesPadreBean.padre.nome}</h1>
+						<ui:include src="/WEB-INF/facelets/mensagem/messages.xhtml" />
+						<p:growl />
+						<div class="ui-g">
+							<p:focus for="nome" />
+							<ui:include src="/WEB-INF/facelets/padre/ficha-padre.xhtml" />
+
+							<ui:include
+								src="/WEB-INF/facelets/padre/datatable-evento.xhtml" />
+						</div>
+					</div>
+				</div>
+			</div>
+		</h:form>
+	</ui:define>
+</ui:composition>

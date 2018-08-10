@@ -1,0 +1,69 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" xmlns:o="http://omnifaces.org/ui"
+	template="/WEB-INF/template.xhtml">
+
+	<ui:define name="title">Pesquisa Equipe</ui:define>
+
+	<f:metadata>
+		<f:viewAction action="#{pesquisaEquipeBean.inicializar()}" />
+	</f:metadata>
+
+	<ui:define name="search">
+		<div class="ui-inputgroup">
+			<p:inputText id="value" autocomplete="off"
+				value="#{pesquisaEquipeBean.searchValue}" placeholder="Pesquisar">
+				<p:ajax listener="#{pesquisaEquipeBean.pesquisar()}"
+					update="datatable-equipe messages" event="keyup" />
+			</p:inputText>
+		</div>
+	</ui:define>
+
+	<ui:define name="content">
+
+		<h:form id="form">
+			<ui:include src="/WEB-INF/facelets/equipe/equipe-toolbar.xhtml" />
+			<div class="ui-fluid">
+				<div class="ui-g-12">
+					<div class="card card-w-title">
+						<h1>Pesquisa Equipe</h1>
+						<ui:include src="/WEB-INF/facelets/mensagem/messages.xhtml" />
+
+						<div class="ui-g">
+
+							<p:dataTable var="equipe" id="datatable-equipe"
+								value="#{pesquisaEquipeBean.listaEquipe}" reflow="true"
+								selectionMode="single"
+								selection="#{pesquisaEquipeBean.equipeSelecionado}"
+								rowKey="#{equipe}" emptyMessage="Equipe não encontrada!">
+
+								<p:ajax event="rowSelect"
+									listener="#{pesquisaEquipeBean.selecionar()}" />
+
+								<p:column headerText="Título" width="350" sortBy="#{equipe.titulo}">
+									<h:outputText value="#{equipe.titulo}" />
+								</p:column>
+
+								<p:column headerText="Ordem no Quadrante" sortBy="#{equipe.ordem}">
+									<h:outputText value="#{equipe.ordem}" />
+								</p:column>
+								
+								<p:column headerText="Número de Pessoa" sortBy="#{equipe.pessoas}">
+									<h:outputText value="#{equipe.pessoas}" />
+								</p:column>
+								
+								<p:column headerText="Obs.">
+									<h:outputText value="#{equipe.obs}" />
+								</p:column>
+							</p:dataTable>
+						</div>
+					</div>
+				</div>
+			</div>
+		</h:form>
+
+	</ui:define>
+
+</ui:composition>

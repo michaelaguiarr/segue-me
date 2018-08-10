@@ -1,0 +1,47 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" xmlns:o="http://omnifaces.org/ui"
+	template="/WEB-INF/template/template-login.xhtml">
+
+	<ui:define name="title">Encontro de Jovem com Cristo "SEGUE-ME" - Login</ui:define>
+	<ui:define name="sub-title">Bem-Vindo</ui:define>
+
+	<ui:define name="content">
+		<h:form id="frm" prependId="false">
+			<p:focus for="username" />
+			<div class="ui-g-12">
+				<ui:include src="/WEB-INF/facelets/mensagem/messages.xhtml" />
+				<p:outputLabel for="username" value="Email" />
+				<div class="input-wrapper">
+					<p:inputText id="username" value="#{loginController.matricula}" />
+					<i class="fa fa-user" />
+				</div>
+			</div>
+			<div class="ui-g-12">
+				<p:outputLabel for="password" value="Senha" />
+				<div class="input-wrapper">
+					<p:password id="password" />
+					<i class="fa fa-lock" />
+				</div>
+			</div>
+			<div class="ui-g-12 button-container">
+				<p:commandButton value="Login" ajax="false"
+					actionListener="#{loginController.login()}"
+					styleClass="raised-btn" style="background: #FFB612;" />
+			</div>
+		</h:form>
+
+		<div class="ui-g-12 chkbox-container">
+			<div class="ui-g-6 ui-md-6">
+				<h:link outcome="/login/solicitacao-usuario">Não tenho cadastro</h:link>
+			</div>
+
+			<div class="ui-g-6 rememberme-container">
+<!-- 				<h:link outcome="/login/esqueci-usuario">Esqueci minha senha</h:link> -->
+			</div>
+		</div>
+	</ui:define>
+
+</ui:composition>

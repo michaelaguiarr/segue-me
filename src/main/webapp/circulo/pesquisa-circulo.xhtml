@@ -1,0 +1,132 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" xmlns:o="http://omnifaces.org/ui"
+	template="/WEB-INF/template.xhtml">
+
+	<ui:define name="title">Pesquisa Circulo</ui:define>
+
+	<f:metadata>
+		<f:viewAction action="#{pesquisaCirculoBean.inicializar()}" />
+	</f:metadata>
+
+	<ui:define name="search">
+		<div class="ui-fluid">
+			<div class="ui-g-12">
+				<div class="card card-w-title">
+					<div class="ui-g">
+						<div class="ui-g-12 ui-lg-6">
+							<p:selectOneMenu id="paroquia"
+								value="#{pesquisaCirculoBean.filter.paroquia}">
+								<f:selectItem itemLabel="Todas Paroquias" />
+								<f:selectItems value="#{pesquisaCirculoBean.listaParaquia}"
+									var="paroquia" itemValue="#{paroquia}"
+									itemLabel="#{paroquia.descricao}" />
+								<p:ajax listener="#{pesquisaCirculoBean.onSegueMeChange()}"
+									update="segueMe" />
+							</p:selectOneMenu>
+						</div>
+						<div class="ui-g-12 ui-lg-6">
+							<p:selectOneMenu id="segueMe" label="Segue-Me"
+								value="#{pesquisaCirculoBean.filter.segueMe}">
+								<f:selectItem itemLabel="Todos Segue-me"
+									noSelectionOption="true" />
+								<f:selectItems value="#{pesquisaCirculoBean.listaSegueMe}"
+									var="segueMe" itemValue="#{segueMe}"
+									itemLabel="#{segueMe.titulo} - #{segueMe.numeroRomano.numeroRomano}" />
+							</p:selectOneMenu>
+						</div>
+						<div class="ui-g-12 ui-lg-6">
+							<p:selectOneMenu id="status" label="Status"
+								value="#{pesquisaCirculoBean.filter.status}">
+								<f:selectItem itemLabel="Todos Status" noSelectionOption="true"
+									itemValue="TODOS" />
+								<f:selectItem itemLabel="Ativo" itemValue="ATIVO" />
+								<f:selectItem itemLabel="Inativo" itemValue="INATIVO" />
+							</p:selectOneMenu>
+						</div>
+						<div class="ui-g-12 ui-lg-6">
+							<p:inputText id="circulo" placeholder="Nome Circulo"
+								autocomplete="off" value="#{pesquisaCirculoBean.filter.nome}" />
+						</div>
+						<div class="ui-g-12 ui-lg-6">
+							<p:selectManyCheckbox id="cor"
+								value="#{pesquisaCirculoBean.filter.cor}" layout="responsive"
+								columns="3">
+								<f:selectItems value="#{pesquisaCirculoBean.corCirculo}"
+									var="cor" itemValue="#{cor}" itemLabel="#{cor.descricao}" />
+							</p:selectManyCheckbox>
+						</div>
+						<div class="ui-g-12">
+							<p:commandButton id="pesquisar" value="Pesquisar"
+								style="width: auto;" action="#{pesquisaCirculoBean.pesquisar()}"
+								update="@form" process="@form" icon="fa fa-search"
+								styleClass="green-btn" />
+							<p:defaultCommand target="pesquisar" />
+						</div>
+
+
+					</div>
+				</div>
+			</div>
+		</div>
+	</ui:define>
+
+	<ui:define name="content">
+
+		<h:form id="form">
+			<ui:include src="/WEB-INF/facelets/circulo/circulo-toolbar.xhtml" />
+			<div class="ui-fluid">
+				<div class="ui-g-12">
+					<div class="card card-w-title">
+						<h1>Pesquisa Círculo</h1>
+						<ui:include src="/WEB-INF/facelets/mensagem/messages.xhtml" />
+
+						<div class="ui-g">
+
+							<p:dataTable var="circulos" id="datatable-circulos"
+								value="#{pesquisaCirculoBean.listaCirculo}" reflow="true"
+								selectionMode="single"
+								selection="#{pesquisaCirculoBean.circulo}" rowKey="#{circulos}"
+								emptyMessage="Circulo não encontrada!">
+
+								<p:ajax event="rowSelect"
+									listener="#{pesquisaCirculoBean.selecionar()}" />
+
+								<p:column headerText="Paroquia"
+									sortBy="#{circulos.segueMe.paroquia.descricao}" width="200">
+									<h:outputText value="#{circulos.segueMe.paroquia.descricao}" />
+								</p:column>
+
+								<p:column headerText="Segue-me"
+									sortBy="#{circulos.segueMe.numeroRomano.numero}" width="300">
+									<h:outputText
+										value="#{circulos.segueMe.titulo} - #{circulos.segueMe.numeroRomano.numeroRomano}" />
+								</p:column>
+
+								<p:column headerText="Cor" width="60"
+									sortBy="#{circulos.corCirculo.descricao}">
+									<span class="situacao #{circulos.corCirculo.coresParaStyle}">#{circulos.corCirculo.descricao}</span>
+								</p:column>
+
+								<p:column headerText="Nome">
+									<h:outputText value="#{circulos.nome}" />
+								</p:column>
+
+								<p:column headerText="Situação" sortBy="#{circulos.ativo}"
+									width="60">
+									<span class="situacao #{circulos.coresStatus} MarLeft10">#{circulos.ativo
+										? 'Ativo' : 'Inativo'}</span>
+								</p:column>
+							</p:dataTable>
+
+						</div>
+					</div>
+				</div>
+			</div>
+		</h:form>
+
+	</ui:define>
+
+</ui:composition>

@@ -1,0 +1,166 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" xmlns:o="http://omnifaces.org/ui"
+	template="/WEB-INF/template.xhtml">
+
+	<ui:define name="title">Pesquisa Palestra Padre/Bispo no Segue-me</ui:define>
+
+	<f:metadata>
+		<f:viewAction action="#{pesquisaPalestraPadreBean.inicializar()}" />
+	</f:metadata>
+
+	<ui:define name="search">
+		<div class="ui-fluid">
+			<div class="ui-g-12">
+				<div class="card card-w-title">
+					<h1>Pesquisa Palestra Padre/Bispo no Segue-me</h1>
+					<div class="ui-g">
+						<div class="ui-g-12 ui-lg-6">
+							<p:selectOneMenu id="Paroquia"
+								value="#{pesquisaPalestraPadreBean.filter.paroquia}"
+								disabled="#{not seguranca.administradorGeral}">
+								<f:selectItem itemLabel="Todos as Paroquias" />
+								<f:selectItems
+									value="#{pesquisaPalestraPadreBean.listaParoquia}"
+									var="paroquia" itemValue="#{paroquia}"
+									itemLabel="#{paroquia.descricao}" />
+								<p:ajax
+									listener="#{pesquisaPalestraPadreBean.onSegueMeChange()}"
+									update="segueMe" />
+							</p:selectOneMenu>
+						</div>
+						<div class="ui-g-12 ui-lg-6">
+							<p:selectOneMenu id="segueMe" label="Segue-Me"
+								value="#{pesquisaPalestraPadreBean.filter.segueMe}"
+								disabled="#{not seguranca.administrador}">
+								<f:selectItem itemLabel="Todos os Segue-Me"
+									noSelectionOption="true" />
+								<f:selectItems value="#{pesquisaPalestraPadreBean.listaSegueMe}"
+									var="segueMe" itemValue="#{segueMe}"
+									itemLabel="#{segueMe.titulo} - #{segueMe.numeroRomano.numeroRomano}" />
+							</p:selectOneMenu>
+						</div>
+						<div class="ui-g-12 ui-lg-6">
+							<p:selectOneMenu id="palestra"
+								value="#{pesquisaPalestraPadreBean.filter.palestra}"
+								disabled="#{not seguranca.graficaAndComandante}">
+								<f:selectItem itemLabel="Todos as Palestras" />
+								<f:selectItems
+									value="#{pesquisaPalestraPadreBean.listaPalestras}"
+									var="equipe" itemValue="#{equipe}" itemLabel="#{equipe.nome}" />
+							</p:selectOneMenu>
+						</div>
+						<div class="ui-g-12 ui-lg-6">
+							<p:inputText id="nome" placeholder="Nome do Padre/Bispo"
+								autocomplete="off"
+								value="#{pesquisaPalestraPadreBean.filter.nome}" />
+						</div>
+						<div class="ui-g-12 ui-lg-6">
+							<p:inputText id="apelido" placeholder="Apelido"
+								autocomplete="off"
+								value="#{pesquisaPalestraPadreBean.filter.apelido}" />
+						</div>
+						<div class="ui-g-12">
+							<p:commandButton id="pesquisar" value="Pesquisar"
+								style="width: auto;"
+								action="#{pesquisaPalestraPadreBean.pesquisar()}" update="@form"
+								process="@form" icon="fa fa-search" styleClass="green-btn" />
+							<p:defaultCommand target="pesquisar" />
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</ui:define>
+
+	<ui:define name="content">
+
+		<h:form id="form">
+			<ui:include src="/WEB-INF/facelets/evento-padre/palesta-toolbar.xhtml"/>
+			<div class="ui-fluid">
+				<div class="ui-g-12">
+					<div class="card card-w-title">
+						<h1>Lista de Palestra Padre/Bispo no Segue-me</h1>
+						<ui:include src="/WEB-INF/facelets/mensagem/messages.xhtml" />
+
+						<div class="ui-g">
+
+
+							<p:dataTable var="padre" id="datatable-padre"
+								value="#{pesquisaPalestraPadreBean.listaEventoSeguidor}"
+								reflow="true" selectionMode="single"
+								selection="#{pesquisaPalestraPadreBean.evento}"
+								rowKey="#{padre}" emptyMessage="Padre/Bispo não encontrado!"
+								paginator="true"
+								paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+								currentPageReportTemplate=" Exibindo de {startRecord} a {endRecord} no total de {totalRecords} - Página: {currentPage}/{totalPages} "
+								rows="25" rowsPerPageTemplate="25,50,100,150,200">
+
+								<p:ajax event="rowSelect"
+									listener="#{pesquisaPalestraPadreBean.selecionar()}" />
+
+								<p:column width="50">
+									<p:commandButton update=":form:fotoDialog"
+										style="width: auto; margin-left: 10px;"
+										oncomplete="PF('fotoDialogWidgetVar').show()"
+										icon="fa fa-picture-o">
+										<f:setPropertyActionListener
+											target="#{pesquisaPalestraPadreBean.evento}" value="#{padre}" />
+									</p:commandButton>
+								</p:column>
+								<p:column headerText="Nome" sortBy="#{padre.padre.nome}"
+									width="200">
+									<h:outputText
+										value="#{padre.padre.nome} (#{padre.padre.apelido})" />
+								</p:column>
+
+								<p:column headerText="Telefone"
+									sortBy="#{padre.padre.telefoneUm}" width="100">
+									<h:outputText value="#{padre.padre.telefoneUm}" />
+								</p:column>
+
+								<p:column headerText="Palestra" sortBy="#{padre.palestra.ordem}"
+									width="100">
+									<h:outputText value="#{padre.palestra.nome}" />
+								</p:column>
+
+								<p:column headerText="Situação" width="50"
+									sortBy="#{padre.statusConvite.nome}">
+									<span class="situacao #{padre.statusConvite.coresParaStyle}">#{padre.statusConvite.nome}</span>
+								</p:column>
+
+								<p:column headerText="Paroquia"
+									sortBy="#{padre.segueMe.paroquia.descricao}"
+									rendered="#{seguranca.administradorGeral}" width="200">
+									<h:outputText value="#{padre.segueMe.paroquia.descricao}" />
+								</p:column>
+
+								<p:column headerText="Segue-me"
+									sortBy="#{padre.segueMe.numeroRomano.numeroRomano}"
+									rendered="#{seguranca.administrador}" width="50">
+									<h:outputText
+										value="#{padre.segueMe.numeroRomano.numeroRomano}" />
+								</p:column>
+
+								<p:column headerText="Crachá Impresso?" sortBy="#{padre.cracha}"
+									width="50">
+									<h:outputText value="#{padre.cracha ? 'Não' : 'Sim'}" />
+								</p:column>
+							</p:dataTable>
+							<p:dialog header="#{pesquisaPalestraPadreBean.evento.padre.nome}"
+								id="fotoDialog" widgetVar="fotoDialogWidgetVar">
+								<p:graphicImage
+									value="#{pesquisaPalestraPadreBean.evento.padre.carregarImagem()}"
+									style="max-width: 300px" id="produtoFoto" />
+							</p:dialog>
+						</div>
+					</div>
+				</div>
+			</div>
+		</h:form>
+
+	</ui:define>
+
+</ui:composition>

@@ -1,0 +1,154 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+	<h:form id="form-usuario">
+
+		<div class="ui-g ui-fluid">
+			<div class="ui-g-12">
+				<ui:include src="/WEB-INF/facelets/mensagem/messages.xhtml" />
+				<div class="card card-w-title">
+					<div class="ui-g-12">
+						<p:outputLabel value="Foto" />
+					</div>
+					<div class="ui-g-12 ui-lg-6">
+						<h:panelGrid id="fotoPanelGroupUpload">
+							<p:fileUpload fileUploadListener="#{meuPerfilBean.upload}"
+								allowTypes="/(\.|\/)(gif|png|jpe?g)$/"
+								invalidFileMessage="São permitidas somente imagens (jpg)"
+								auto="true" label="Foto"
+								update="fotoPanelGroup fotoPanelGroupUpload"
+								rendered="#{meuPerfilBean.imagemDoUsuario == null}" />
+						</h:panelGrid>
+					</div>
+
+					<div class="ui-g-12">
+						<h:panelGrid id="fotoPanelGroup">
+							<p:graphicImage value="#{meuPerfilBean.imagemDoUsuario}"
+								rendered="#{meuPerfilBean.imagemDoUsuario ne null}"
+								width="200px" id="foto" />
+
+							<p:commandButton value="Remover Foto"
+								style="width: auto; margin-left: 15px;"
+								actionListener="#{meuPerfilBean.removerFoto}"
+								rendered="#{meuPerfilBean.imagemDoUsuario ne null}"
+								process="@this" update="fotoPanelGroup, fotoPanelGroupUpload" />
+						</h:panelGrid>
+					</div>
+
+					<div class="ui-g-12">
+						<p:outputLabel value="Nome Completa" for="nome" />
+					</div>
+
+					<div class="ui-g-12 ui-lg-6">
+						<p:inputText placeholder="Nome Completo" id="nome"
+							value="#{meuPerfilBean.usuario.nome}" />
+					</div>
+
+					<div class="ui-g-12">
+						<p:outputLabel value="Email" for="email" />
+					</div>
+
+					<div class="ui-g-12 ui-lg-6">
+						<p:inputText placeholder="Email" id="email" required="true"
+							value="#{meuPerfilBean.usuario.email}" />
+					</div>
+
+					<div class="ui-g-12">
+						<p:outputLabel value="Data de Nascimento" for="nascimento" />
+					</div>
+
+					<div class="ui-g-12 ui-lg-6">
+						<p:calendar id="nascimento" navigator="true"
+							value="#{meuPerfilBean.usuario.dataNascimento}" mask="true"
+							pattern="dd/MM/yyyy" mode="popup" />
+					</div>
+
+					<div class="ui-g-12">
+						<p:outputLabel value="Sexo" for="sexo" />
+					</div>
+
+					<div class="ui-g-12 ui-lg-6">
+						<p:selectOneMenu id="sexo" label="Sexo"
+							value="#{meuPerfilBean.usuario.sexo}">
+							<f:selectItem itemLabel="Sexo" noSelectionOption="true" />
+							<f:selectItems value="#{meuPerfilBean.listaSexo}" var="sexo"
+								itemValue="#{sexo}" itemLabel="#{sexo.nome}" />
+						</p:selectOneMenu>
+					</div>
+
+					<div class="ui-g-12">
+						<p:outputLabel value="Telefone" for="numero" />
+					</div>
+
+					<div class="ui-g-12 ui-lg-6">
+						<p:inputMask id="numero" placeholder="Telefone" required="true"
+							requiredMessage="Telefone é campo obrigatório"
+							value="#{meuPerfilBean.usuario.numeroCompleto}"
+							mask="(99)999999999" />
+					</div>
+
+					<div class="ui-g-12">
+						<p:outputLabel value="Paroquia" for="paroquia" />
+					</div>
+
+					<div class="ui-g-12 ui-lg-6">
+						<p:outputLabel id="paroquia"
+							value="#{meuPerfilBean.usuario.segueMe.paroquia.descricao}"
+							styleClass="Fs14" style="color: black;" />
+					</div>
+
+					<div class="ui-g-12">
+						<p:outputLabel value="Segue-Me (Que vai Servi)" for="segueMe" />
+					</div>
+					<div class="ui-g-12 ui-lg-6">
+						<p:outputLabel id="segueMe"
+							value="#{meuPerfilBean.usuario.segueMe.titulo} - #{meuPerfilBean.usuario.segueMe.numeroRomano.numeroRomano}"
+							styleClass="Fs14" style="color: black;" />
+					</div>
+
+					<div class="ui-g-12">
+						<p:outputLabel value="Equipe" for="equipe" />
+					</div>
+
+					<div class="ui-g-12 ui-lg-6">
+						<p:outputLabel id="equipe"
+							value="#{meuPerfilBean.usuario.equipe.titulo}" styleClass="Fs14"
+							style="color: black;" />
+					</div>
+
+					<div class="ui-g-12">
+						<p:outputLabel value="Função" for="funcao" />
+					</div>
+					<div class="ui-g-12 ui-lg-6">
+						<p:outputLabel id="funcao"
+							value="#{meuPerfilBean.usuario.funcao.descricao}"
+							styleClass="Fs14" style="color: black;" />
+					</div>
+					
+					<div class="ui-g-12">
+						<p:outputLabel value="Perfil" for="perfil" />
+					</div>
+					<div class="ui-g-12 ui-lg-6">
+						<p:outputLabel id="perfil"
+							value="#{meuPerfilBean.usuario.perfil.nomeComIniciaisMaiusculas}"
+							styleClass="Fs14" style="color: black;" />
+					</div>
+
+
+				</div>
+
+				<div class="save ui-g-12">
+					<p:commandButton value="Salvar"
+						style="width: auto; margin-left: 15px;"
+						action="#{meuPerfilBean.updateUsuario}"
+						update="form-usuario messages" process="tabview:form-usuario"
+						icon="fa fa-save" styleClass="green-btn" />
+				</div>
+			</div>
+		</div>
+	</h:form>
+
+</ui:composition>

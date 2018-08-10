@@ -1,0 +1,210 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:jsf="http://xmlns.jcp.org/jsf" xmlns:p="http://primefaces.org/ui"
+	xmlns:o="http://omnifaces.org/ui" template="/WEB-INF/template.xhtml">
+
+	<ui:define name="title">Venda - Mini-Mercado</ui:define>
+
+	<ui:define name="toolbar">
+		<p:button outcome="/venda/pesquisa-venda" value="Pesquisar"
+			icon="fa fa-search" />
+	</ui:define>
+
+	<f:metadata>
+		<o:viewParam name="venda" value="#{cadastroVendaBean.venda}" />
+		<f:viewAction action="#{cadastroVendaBean.inicializar()}" />
+	</f:metadata>
+
+	<ui:define name="content">
+		<h:form id="form-cadastro">
+			<ui:include src="/WEB-INF/facelets/venda/venda-toolbar.xhtml" />
+			<div class="ui-fluid">
+				<div class="ui-g-12">
+					<div class="card card-w-title">
+						<h1>#{cadastroVendaBean.editando ? 'Edição Venda' : 'Nova
+							Venda'}</h1>
+						<ui:include src="/WEB-INF/facelets/mensagem/messages.xhtml" />
+						<p:focus for="paraQuem" />
+
+						<div class="ui-g">
+							<div class="ui-g-12">
+								<p:outputLabel value="Para Quem?" for="paraQuem" />
+							</div>
+
+							<div class="ui-g-12">
+								<p:selectOneRadio id="paraQuem"
+									value="#{cadastroVendaBean.venda.paraQuemVenda}"
+									layout="responsive" columns="2" required="true">
+
+									<f:selectItems value="#{cadastroVendaBean.paraQuemVenda}"
+										var="praquem" itemValue="#{praquem}"
+										itemLabel="#{praquem.descricao}" />
+									<p:ajax event="change" update="pnlCliente, pnlClienteLabel, situacao"
+										process="paraQuem"
+										listener="#{cadastroVendaBean.onCarregarNome()}" />
+								</p:selectOneRadio>
+							</div>
+
+							<div class="ui-g-12">
+								<p:outputPanel id="pnlClienteLabel">
+									<p:outputLabel id="Lbseguimista" value="Seguimista"
+										for="seguimista"
+										rendered="#{cadastroVendaBean.venda.paraQuemVenda.descricao =='Seguimista'}" />
+
+									<p:outputLabel id="LbCasal" value="Casal" for="casal"
+										rendered="#{cadastroVendaBean.venda.paraQuemVenda.descricao =='Casal'}" />
+
+									<p:outputLabel id="LbSeguidor" value="Seguidor" for="seguidor"
+										rendered="#{cadastroVendaBean.venda.paraQuemVenda.descricao =='Seguidor'}" />
+
+									<p:outputLabel id="Lbpadre" value="Padre / Bispo" for="padre"
+										rendered="#{cadastroVendaBean.venda.paraQuemVenda.descricao =='Padre/Bispo'}" />
+								</p:outputPanel>
+							</div>
+
+							<div class="ui-g-12">
+								<p:outputPanel id="pnlCliente">
+									<p:autoComplete id="seguimista"
+										rendered="#{cadastroVendaBean.venda.paraQuemVenda.descricao == 'Seguimista'}"
+										styleClass="Fleft" autocomplete="off"
+										value="#{cadastroVendaBean.venda.evento}"
+										completeMethod="#{cadastroVendaBean.buscaPessoasSeguimista}"
+										var="seguidor"
+										itemLabel="#{seguidor.seguidor.apelido} #{seguidor.circulo.corCirculo}"
+										itemValue="#{seguidor}" minQueryLength="3" maxResults="10"
+										forceSelection="true" emptyMessage="Nome não encontrado!">
+										<p:ajax event="itemSelect" update="@form" />
+										<p:column>
+											<p:outputLabel value="#{seguidor.seguidor.apelido}" />
+										</p:column>
+
+										<p:column>
+											<p:outputLabel value="#{seguidor.circulo.corCirculo}" />
+										</p:column>
+
+									</p:autoComplete>
+
+									<p:autoComplete id="casal"
+										rendered="#{cadastroVendaBean.venda.paraQuemVenda.descricao == 'Casal'}"
+										styleClass="Fleft" autocomplete="off"
+										value="#{cadastroVendaBean.venda.evento}"
+										completeMethod="#{cadastroVendaBean.buscaPessoasCasal}"
+										var="casal"
+										itemLabel="#{casal.casal.apelidoEle} #{casal.equipe.titulo}"
+										itemValue="#{casal}" minQueryLength="3" maxResults="10"
+										forceSelection="true" emptyMessage="Casal não encontrado!">
+										<p:ajax event="itemSelect" update="@form" />
+										<p:column>
+											<p:outputLabel value="#{casal.casal.apelidoEle}" />
+										</p:column>
+
+										<p:column>
+											<p:outputLabel value="#{casal.equipe.titulo}" />
+										</p:column>
+
+									</p:autoComplete>
+
+									<p:autoComplete id="seguidor"
+										rendered="#{cadastroVendaBean.venda.paraQuemVenda.descricao == 'Seguidor'}"
+										styleClass="Fleft" autocomplete="off"
+										value="#{cadastroVendaBean.venda.evento}"
+										completeMethod="#{cadastroVendaBean.buscaPessoas}"
+										var="seguidor"
+										itemLabel="#{seguidor.seguidor.apelido} #{seguidor.equipe.titulo}"
+										itemValue="#{seguidor}" minQueryLength="3" maxResults="10"
+										forceSelection="true" emptyMessage="Nome não encontrado!">
+										<p:ajax event="itemSelect" update="@form" />
+										<p:column>
+											<p:outputLabel value="#{seguidor.seguidor.apelido}" />
+										</p:column>
+
+										<p:column>
+											<p:outputLabel value="#{seguidor.equipe.titulo}" />
+										</p:column>
+
+									</p:autoComplete>
+
+
+
+									<p:autoComplete id="padre"
+										rendered="#{cadastroVendaBean.venda.paraQuemVenda.descricao == 'Padre/Bispo'}"
+										styleClass="Fleft" autocomplete="off"
+										value="#{cadastroVendaBean.venda.evento}"
+										completeMethod="#{cadastroVendaBean.buscaPessoasPadre}"
+										var="padre"
+										itemLabel="#{padre.padre.apelido}  #{padre.equipe.titulo}"
+										itemValue="#{padre}" minQueryLength="3" maxResults="10"
+										forceSelection="true"
+										emptyMessage="Padre/Bispo não encontrado!">
+										<p:ajax event="itemSelect" update="@form" />
+										<p:column>
+											<p:outputLabel value="#{padre.padre.apelido}" />
+										</p:column>
+										<p:column>
+											<p:outputLabel value="#{padre.equipe.titulo}" />
+										</p:column>
+
+									</p:autoComplete>
+								</p:outputPanel>
+							</div>
+							<div class="ui-g-12">
+								<p:outputLabel value="Situação" for="situacao" />
+							</div>
+
+							<div class="ui-g-12">
+								<p:selectOneMenu id="situacao"
+									value="#{cadastroVendaBean.venda.statusVenda}" required="true">
+									<f:selectItem itemLabel="Selecione" />
+									<f:selectItems value="#{cadastroVendaBean.statusVendas}"
+										var="statusVendas" itemValue="#{statusVendas}"
+										itemLabel="#{statusVendas.descricao}" />
+								</p:selectOneMenu>
+							</div>
+
+							<div class="ui-g-12">
+
+								<p:outputLabel value="Valor" for="valorDesconto" />
+							</div>
+							<div class="ui-g-12">
+								<p:inputText id="valorDesconto" size="10" maxlength="10"
+									required="true" styleClass="moeda"
+									value="#{cadastroVendaBean.venda.valorTotal}">
+									<f:convertNumber maxFractionDigits="2" minFractionDigits="2" />
+								</p:inputText>
+							</div>
+
+							<div class="save ui-g-12">
+								<p:commandButton value="Salvar" style="width: auto;"
+									action="#{cadastroVendaBean.salvar()}" update="@form"
+									process="@form" icon="fa fa-save" styleClass="green-btn" />
+								<p:commandButton icon="fa fa-trash" value="Excluir"
+									style="width: auto; margin-left: 15px;"
+									oncomplete="PF('confirmacaoExclusao').show();" process="@this"
+									styleClass="red-btn"
+									update="@form"
+									rendered="#{cadastroVendaBean.editando}" />
+
+								<p:button value="Cancelar"
+									style="width: auto; margin-left: 15px;"
+									outcome="pesquisa-venda" icon="fa fa-remove" />
+							</div>
+
+						</div>
+					</div>
+				</div>
+			</div>
+			<p:confirmDialog header="Exclusão da Venda"
+				message="Tem certeza que deseja excluir a Venda #{cadastroVendaBean.venda.id}"
+				widgetVar="confirmacaoExclusao" id="confirmacaoExclusaoDialog">
+				<p:button value="Não"
+					onclick="PF('confirmacaoExclusao').hide(); return false;" />
+				<p:commandButton value="Sim" action="#{cadastroVendaBean.excluir()}"
+					oncomplete="PF('confirmacaoExclusao').hide();" process="@this"
+					update="@form" />
+			</p:confirmDialog>
+		</h:form>
+	</ui:define>
+
+</ui:composition>

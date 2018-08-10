@@ -1,0 +1,106 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" xmlns:o="http://omnifaces.org/ui"
+	template="/WEB-INF/template.xhtml">
+
+	<ui:define name="title">Pesquisa Padre/Bispo</ui:define>
+
+	<f:metadata>
+		<f:viewAction action="#{pesquisaPadreBean.inicializar()}" />
+	</f:metadata>
+
+	<ui:define name="search">
+		<div class="ui-fluid">
+			<div class="ui-g-12">
+				<div class="card card-w-title">
+					<h1>Pesquisa Padre/Bispo</h1>
+					<div class="ui-g">
+						<div class="ui-g-12 ui-lg-12">
+							<p:selectOneMenu id="Paroquia"
+								value="#{pesquisaPadreBean.filter.paroquia}">
+								<f:selectItem itemLabel="Todos as Paroquias" />
+								<f:selectItems value="#{pesquisaPadreBean.listaParoquia}"
+									var="paroquia" itemValue="#{paroquia}"
+									itemLabel="#{paroquia.descricao}" />
+							</p:selectOneMenu>
+						</div>
+						<div class="ui-g-12 ui-lg-6">
+							<p:inputText id="nome" placeholder="Nome do Padre/Bispo"
+								autocomplete="off" value="#{pesquisaPadreBean.filter.nome}" />
+						</div>
+						<div class="ui-g-12 ui-lg-6">
+							<p:inputText id="apelido" placeholder="Apelido"
+								autocomplete="off" value="#{pesquisaPadreBean.filter.apelido}" />
+						</div>
+						<div class="ui-g-12">
+							<p:commandButton id="pesquisar" value="Pesquisar"
+								style="width: auto;" action="#{pesquisaPadreBean.pesquisar()}"
+								update="@form" process="@form" icon="fa fa-search"
+								styleClass="green-btn" />
+							<p:defaultCommand target="pesquisar" />
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</ui:define>
+
+	<ui:define name="content">
+
+		<h:form id="form">
+			<ui:include src="/WEB-INF/facelets/padre/padre-toolbar.xhtml" />
+			<div class="ui-fluid">
+				<div class="ui-g-12">
+					<div class="card card-w-title">
+						<h1>Lista de Padre/Bispo</h1>
+						<ui:include src="/WEB-INF/facelets/mensagem/messages.xhtml" />
+
+						<div class="ui-g">
+
+							<p:dataTable var="padre" id="datatable-padre"
+								value="#{pesquisaPadreBean.listaPadre}" reflow="true"
+								selectionMode="single" selection="#{pesquisaPadreBean.padre}"
+								rowKey="#{padre}" emptyMessage="Padre/Bispo não encontrado!"
+								paginator="true" sortBy="#{padre.paroquia.descricao}"
+								paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+								currentPageReportTemplate=" Exibindo de {startRecord} a {endRecord} no total de {totalRecords} - Página: {currentPage}/{totalPages} "
+								rows="25" rowsPerPageTemplate="25,50,100,150,200">
+
+								<p:ajax event="rowSelect"
+									listener="#{pesquisaPadreBean.selecionar()}" />
+
+								<p:column headerText="Foto" width="50">
+									<p:commandButton update=":form:fotoDialog"
+										style="width: auto; margin-left: 15px;"
+										oncomplete="PF('fotoDialogWidgetVar').show()"
+										icon="fa fa-picture-o">
+										<f:setPropertyActionListener
+											target="#{pesquisaPadreBean.padre}" value="#{padre}" />
+									</p:commandButton>
+								</p:column>
+								<p:column headerText="Nome" sortBy="#{padre.nome}" width="200">
+									<h:outputText value="#{padre.nome} - (#{padre.apelido})" />
+								</p:column>
+
+								<p:column headerText="Paroquia"
+									sortBy="#{padre.paroquia.descricao}" width="200">
+									<h:outputText value="#{padre.paroquia.descricao}" />
+								</p:column>
+							</p:dataTable>
+							<p:dialog header="#{pesquisaPadreBean.padre.nome}"
+								id="fotoDialog" widgetVar="fotoDialogWidgetVar">
+								<p:graphicImage
+									value="#{pesquisaPadreBean.padre.carregarImagem()}"
+									style="max-width: 300px" id="produtoFoto" />
+							</p:dialog>
+						</div>
+					</div>
+				</div>
+			</div>
+		</h:form>
+
+	</ui:define>
+
+</ui:composition>

@@ -1,0 +1,179 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:jsf="http://xmlns.jcp.org/jsf" xmlns:p="http://primefaces.org/ui"
+	xmlns:o="http://omnifaces.org/ui">
+	<h:panelGroup id="padrePanelGroup">
+		<p:focus for="nome" />
+		<div class="ui-g-12">
+			<!-- Seguidor -->
+			<p:fieldset legend="Padre/Bispo">
+				<div class="ui-g-12">
+					<p:outputLabel value="Foto" />
+				</div>
+				<div class="ui-g-12 ui-lg-6">
+					<h:panelGrid id="fotoPanelGroupUpload">
+						<p:fileUpload fileUploadListener="#{cadastroPadreBean.upload}"
+							allowTypes="/(\.|\/)(gif|png|jpe?g)$/"
+							invalidFileMessage="São permitidas somente imagens (jpg)"
+							auto="true" label="Foto"
+							update="fotoPanelGroup fotoPanelGroupUpload"
+							rendered="#{cadastroPadreBean.imagemDoUsuario == null}" />
+					</h:panelGrid>
+				</div>
+
+				<div class="ui-g-12">
+					<h:panelGrid id="fotoPanelGroup">
+						<p:graphicImage value="#{cadastroPadreBean.imagemDoUsuario}"
+							rendered="#{cadastroPadreBean.imagemDoUsuario ne null}"
+							width="100px" height="200px" id="foto"
+							onclick="PF('fotoDialogWidgetVar').show()" cache="false" />
+
+						<p:commandButton value="Remover Foto"
+							style="width: auto; margin-left: 15px;"
+							actionListener="#{cadastroPadreBean.removerFoto}"
+							rendered="#{cadastroPadreBean.imagemDoUsuario ne null}"
+							process="@this" update="fotoPanelGroup, fotoPanelGroupUpload" />
+					</h:panelGrid>
+				</div>
+				<div class="ui-g-8">
+					<p:outputLabel value="Nome" for="nome" />
+				</div>
+				<div class="ui-g-4">
+					<p:outputLabel value="Apelido" for="apelido" />
+				</div>
+
+				<div class="ui-g-8 ui-lg-8">
+					<p:inputText placeholder="Nome Completo" id="nome" required="true"
+						value="#{cadastroPadreBean.padre.nome}" />
+				</div>
+
+				<div class="ui-g-4 ui-lg-4">
+					<p:inputText placeholder="Nome no Crachá" id="apelido"
+						required="true" value="#{cadastroPadreBean.padre.apelido}" />
+				</div>
+
+				<div class="ui-g-12">
+					<p:outputLabel value="Data de Nascimento" for="nascimento" />
+				</div>
+				<div class="ui-g-12 ui-lg-6">
+					<p:calendar id="nascimento" required="false"
+						value="#{cadastroPadreBean.padre.dataNascimento}" mask="true"
+						pattern="dd/MM/yyyy" mode="popup" showButtonPanel="true"
+						showOn="button" />
+				</div>
+				
+				<div class="ui-g-12">
+					<p:outputLabel value="Data de Ordenação" for="order" />
+				</div>
+				<div class="ui-g-12 ui-lg-6">
+					<p:calendar id="order" required="true"
+						value="#{cadastroPadreBean.padre.dataOrdenacao}" mask="true"
+						pattern="dd/MM/yyyy" mode="popup" showButtonPanel="true"
+						showOn="button" />
+				</div>
+
+
+				<div class="ui-g-12">
+					<p:outputLabel value="Email" for="email" />
+				</div>
+
+				<div class="ui-g-12 ui-lg-12">
+					<p:inputText placeholder="Email" id="email"
+						value="#{cadastroPadreBean.padre.email}" />
+				</div>
+
+
+				<div class="ui-g-12">
+					<p:outputLabel value="Telefone" for="telefoneUm" />
+				</div>
+				<div class="ui-g-6 ui-lg-6">
+					<p:inputMask id="telefoneUm" placeholder="Telefone"
+						required="true" value="#{cadastroPadreBean.padre.telefoneUm}"
+						mask="(99)999999999">
+					</p:inputMask>
+				</div>
+				<div class="ui-g-12">
+					<p:outputLabel value="Paróquia" for="paroquiafrequenta" />
+				</div>
+				<div class="ui-g-12 ui-lg-6">
+					<p:selectOneMenu id="paroquiafrequenta" required="true"
+						value="#{cadastroPadreBean.padre.paroquia}">
+						<f:selectItem itemLabel="Selecione a Paroquia" />
+						<f:selectItems value="#{cadastroPadreBean.listaParoquiaSeguidor}"
+							var="paroquia" itemValue="#{paroquia}"
+							itemLabel="#{paroquia.descricao}" />
+					</p:selectOneMenu>
+				</div>
+			</p:fieldset>
+		</div>
+		<div class="ui-g-12">
+			<!-- Endereco -->
+			<p:fieldset legend="Endereço">
+				<div class="ui-g-12">
+					<p:outputLabel value="Endereço" for="endereco" />
+				</div>
+				<div class="ui-g-12 ui-lg-12">
+					<p:inputText id="endereco" required="true"
+						value="#{cadastroPadreBean.padre.endereco.logradouro}" />
+				</div>
+
+				<div class="ui-g-6">
+					<p:outputLabel value="Número" for="numero" />
+				</div>
+
+				<div class="ui-g-6">
+					<p:outputLabel value="Bairro" for="bairro" />
+				</div>
+
+				<div class="ui-g-6 ui-lg-6">
+					<p:inputText id="numero" required="true"
+						value="#{cadastroPadreBean.padre.endereco.numero}" />
+				</div>
+
+				<div class="ui-g-6 ui-lg-6">
+					<p:inputText id="bairro" required="true"
+						value="#{cadastroPadreBean.padre.endereco.bairro}" />
+				</div>
+
+				<div class="ui-g-6">
+					<p:outputLabel value="Cidade" for="cidade" />
+				</div>
+
+				<div class="ui-g-6">
+					<p:outputLabel value="UF" for="uf" />
+				</div>
+
+				<div class="ui-g-6 ui-lg-6">
+					<p:inputText id="cidade" required="true"
+						value="#{cadastroPadreBean.padre.endereco.cidade}" />
+				</div>
+
+				<div class="ui-g-6 ui-lg-6">
+					<p:selectOneMenu id="uf" label="UF" required="true"
+						value="#{cadastroPadreBean.padre.endereco.estado}">
+						<f:selectItem itemLabel="Selecione" />
+						<f:selectItems value="#{cadastroPadreBean.estados}" var="estado"
+							itemValue="#{estado.sigla}" itemLabel="#{estado.sigla}" />
+					</p:selectOneMenu>
+				</div>
+			</p:fieldset>
+
+			<div class="save ui-g-12">
+				<p:commandButton value="Salvar"
+					style="width: auto; margin-left: 20px;"
+					action="#{cadastroPadreBean.salvar()}" update="@form"
+					process="padrePanelGroup" icon="fa fa-save" styleClass="green-btn" />
+
+				<ui:insert name="cancelar" />
+			</div>
+		</div>
+	</h:panelGroup>
+
+	<p:dialog header="foto" id="fotoDialog" widgetVar="fotoDialogWidgetVar">
+		<p:graphicImage value="#{cadastroPadreBean.padre.carregarImagem()}"
+			style="max-width: 300px"
+			rendered="#{cadastroPadreBean.padre.exibirImagem}" id="produtoFoto" />
+	</p:dialog>
+</ui:composition>

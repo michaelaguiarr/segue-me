@@ -1,0 +1,39 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:jsf="http://xmlns.jcp.org/jsf" xmlns:p="http://primefaces.org/ui"
+	xmlns:o="http://omnifaces.org/ui" template="/WEB-INF/template.xhtml">
+
+	<ui:define name="title">Interlab - Meu Perfil</ui:define>
+
+
+	<f:metadata>
+		<o:viewParam name="usuario" value="#{meuPerfilBean.usuario}" />
+		<f:viewAction action="#{meuPerfilBean.inicializar()}" />
+	</f:metadata>
+	<ui:define name="content">
+		<div class="ui-fluid">
+			<div class="ui-g">
+				<div class="ui-g-12">
+					<div class="card card-w-title">
+						<h1>Meu Perfil - #{meuPerfilBean.usuario.nome}</h1>
+						<p:tabView id="tabview">
+							<p:tab title="Informações Pessoais">
+								<ui:include
+									src="/WEB-INF/facelets/meu-perfil/perfil-informacoes-pessoais.xhtml" />
+							</p:tab>
+
+							<p:tab title="Senha">
+								<ui:include
+									src="/WEB-INF/facelets/meu-perfil/perfil-muda-senha.xhtml" />
+							</p:tab>
+						</p:tabView>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</ui:define>
+
+</ui:composition>

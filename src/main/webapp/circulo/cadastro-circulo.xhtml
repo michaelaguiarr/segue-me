@@ -1,0 +1,128 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:jsf="http://xmlns.jcp.org/jsf" xmlns:p="http://primefaces.org/ui"
+	xmlns:o="http://omnifaces.org/ui" template="/WEB-INF/template.xhtml">
+
+	<ui:define name="title">Cadastro Círculo</ui:define>
+
+	<ui:define name="toolbar">
+		<p:button outcome="/circulo/pesquisa-circulo" value="Pesquisar"
+			icon="fa fa-search" />
+	</ui:define>
+
+	<f:metadata>
+		<o:viewParam name="circulo" value="#{cadastroCirculoBean.circulo}" />
+		<f:viewAction action="#{cadastroCirculoBean.inicializar()}" />
+	</f:metadata>
+
+	<ui:define name="content">
+		<h:form id="form-cadastro">
+			<ui:include src="/WEB-INF/facelets/circulo/circulo-toolbar.xhtml" />
+			<div class="ui-fluid">
+				<div class="ui-g-12">
+					<div class="card card-w-title">
+						<h1>#{cadastroCirculoBean.editando ? 'Edição Círculo' : 'Novo
+							Círculo'}</h1>
+						<ui:include src="/WEB-INF/facelets/mensagem/messages.xhtml" />
+						<p:focus for="cor" />
+
+						<div class="ui-g">
+							<div class="ui-g-12">
+								<p:outputLabel value="Paróquia" for="paroquia" />
+							</div>
+
+							<div class="ui-g-12 ui-lg-6">
+								<p:selectOneMenu id="paroquia" required="true"
+									value="#{cadastroCirculoBean.paroquia}">
+									<f:selectItem itemLabel="Paroquia" />
+									<f:selectItems value="#{cadastroCirculoBean.listaParaquia}"
+										var="paroquia" itemValue="#{paroquia}"
+										itemLabel="#{paroquia.descricao}" />
+									<p:ajax listener="#{cadastroCirculoBean.onSegueMeChange()}"
+										update="segueMe" />
+								</p:selectOneMenu>
+							</div>
+
+							<div class="ui-g-12">
+								<p:outputLabel value="Segue-me" for="segueMe" />
+							</div>
+							<div class="ui-g-12 ui-lg-6">
+								<p:selectOneMenu id="segueMe" label="Segue-Me" required="true"
+									value="#{cadastroCirculoBean.circulo.segueMe}">
+									<f:selectItem itemLabel="Segue-me" noSelectionOption="true" />
+									<f:selectItems value="#{cadastroCirculoBean.listaSegueMe}"
+										var="segueMe" itemValue="#{segueMe}"
+										itemLabel="#{segueMe.titulo} - #{segueMe.numeroRomano.numeroRomano}" />
+								</p:selectOneMenu>
+							</div>
+
+							<div class="ui-g-12">
+								<p:outputLabel value="Cor" for="cor" />
+							</div>
+							<div class="ui-g-12 ui-lg-6">
+								<p:selectOneMenu id="cor" label="Cor" required="true"
+									value="#{cadastroCirculoBean.circulo.corCirculo}">
+									<f:selectItem itemLabel="Cor" noSelectionOption="true" />
+									<f:selectItems value="#{cadastroCirculoBean.corCirculo}"
+										var="cor" itemValue="#{cor}" itemLabel="#{cor.descricao}" />
+								</p:selectOneMenu>
+							</div>
+
+							<div class="ui-g-12">
+								<p:outputLabel value="Nome" for="nome" />
+							</div>
+							<div class="ui-g-12 ui-lg-6">
+								<p:inputText id="nome"
+									value="#{cadastroCirculoBean.circulo.nome}" />
+							</div>
+
+							<div class="ui-g-12">
+								<p:outputLabel value="Ativo" for="ativo" />
+							</div>
+
+							<div class="ui-g-12 ui-lg-6">
+								<p:selectBooleanButton id="ativo"
+									value="#{cadastroCirculoBean.circulo.ativo}" onLabel="Sim"
+									offLabel="Não" onIcon="ui-icon-check" offIcon="ui-icon-close"
+									style="width:60px" />
+							</div>
+
+							<div class="save ui-g-12">
+								<p:commandButton id="salvar" value="Salvar" style="width: auto;"
+									action="#{cadastroCirculoBean.salvar()}" update="@form"
+									process="@form" icon="fa fa-save" styleClass="green-btn" />
+
+
+								<p:commandButton icon="fa fa-trash" value="Excluir"
+									style="width: auto; margin-left: 15px;"
+									oncomplete="PF('confirmacaoExclusao').show();" process="@this"
+									styleClass="red-btn"
+									update=":form-cadastro:confirmacaoExclusaoDialog"
+									rendered="#{cadastroCirculoBean.editando}" />
+
+								<p:button value="Cancelar"
+									style="width: auto; margin-left: 15px;"
+									outcome="pesquisa-circulo" icon="fa fa-remove" />
+								<p:defaultCommand target="salvar" />
+							</div>
+
+						</div>
+					</div>
+				</div>
+			</div>
+			<p:confirmDialog header="Exclusão do Circulo"
+				message="Tem certeza que deseja excluir o Circulo #{cadastroCirculoBean.circulo.nome} Cor #{cadastroCirculoBean.circulo.corCirculo.descricao}"
+				widgetVar="confirmacaoExclusao" id="confirmacaoExclusaoDialog">
+				<p:button value="Não"
+					onclick="PF('confirmacaoExclusao').hide(); return false;" />
+				<p:commandButton value="Sim"
+					action="#{cadastroCirculoBean.excluir()}"
+					oncomplete="PF('confirmacaoExclusao').hide();" process="@this"
+					update="@form" />
+			</p:confirmDialog>
+		</h:form>
+	</ui:define>
+
+</ui:composition>

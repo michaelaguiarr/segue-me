@@ -1,0 +1,88 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:jsf="http://xmlns.jcp.org/jsf" xmlns:p="http://primefaces.org/ui"
+	xmlns:o="http://omnifaces.org/ui" template="/WEB-INF/template.xhtml">
+
+	<ui:define name="title">Relatório por Status -  Segue-me</ui:define>
+
+	<ui:define name="toolbar">
+		<p:button outcome="pesquisa-inscricao" value="Pesquisar"
+			icon="fa fa-search" />
+	</ui:define>
+
+	<f:metadata>
+		<f:viewAction action="#{relatorioInscritosPorSexo.inicializar()}" />
+	</f:metadata>
+
+	<ui:define name="content">
+		<h:form id="form-cadastro" target="_blank">
+			<div class="ui-fluid">
+				<div class="ui-g-12">
+					<div class="card card-w-title">
+						<h1>Relatório por Sexo</h1>
+						<ui:include src="/WEB-INF/facelets/mensagem/messages.xhtml" />
+						<div class="ui-g">
+							<div class="ui-g-12">
+								<p:outputLabel value="Paroquia" for="paroquia" />
+							</div>
+
+							<div class="ui-g-12 ui-lg-6">
+								<p:selectOneMenu id="paroquia"
+									value="#{relatorioInscritosPorSexo.paroquia}"
+									required="true" disabled="#{not seguranca.administradorGeral}">
+									<f:selectItem itemLabel="Selecione a Paroquia" />
+									<f:selectItems
+										value="#{relatorioInscritosPorSexo.listaParoquia}"
+										var="paroquia" itemValue="#{paroquia}"
+										itemLabel="#{paroquia.descricao}" />
+									<p:ajax
+										listener="#{relatorioInscritosPorSexo.onSegueMeChange()}"
+										update="segueMe" />
+								</p:selectOneMenu>
+							</div>
+
+							<div class="ui-g-12">
+								<p:outputLabel value="Segue-Me" for="segueMe" />
+							</div>
+
+							<div class="ui-g-12 ui-lg-6">
+								<p:selectOneMenu id="segueMe" label="Segue-me" required="true"
+									value="#{relatorioInscritosPorSexo.segueMe}">
+									<f:selectItem itemLabel="Selecione o Segue-Me" />
+									<f:selectItems
+										value="#{relatorioInscritosPorSexo.listaSegueMe}"
+										var="segueMe" itemValue="#{segueMe}"
+										itemLabel="#{segueMe.titulo} - #{segueMe.numeroRomano.numeroRomano}" />
+								</p:selectOneMenu>
+							</div>
+
+							<div class="ui-g-12">
+								<p:outputLabel value="Situação" for="status" />
+							</div>
+
+							<div class="ui-g-12 ui-lg-6">
+								<p:selectOneMenu id="status" label="Status" required="true"
+									value="#{relatorioInscritosPorSexo.status}">
+									<f:selectItem itemLabel="Selecione o Status" />
+									<f:selectItems
+										value="#{relatorioInscritosPorSexo.statusInscricao}"
+										var="status" itemValue="#{status}" itemLabel="#{status.nome}" />
+								</p:selectOneMenu>
+							</div>
+							<div class="save ui-g-12">
+								<p:commandButton value="Gerar" style="width: auto;"
+									action="#{relatorioInscritosPorSexo.emitir()}"
+									update="@form" process="@form" icon="fa fa-save"
+									styleClass="green-btn topo" ajax="false" />
+							</div>
+
+						</div>
+					</div>
+				</div>
+			</div>
+		</h:form>
+	</ui:define>
+
+</ui:composition>

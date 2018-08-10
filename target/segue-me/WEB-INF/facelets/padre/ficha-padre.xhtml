@@ -1,0 +1,133 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:jsf="http://xmlns.jcp.org/jsf" xmlns:p="http://primefaces.org/ui"
+	xmlns:o="http://omnifaces.org/ui">
+	<h:panelGroup id="seguidorPanelGroup">
+		<p:focus for="nome" />
+		<div class="ui-g-12">
+			<!-- Seguidor -->
+			<p:fieldset legend="Padre/Bispo">
+				<div class="ui-g-12">
+					<p:outputLabel value="Foto" />
+				</div>
+				<div class="ui-g-12">
+					<h:panelGrid id="fotoPanelGroup">
+						<p:graphicImage
+							value="#{detalhesPadreBean.padre.carregarImagem()}"
+							rendered="#{detalhesPadreBean.padre.imagem ne null}"
+							width="100px" height="200px" id="foto"
+							onclick="PF('fotoDialogWidgetVar').show()" cache="false" />
+					</h:panelGrid>
+				</div>
+				<div class="ui-g-8">
+					<p:outputLabel value="Nome" for="nome" />
+				</div>
+				<div class="ui-g-4">
+					<p:outputLabel value="Apelido" for="apelido" />
+				</div>
+
+				<div class="ui-g-8 ui-lg-8">
+					<p:outputLabel value="#{detalhesPadreBean.padre.nome}" id="nome"
+						style="color: black;  font-weight: bold;" />
+				</div>
+
+				<div class="ui-g-4 ui-lg-4">
+					<p:outputLabel value="#{detalhesPadreBean.padre.apelido}"
+						id="apelido" style="color: black;  font-weight: bold;" />
+				</div>
+
+				<div class="ui-g-6">
+					<p:outputLabel value="Data de Nascimento" for="nascimento" />
+				</div>
+
+				<div class="ui-g-6 ui-lg-6">
+					<p:outputLabel value="#{detalhesPadreBean.padre.dataNascimento}"
+						id="nascimento" style="color: black;  font-weight: bold;">
+						<f:convertDateTime pattern="dd/MM/yyyy" />
+					</p:outputLabel>
+				</div>
+
+				<div class="ui-g-12">
+					<p:outputLabel value="Email" for="email" />
+				</div>
+
+				<div class="ui-g-6 ui-lg-12">
+					<p:outputLabel value="#{detalhesPadreBean.padre.email}" id="email"
+						style="color: black;  font-weight: bold;" />
+				</div>
+
+
+				<div class="ui-g-6">
+					<p:outputLabel value="Telefone 1" for="telefoneUm" />
+				</div>
+
+				<div class="ui-g-6 ui-lg-6">
+					<p:outputLabel value="#{detalhesPadreBean.padre.telefoneUm}"
+						id="telefoneUm" style="color: black;  font-weight: bold;" />
+				</div>
+				<div class="ui-g-6 ui-lg-6">
+					<p:outputLabel
+						value="#{detalhesPadreBean.padre.paroquia.descricao}"
+						id="paroquiafrequenta" style="color: black;  font-weight: bold;" />
+				</div>
+			</p:fieldset>
+		</div>
+		<div class="ui-g-12">
+			<!-- Endereco -->
+			<p:fieldset legend="Endereço">
+				<div class="ui-g-12">
+					<p:outputLabel value="Endereço" for="endereco" />
+				</div>
+				<div class="ui-g-12 ui-lg-12">
+					<p:outputLabel
+						value="#{detalhesPadreBean.padre.endereco.logradouro}"
+						id="endereco" style="color: black;  font-weight: bold;" />
+				</div>
+
+				<div class="ui-g-6">
+					<p:outputLabel value="Número" for="numero" />
+				</div>
+
+				<div class="ui-g-6">
+					<p:outputLabel value="Bairro" for="bairro" />
+				</div>
+
+				<div class="ui-g-6 ui-lg-6">
+					<p:outputLabel value="#{detalhesPadreBean.padre.endereco.numero}"
+						id="numero" style="color: black;  font-weight: bold;" />
+				</div>
+
+				<div class="ui-g-6 ui-lg-6">
+					<p:outputLabel value="#{detalhesPadreBean.padre.endereco.bairro}"
+						id="bairro" style="color: black;  font-weight: bold;" />
+				</div>
+
+				<div class="ui-g-6">
+					<p:outputLabel value="Cidade" for="cidade" />
+				</div>
+
+				<div class="ui-g-6">
+					<p:outputLabel value="UF" for="uf" />
+				</div>
+
+				<div class="ui-g-6 ui-lg-6">
+					<p:outputLabel value="#{detalhesPadreBean.padre.endereco.cidade}"
+						id="cidade" style="color: black;  font-weight: bold;" />
+				</div>
+
+				<div class="ui-g-6 ui-lg-6">
+					<p:outputLabel value="#{detalhesPadreBean.padre.endereco.estado}"
+						id="uf" style="color: black;  font-weight: bold;" />
+				</div>
+			</p:fieldset>
+		</div>
+	</h:panelGroup>
+
+	<p:dialog header="foto" id="fotoDialog" widgetVar="fotoDialogWidgetVar">
+		<p:graphicImage value="#{detalhesPadreBean.padre.carregarImagem()}"
+			style="max-width: 300px"
+			rendered="#{detalhesPadreBean.padre.exibirImagem}" id="produtoFoto" />
+	</p:dialog>
+</ui:composition>

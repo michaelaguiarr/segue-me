@@ -1,0 +1,39 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:jsf="http://xmlns.jcp.org/jsf" xmlns:p="http://primefaces.org/ui"
+	xmlns:o="http://omnifaces.org/ui" template="/WEB-INF/template.xhtml">
+
+	<ui:define name="title">Cadastro Padre/Bispo</ui:define>
+
+	<f:metadata>
+		<o:viewParam name="padre" value="#{cadastroPadreBean.padre}" />
+		<f:viewAction action="#{cadastroPadreBean.inicializar()}" />
+	</f:metadata>
+	<ui:define name="cancelar">
+		<p:button value="Cancelar" style="width: auto; margin-left: 15px;"
+			outcome="cadastro-evento-padre" icon="fa fa-remove" />
+	</ui:define>
+	<ui:define name="content">
+		<h:form id="form-cadastro" enctype="multipart/form-data">
+			<ui:include
+				src="/WEB-INF/facelets/evento-padre/padre-toolbar.xhtml" />
+			<div class="ui-fluid">
+				<div class="ui-g-12">
+					<div class="card card-w-title">
+						<h1>#{cadastroPadreBean.editando ? 'Edição Padre/Bispo' :
+							'Novo Padre/Bispo'}</h1>
+						<ui:include src="/WEB-INF/facelets/mensagem/messages.xhtml" />
+						<p:growl />
+						<div class="ui-g">
+							<p:focus for="nome" />
+							<ui:include
+								src="/WEB-INF/facelets/padre/cadastro-padre.xhtml"/>
+						</div>
+					</div>
+				</div>
+			</div>
+		</h:form>
+	</ui:define>
+</ui:composition>

@@ -1,0 +1,388 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.5.1.final using JasperReports Library version 6.5.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="quadranteSeguidor" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="a71ed9bd-1d82-4eaa-901f-34a0ff606867">
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="SEGUE-ME"/>
+	<parameter name="segueMe" class="java.lang.Long"/>
+	<parameter name="praQuem" class="java.lang.String"/>
+	<parameter name="status" class="java.lang.String"/>
+	<queryString language="SQL">
+		<![CDATA[SELECT
+public.segue_me.cidade AS segue_me_cidade,
+public.segue_me.data_fim AS segue_me_data_fim,
+public.segue_me.data_inicio AS segue_me_data_inicio,
+public.segue_me.estado AS segue_me_estado,
+public.segue_me.padroeiro AS segue_me_padroeiro,
+public.segue_me.nomeclatura AS segue_me_nomeclatura,
+public.segue_me.titulo AS segue_me_titulo,
+public.numero_romano.numero AS segue_me_numero,
+public.numero_romano.numero_romano,
+public.paroquias.descricao AS paroquias_descricao_0,
+public.paroquias.cidade AS paroquias_cidade_0,
+public.paroquias.estado AS paroquias_estado_0,
+public.segue_me.id,
+public.venda_segue_me.data_venda AS venda_data_venda,
+SUM(public.venda_segue_me.valor_total) AS venda_valor_total,
+public.venda_segue_me.status_venda AS venda_status_venda,
+public.venda_segue_me.para_quem_venda AS venda_para_quem,
+public.seguidor.apelido AS venda_apelido,
+public.circulo.corcirculo AS circulo,
+public.casal.apelido_ele AS casal_ele,
+public.equipe.titulo AS equipe, 
+public.seguidor.telefone_um,
+public.casal.telefone_ele_um,
+public.evento_segue_me.fk_equipe_id,
+public.evento_segue_me.fk_inscricao_id,
+public.evento_segue_me.fk_seguidor_id,
+public.evento_segue_me.fk_casal_id,
+public.venda_segue_me.fk_evento_id
+FROM
+public.segue_me
+JOIN public.numero_romano
+ON public.segue_me.fk_numero_cod = public.numero_romano.id 
+JOIN public.paroquias
+ON public.paroquias.id = public.segue_me.paroquia_id 
+JOIN public.venda_segue_me
+ON public.segue_me.id = public.venda_segue_me.fk_segue_me_id 
+JOIN public.evento_segue_me
+ON public.venda_segue_me.fk_evento_id = public.evento_segue_me.id 
+LEFT JOIN public.seguidor
+ON public.evento_segue_me.fk_seguidor_id = public.seguidor.id 
+LEFT JOIN public.circulo
+ON public.evento_segue_me.fk_circulo_id = public.circulo.id 
+LEFT JOIN public.casal
+ON public.evento_segue_me.fk_casal_id = public.casal.id 
+LEFT JOIN public.equipe
+ON public.equipe.id = public.evento_segue_me.fk_equipe_id
+WHERE
+public.segue_me.id = $P{segueMe}   AND
+public.venda_segue_me.para_quem_venda LIKE  $P{praQuem}  AND
+public.venda_segue_me.status_venda LIKE  $P{status} 
+GROUP BY
+public.segue_me.cidade,
+public.segue_me.data_fim ,
+public.segue_me.data_inicio ,
+public.segue_me.estado ,
+public.segue_me.padroeiro ,
+public.segue_me.nomeclatura ,
+public.segue_me.titulo,
+public.numero_romano.numero ,
+public.numero_romano.numero_romano,
+public.paroquias.descricao ,
+public.paroquias.cidade ,
+public.paroquias.estado ,
+public.segue_me.id,
+public.venda_segue_me.data_venda ,
+public.venda_segue_me.status_venda ,
+public.venda_segue_me.para_quem_venda ,
+public.seguidor.apelido ,
+public.circulo.corcirculo ,
+public.casal.apelido_ela ,
+public.casal.apelido_ele ,
+public.equipe.titulo,
+public.seguidor.telefone_um,
+public.casal.telefone_ele_um,
+public.evento_segue_me.fk_equipe_id,
+public.evento_segue_me.fk_inscricao_id,
+public.evento_segue_me.fk_seguidor_id,
+public.evento_segue_me.fk_casal_id,
+public.venda_segue_me.fk_evento_id
+ORDER BY
+public.seguidor.apelido, 
+public.casal.apelido_ele,
+public.equipe.titulo, 
+public.circulo.corcirculo]]>
+	</queryString>
+	<field name="segue_me_cidade" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="segue_me_cidade"/>
+	</field>
+	<field name="segue_me_data_fim" class="java.sql.Date">
+		<property name="com.jaspersoft.studio.field.label" value="segue_me_data_fim"/>
+	</field>
+	<field name="segue_me_data_inicio" class="java.sql.Date">
+		<property name="com.jaspersoft.studio.field.label" value="segue_me_data_inicio"/>
+	</field>
+	<field name="segue_me_estado" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="segue_me_estado"/>
+	</field>
+	<field name="segue_me_padroeiro" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="segue_me_padroeiro"/>
+	</field>
+	<field name="segue_me_nomeclatura" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="segue_me_nomeclatura"/>
+	</field>
+	<field name="segue_me_titulo" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="segue_me_titulo"/>
+	</field>
+	<field name="segue_me_numero" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="segue_me_numero"/>
+	</field>
+	<field name="numero_romano" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="numero_romano"/>
+	</field>
+	<field name="paroquias_descricao_0" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="paroquias_descricao_0"/>
+	</field>
+	<field name="paroquias_cidade_0" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="paroquias_cidade_0"/>
+	</field>
+	<field name="paroquias_estado_0" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="paroquias_estado_0"/>
+	</field>
+	<field name="id" class="java.lang.Long">
+		<property name="com.jaspersoft.studio.field.label" value="id"/>
+	</field>
+	<field name="venda_data_venda" class="java.sql.Date">
+		<property name="com.jaspersoft.studio.field.label" value="venda_data_venda"/>
+	</field>
+	<field name="venda_valor_total" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="venda_valor_total"/>
+	</field>
+	<field name="venda_status_venda" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="venda_status_venda"/>
+	</field>
+	<field name="venda_para_quem" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="venda_para_quem"/>
+	</field>
+	<field name="venda_apelido" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="venda_apelido"/>
+	</field>
+	<field name="circulo" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="circulo"/>
+	</field>
+	<field name="casal_ele" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="casal_ele"/>
+	</field>
+	<field name="equipe" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="equipe"/>
+	</field>
+	<field name="telefone_um" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="telefone_um"/>
+	</field>
+	<field name="telefone_ele_um" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="telefone_ele_um"/>
+	</field>
+	<field name="fk_equipe_id" class="java.lang.Long">
+		<property name="com.jaspersoft.studio.field.label" value="fk_equipe_id"/>
+	</field>
+	<field name="fk_inscricao_id" class="java.lang.Long">
+		<property name="com.jaspersoft.studio.field.label" value="fk_inscricao_id"/>
+	</field>
+	<field name="fk_seguidor_id" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="fk_seguidor_id"/>
+	</field>
+	<field name="fk_casal_id" class="java.lang.Long">
+		<property name="com.jaspersoft.studio.field.label" value="fk_casal_id"/>
+	</field>
+	<field name="fk_evento_id" class="java.lang.Long">
+		<property name="com.jaspersoft.studio.field.label" value="fk_evento_id"/>
+	</field>
+	<variable name="venda_valor_total1" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{venda_valor_total}]]></variableExpression>
+	</variable>
+	<background>
+		<band height="802">
+			<image hAlign="Center" vAlign="Middle" onErrorType="Blank">
+				<reportElement x="0" y="40" width="552" height="730" uuid="48b194d7-b4bb-4fb9-a49c-6bc1f722eb6e"/>
+				<imageExpression><![CDATA["../../resources/temp/segueMeFundo/"+$F{id}+".jpg"]]></imageExpression>
+			</image>
+		</band>
+	</background>
+	<pageHeader>
+		<band height="110">
+			<image hAlign="Center" vAlign="Middle" onErrorType="Blank">
+				<reportElement x="18" y="10" width="79" height="60" uuid="11dadc6b-385f-4f24-a1be-999e5183ed79"/>
+				<imageExpression><![CDATA["../../resources/images/segue-me.png"]]></imageExpression>
+			</image>
+			<image hAlign="Center" vAlign="Middle" onErrorType="Blank">
+				<reportElement x="490" y="10" width="62" height="58" uuid="0bb4f7df-0777-4456-8b2f-b564609d01ac"/>
+				<imageExpression><![CDATA["../../resources/temp/segueMe/"+$F{id}+".jpg"]]></imageExpression>
+			</image>
+			<textField>
+				<reportElement x="97" y="0" width="392" height="25" uuid="ea8da274-7ee6-4dc3-8319-a1bd3cc17e2f"/>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font fontName="Comic Sans MS" size="16" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{numero_romano}+" SEGUE - ME"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="97" y="26" width="392" height="15" uuid="3c4f1b92-cb41-4131-b939-d33dcc792742"/>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font fontName="Comic Sans MS" size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Paróquia "+$F{paroquias_descricao_0}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="97" y="42" width="392" height="15" uuid="9a6767f2-3769-46d7-8716-c7888fc59efc"/>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font fontName="Comic Sans MS" size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{segue_me_padroeiro}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="98" y="57" width="392" height="15" uuid="94ba2cb8-c7a4-4332-abcf-6aed4765d4e6"/>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font fontName="Comic Sans MS" size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{segue_me_nomeclatura}+" do Encontro"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="80" width="555" height="30" uuid="3dbeb737-787f-4a34-961d-6bf72d3e16bf"/>
+				<textElement textAlignment="Center">
+					<font fontName="Comic Sans MS" size="16"/>
+				</textElement>
+				<textFieldExpression><![CDATA["RESUMO MINI-MERCADO - "+$F{venda_para_quem}+" - "+$F{venda_status_venda}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="20" splitType="Stretch">
+			<staticText>
+				<reportElement x="2" y="0" width="338" height="20" uuid="5feb721b-1c81-4d1d-9669-0a17e8626a2f"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="13" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Comprador]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="340" y="0" width="115" height="20" uuid="966f4c59-e6f5-4296-99e4-2f7c30d45223"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="13" isBold="true"/>
+				</textElement>
+				<text><![CDATA[TELEFONE]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="455" y="0" width="100" height="20" uuid="90d0d4c2-1a08-4f57-9c01-c6c008fa399f"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="13" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Valor (R$)]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="20">
+			<printWhenExpression><![CDATA[$F{fk_inscricao_id} != null]]></printWhenExpression>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="0" y="0" width="340" height="20" uuid="5c04762c-338c-44ec-a669-1e18654e17c3">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{venda_apelido} +" - "+$F{circulo}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="340" y="0" width="115" height="20" uuid="827cd765-882a-467d-b8bf-1729e3175faa"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{telefone_um}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="¤#,##0.00;¤-#,##0.00" isBlankWhenNull="true">
+				<reportElement x="455" y="0" width="100" height="20" uuid="5dc3c7ff-6cad-4628-9f50-7df34d06a786"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{venda_valor_total}]]></textFieldExpression>
+			</textField>
+		</band>
+		<band height="20">
+			<printWhenExpression><![CDATA[($F{fk_seguidor_id} != null && $F{fk_equipe_id} != null)]]></printWhenExpression>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="0" y="0" width="340" height="20" uuid="260811e8-b0b2-4fb5-892e-570fef4b050a">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{venda_apelido} +" - "+$F{equipe}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="340" y="0" width="115" height="20" uuid="9a74fafc-5f0a-4180-a3c8-d6bbdda12c11"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{telefone_um}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="¤#,##0.00;¤-#,##0.00" isBlankWhenNull="true">
+				<reportElement x="455" y="0" width="100" height="20" uuid="c87a122e-4147-48da-95d0-4208d9ad2b38"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{venda_valor_total}]]></textFieldExpression>
+			</textField>
+		</band>
+		<band height="20">
+			<printWhenExpression><![CDATA[$F{fk_casal_id} != null]]></printWhenExpression>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="0" y="0" width="340" height="20" uuid="0fe93ebf-96a6-41d0-ba15-cf9223f993c1">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{casal_ele} +" - "+$F{equipe}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="340" y="0" width="115" height="20" uuid="9c7e6162-ebb4-4e6b-86a6-94d74b54650a"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{telefone_ele_um}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="¤#,##0.00;¤-#,##0.00" isBlankWhenNull="true">
+				<reportElement x="455" y="0" width="100" height="20" uuid="9124ddc7-03d1-40f0-895f-2f3f741e83f8"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{venda_valor_total}]]></textFieldExpression>
+			</textField>
+		</band>
+		<band height="20">
+			<printWhenExpression><![CDATA[$F{fk_evento_id} == null]]></printWhenExpression>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="0" y="0" width="340" height="20" uuid="556da6ed-a4be-45a3-bfc0-536a39c357a5">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA["NAO INFORMADO"]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="¤#,##0.00;¤-#,##0.00" isBlankWhenNull="true">
+				<reportElement x="455" y="0" width="100" height="20" uuid="2d822be1-b00b-4f6b-b5df-39f22f22b56f"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{venda_valor_total}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="50">
+			<image hAlign="Center" vAlign="Middle">
+				<reportElement x="2" y="6" width="550" height="34" uuid="4eec6159-014d-4039-90ab-442859e54d9d"/>
+				<imageExpression><![CDATA["../../resources/images/peixe.png"]]></imageExpression>
+			</image>
+		</band>
+	</pageFooter>
+	<summary>
+		<band height="35">
+			<staticText>
+				<reportElement x="0" y="6" width="380" height="20" forecolor="#339900" uuid="e8325263-c7ff-44a1-b560-f0e3c628840d"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="13" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Valor Total Geral -->]]></text>
+			</staticText>
+			<textField pattern="¤#,##0.00;¤-#,##0.00">
+				<reportElement x="380" y="6" width="175" height="20" uuid="465779ab-2258-44d9-afd9-08bf51bc3126"/>
+				<textElement verticalAlignment="Middle">
+					<font size="13" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{venda_valor_total1}]]></textFieldExpression>
+			</textField>
+		</band>
+	</summary>
+</jasperReport>

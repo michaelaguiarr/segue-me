@@ -1,0 +1,76 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" xmlns:o="http://omnifaces.org/ui"
+	template="/WEB-INF/template.xhtml">
+
+	<ui:define name="title">Pesquisa Segue-me</ui:define>
+
+	<f:metadata>
+		<f:viewAction action="#{pesquisaSegueMeBean.inicializar()}" />
+	</f:metadata>
+
+	<ui:define name="search">
+		<div class="ui-inputgroup">
+			<p:inputText id="value" autocomplete="off"
+				value="#{pesquisaSegueMeBean.searchValue}" placeholder="Pesquisar">
+				<p:ajax listener="#{pesquisaSegueMeBean.pesquisar()}"
+					update="datatable-segue-me messages" event="keyup" />
+			</p:inputText>
+		</div>
+	</ui:define>
+
+	<ui:define name="content">
+
+		<h:form id="form">
+			<ui:include src="/WEB-INF/facelets/segue-me/segue-me-toolbar.xhtml" />
+			<div class="ui-fluid">
+				<div class="ui-g-12">
+					<div class="card card-w-title">
+						<h1>Pesquisa Segue-Me</h1>
+						<ui:include src="/WEB-INF/facelets/mensagem/messages.xhtml" />
+
+						<div class="ui-g">
+
+							<p:dataTable var="ejcs" id="datatable-segue-me"
+								value="#{pesquisaSegueMeBean.listaSegueMe}" reflow="true"
+								selectionMode="single"
+								selection="#{pesquisaSegueMeBean.segueMeSelecionado}"
+								rowKey="#{ejcs}" emptyMessage="Segue-me não encontrada!">
+
+								<p:ajax event="rowSelect"
+									listener="#{pesquisaSegueMeBean.selecionar()}" />
+
+								<p:column headerText="Título" width="350">
+									<h:outputText value="#{ejcs.titulo} - #{ejcs.numeroRomano.numeroRomano}" />
+								</p:column>
+
+								<p:column headerText="Paróquia">
+									<h:outputText value="#{ejcs.paroquia.descricao}" />
+								</p:column>
+
+								<p:column headerText="Data do Evento">
+									<h:outputText value="#{ejcs.dtInicio}">
+										<f:convertDateTime pattern="dd/MM/yyyy" />
+									</h:outputText>
+								á
+								<h:outputText value="#{ejcs.dtFim}">
+										<f:convertDateTime pattern="dd/MM/yyyy" />
+									</h:outputText>
+								</p:column>
+
+								<p:column headerText="Padroeiro">
+									<h:outputText value="#{ejcs.padroeiro}" />
+								</p:column>
+							</p:dataTable>
+
+						</div>
+					</div>
+				</div>
+			</div>
+		</h:form>
+
+	</ui:define>
+
+</ui:composition>

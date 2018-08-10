@@ -1,0 +1,231 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:pv="http://primefaces.org/paradise">
+
+	<div
+		class="layout-menu-wrapper #{guestPreferences.darkMenu ? 'layout-menu-dark' : null}">
+		<div class="nano">
+			<div class="nano-content sidebar-scroll-content">
+				<div class="layout-menu-container">
+					<h:form id="menuform">
+						<div class="mobile-search">
+							<i class="fa fa-fw fa-search topbar-search-icon"></i> <input
+								type="text" class="topbar-search"
+								placeholder="Type your search here" />
+						</div>
+
+						<pv:menu>
+							<p:menuitem id="pm_dashboard" value="Dashboard" icon="fa fa-home"
+								outcome="/dashboard" />
+								
+							<p:menuitem id="pm_venda" value="Nova Venda" icon="fa fa-money"
+								outcome="/venda/cadastro-venda" rendered="#{seguranca.gerenciarVenda}" />
+								
+							<p:menuitem id="pm_venda_pesquisa" value="Pesquisa Venda" icon="fa fa-usd"
+								outcome="/venda/pesquisa-venda" rendered="#{seguranca.gerenciarVenda}" />
+
+							<p:submenu id="pm_evento" label="Evento" icon="fa fa-folder-open"
+								rendered="#{seguranca.gerenciarEvento}">
+								<p:menuitem id="pm_casal_evento" value="Casal"
+									icon="fa fa-venus-mars" outcome="/evento-casal/pesquisa-casal"
+									rendered="#{seguranca.gerenciarEvento}" />
+
+								<p:menuitem id="pm_seguidor_evento" value="Seguidor"
+									icon="fa fa-users" outcome="/evento-seguidor/pesquisa-seguidor"
+									rendered="#{seguranca.gerenciarEvento}" />
+
+								<p:menuitem id="pm_seguimista_evento" value="Seguimista"
+									icon="fa fa-child"
+									outcome="/evento-seguidor/pesquisa-seguimista"
+									rendered="#{seguranca.gerenciarEvento}" />
+
+								<p:menuitem id="pm_padre_evento" value="Padre/Bispo"
+									icon="fa fa-user-o" outcome="/evento-padre/pesquisa-padre"
+									rendered="#{seguranca.gerenciarEvento}" />
+
+								<p:submenu id="pm_evento_palestra" label="Palestras"
+									icon="fa fa-folder-open"
+									rendered="#{seguranca.gerenciarEvento}">
+
+									<p:menuitem id="pm_evento_palestra_casal" value="Casal"
+										icon="fa fa-venus-mars" outcome="/evento-casal/pesquisa-palestra"
+										rendered="#{seguranca.gerenciarEvento}" />
+										
+									<p:menuitem id="pm_evento_palestra_seguidor" value="Seguidor"
+										icon="fa fa-users" outcome="/evento-seguidor/pesquisa-palestra"
+										rendered="#{seguranca.gerenciarEvento}" />
+										
+									<p:menuitem id="pm_evento_palestra_padre" value="Padre/Bispo"
+										icon="fa fa-user-o" outcome="/evento-padre/pesquisa-palestra"
+										rendered="#{seguranca.gerenciarEvento}" />
+
+								</p:submenu>
+
+								<p:submenu id="pm_link" label="Link para Público"
+									icon="fa fa-link" rendered="#{seguranca.gerenciarEvento}">
+									<p:menuitem id="pm_casal_public" value="Casal Público"
+										icon="fa fa-venus-mars" outcome="/casal-public/cadastro-casal"
+										rendered="#{seguranca.gerenciarEvento}" />
+
+									<p:menuitem id="pm_seguidor_public" value="Seguidor Público"
+										icon="fa fa-users"
+										outcome="/seguidor-public/cadastro-seguidor"
+										rendered="#{seguranca.gerenciarEvento}" />
+								</p:submenu>
+
+								<p:submenu id="pm_relatorios_evento" label="Relatótios"
+									icon="fa fa-bar-chart" rendered="#{seguranca.gerenciarEvento}">
+									<p:submenu id="pm_relatorios_cracha" label="Cracha"
+										icon="fa fa-bar-chart">
+										<p:menuitem id="pm_crach_evento_segumista" value="Seguimista"
+											icon="fa fa-line-chart"
+											outcome="/evento-seguidor/relatorio-cracha-seguimista" />
+										<p:menuitem id="pm_crach_evento" value="Seguidor"
+											icon="fa fa-line-chart"
+											outcome="/evento-seguidor/relatorio-cracha" />
+										<p:menuitem id="pm_crach_evento_equipe"
+											value="Seguidor por Equipe" icon="fa fa-line-chart"
+											outcome="/evento-seguidor/relatorio-cracha-equipe" />
+										<p:menuitem id="pm_crach_evento_casal" value="Casal"
+											icon="fa fa-line-chart"
+											outcome="/evento-casal/relatorio-cracha" />
+										<p:menuitem id="pm_crach_evento_casal_equipe"
+											value="Casal por Equipe" icon="fa fa-line-chart"
+											outcome="/evento-casal/relatorio-cracha-equipe" />
+										<p:menuitem id="pm_crach_evento_padre" value="Padre/Bispo"
+											icon="fa fa-line-chart"
+											outcome="/evento-padre/relatorio-cracha" />
+									</p:submenu>
+									<p:menuitem id="pm_quadrante_evento" value="Quadrante Seguidor"
+										icon="fa fa-line-chart"
+										outcome="/evento-seguidor/relatorio-quadrante" />
+									<p:menuitem id="pm_quadrante_equipe_evento"
+										value="Quadrante - Equipe" icon="fa fa-line-chart"
+										outcome="/evento-seguidor/relatorio-quadrante-equipe" />
+									<p:menuitem id="pm_quadrante_evento_segumista"
+										value="Quadrante Seguimista" icon="fa fa-line-chart"
+										outcome="/evento-seguidor/relatorio-quadrante-seguimista" />
+									<p:menuitem id="pm_quadrante_evento_palestrante" value="Quadrante Palestrantes"
+										icon="fa fa-line-chart"
+										outcome="/evento-seguidor/relatorio-quadrante-palestra" />
+								</p:submenu>
+							</p:submenu>
+
+							<p:menuitem id="pm_casal" value="Casal" icon="fa fa-venus-mars"
+								outcome="/casal/pesquisa-casal"
+								rendered="#{seguranca.gerenciarCasal}" />
+
+							<p:menuitem id="pm_seguidor" value="Seguidor" icon="fa fa-users"
+								outcome="/seguidor/pesquisa-seguidor"
+								rendered="#{seguranca.gerenciarSeguidor}" />
+
+							<p:menuitem id="pm_padre" value="Padre" icon="fa fa-user-o"
+								outcome="/padre/pesquisa-padre"
+								rendered="#{seguranca.gerenciarPadre}" />
+
+							<p:submenu id="pm_fichas" label="Fichas" icon="fa fa-folder-open"
+								rendered="#{seguranca.gerenciarFichas}">
+								<p:menuitem id="pm_cadastro_fichas" value="Cadastro"
+									icon="fa fa-file-text-o"
+									outcome="/inscricao/pesquisa-inscricao"
+									rendered="#{seguranca.gerenciarFichas}" />
+								<p:menuitem id="pm_gerar_fichas" value="Gerar"
+									icon="fa fa-files-o" outcome="/inscricao/gerar-ficha"
+									rendered="#{seguranca.gerenciarFichas}" />
+								<p:submenu id="pm_relatorios" label="Relatótios"
+									icon="fa fa-bar-chart" rendered="#{seguranca.gerenciarFichas}">
+									<p:menuitem id="pm_relatorio_ficha" value="Fichas"
+										icon="fa fa-line-chart" outcome="/inscricao/relatorio-ficha" />
+								</p:submenu>
+							</p:submenu>
+							<p:submenu id="pm_relatorios_dir" label="Relatótios"
+								icon="fa fa-bar-chart"
+								rendered="#{seguranca.gerenciarRelatorioDirigente}">
+								<p:submenu id="pm_seguimista_dir" label="Seguimistas"
+									icon="fa fa-bar-chart"
+									rendered="#{seguranca.gerenciarRelatorioDirigente}">
+									<p:menuitem id="pm_relatorio_status_dir" value="Por Situação"
+										icon="fa fa-line-chart"
+										outcome="/relatorio-dirigente/relatorio-situacao" />
+									<p:menuitem id="pm_relatorio_idade_dir" value="Por Grupo Idade"
+										icon="fa fa-line-chart"
+										outcome="/relatorio-dirigente/relatorio-idade" />
+									<p:menuitem id="pm_relatorio_sexo_dir" value="Por Sexo"
+										icon="fa fa-line-chart"
+										outcome="/relatorio-dirigente/relatorio-sexo" />
+									<p:menuitem id="pm_relatorio_circulo_dir" value="Por Circulo"
+										icon="fa fa-line-chart"
+										outcome="/relatorio-dirigente/relatorio-circulo" />
+								</p:submenu>
+								<p:submenu id="pm_seguidor_dir" label="Seguidor/Casal"
+									icon="fa fa-bar-chart"
+									rendered="#{seguranca.gerenciarRelatorioDirigente}">
+									<p:menuitem id="pm_quadrante_dir" value="Quadrante Seguidor"
+										icon="fa fa-line-chart"
+										outcome="/relatorio-dirigente/relatorio-quadrante" />
+									<p:menuitem id="pm_quadrante_equipe_dir"
+										value="Quadrante - Equipe" icon="fa fa-line-chart"
+										outcome="/relatorio-dirigente/relatorio-quadrante-equipe" />
+								</p:submenu>
+							</p:submenu>
+
+							<p:submenu id="pm_user" label="Usuário" icon="fa fa-user"
+								rendered="#{seguranca.gerenciarUsuario}">
+								<p:menuitem id="pm_usuario" value="Cadastro"
+									icon="fa fa-plus-circle" outcome="/usuario/pesquisa-usuario" />
+								<p:menuitem id="pm_solicitacoes" value="Solicitações de Acesso"
+									icon="fa fa-unlock"
+									outcome="/usuario/lista-solicitacoes-acesso" />
+							</p:submenu>
+
+							<p:submenu id="pm_settings" label="Gerenciamento"
+								icon="fa fa-cogs" rendered="#{seguranca.settings}">
+
+								<p:menuitem id="pm_circulo" value="Circulo"
+									icon="fa fa-circle-thin" outcome="/circulo/pesquisa-circulo"
+									rendered="#{seguranca.gerenciarCirculo}" />
+								<p:menuitem id="pm_ecc" value="ECC" icon="fa fa-stack-overflow"
+									rendered="#{seguranca.gerenciarEcc}"
+									outcome="/ecc/pesquisa-ecc" />
+
+								<p:menuitem id="pm_equipe" value="Equipes" icon="fa fa-users"
+									outcome="/equipe/pesquisa-equipe"
+									rendered="#{seguranca.gerenciarEquipe}" />
+
+								<p:menuitem id="pm_funcao" value="Funções" icon="fa fa-id-badge"
+									outcome="/funcao/pesquisa-funcao"
+									rendered="#{seguranca.gerenciarFuncao}" />
+
+								<p:menuitem id="pm_paroquia" value="Paróquia"
+									icon="fa fa-university"
+									rendered="#{seguranca.gerenciarParoquia}"
+									outcome="/paroquia/pesquisa-paroquia" />
+
+								<p:menuitem id="pm_palestra" value="Palestra"
+									icon="fa fa-sign-language"
+									rendered="#{seguranca.gerenciarPalestra}"
+									outcome="/palestra/pesquisa-palestra" />
+
+								<p:menuitem id="pm_perfil" value="Perfil" icon="fa fa-id-card-o"
+									outcome="/perfil/pesquisa-perfil"
+									rendered="#{seguranca.gerenciarPerfil}" />
+
+								<p:menuitem id="pm_segue-me" value="Segue-me"
+									icon="fa fa-stack-overflow"
+									rendered="#{seguranca.gerenciarSegueMe}"
+									outcome="/segueMe/pesquisa-segue-me" />
+							</p:submenu>
+
+							<p:menuitem id="pm_logout" value="Sair" url="/logout"
+								icon="fa fa-sign-out" />
+						</pv:menu>
+					</h:form>
+				</div>
+			</div>
+		</div>
+	</div>
+
+</ui:composition>

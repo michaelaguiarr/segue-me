@@ -1,0 +1,48 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" template="/WEB-INF/template.xhtml">
+
+	<ui:define name="title">Pesquisa Perfil</ui:define>
+
+	<ui:define name="content">
+
+		<h:form id="form">
+			<ui:include src="/WEB-INF/facelets/perfil/toolbar.xhtml" />
+			<div class="ui-g">
+				<div class="ui-g-12">
+					<div class="card card-w-title">
+						<h1>Pesquisa Perfil</h1>
+						<p:messages id="msg" closable="true" />
+						<p:dataTable var="perfil" id="datatable-perfils"
+							value="#{pesquisaPerfilController.listaPerfil}" reflow="true"
+							selectionMode="single"
+							selection="#{pesquisaPerfilController.perfil}"
+							rowKey="#{perfil.id}" emptyMessage="Perfil não encontrada!">
+
+							<p:ajax event="rowSelect"
+								listener="#{pesquisaPerfilController.perfilSelecionado()}" />
+
+							<p:column headerText="Nome" sortBy="#{perfil.nome}">
+								<h:outputText value="#{perfil.nome}" />
+							</p:column>
+
+							<p:column headerText="Descrição" sortBy="#{perfil.descricao}">
+								<h:outputText value="#{perfil.descricao}" />
+							</p:column>
+
+							<p:column headerText="Modulos">
+								<p:repeat var="modulos" value="#{perfil.modulos}">
+									<h:outputText value="#{modulos.descricao}, " />
+								</p:repeat>
+							</p:column>
+						</p:dataTable>
+					</div>
+				</div>
+			</div>
+		</h:form>
+
+	</ui:define>
+
+</ui:composition>

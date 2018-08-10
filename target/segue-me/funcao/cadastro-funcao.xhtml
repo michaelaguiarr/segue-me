@@ -1,0 +1,110 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:jsf="http://xmlns.jcp.org/jsf" xmlns:p="http://primefaces.org/ui"
+	xmlns:o="http://omnifaces.org/ui" template="/WEB-INF/template.xhtml">
+
+	<ui:define name="title">Cadastro Função</ui:define>
+
+	<ui:define name="search">
+		<p:button outcome="/funcao/pesquisa-funcao" value="Pesquisar"
+			icon="fa fa-search" />
+	</ui:define>
+
+	<f:metadata>
+		<o:viewParam name="funcao" value="#{cadastroFuncaoBean.funcao}" />
+		<f:viewAction action="#{cadastroFuncaoBean.inicializar()}" />
+	</f:metadata>
+
+	<ui:define name="content">
+		<h:form id="form-cadastro">
+			<ui:include src="/WEB-INF/facelets/funcao/funcao-toolbar.xhtml" />
+			<div class="ui-fluid">
+				<div class="ui-g-12">
+					<div class="card card-w-title">
+						<h1>#{cadastroFuncaoBean.editando ? 'Edição Função' : 'Nova
+							Função'}</h1>
+						<ui:include src="/WEB-INF/facelets/mensagem/messages.xhtml" />
+						<p:focus for="descricao" />
+						<div class="ui-g">
+
+							<div class="ui-g-12">
+								<p:outputLabel value="Equipe" for="equipe" />
+							</div>
+
+							<div class="ui-g-12 ui-lg-6">
+								<p:selectOneMenu id="equipe"
+									value="#{cadastroFuncaoBean.funcao.equipe}" required="true">
+									<f:selectItem itemLabel="Selecione a Equipe" />
+									<f:selectItems value="#{cadastroFuncaoBean.equipes}"
+										var="equipe" itemValue="#{equipe}"
+										itemLabel="#{equipe.titulo}" />
+								</p:selectOneMenu>
+							</div>
+							<div class="ui-g-12">
+								<p:outputLabel value="Descrição" for="descricao" />
+							</div>
+
+							<div class="ui-g-12 ui-lg-6">
+								<p:inputText id="descricao" required="true"
+									value="#{cadastroFuncaoBean.funcao.descricao}" />
+							</div>
+
+							<div class="ui-g-12">
+								<p:outputLabel value="Ordem" for="ordem" />
+							</div>
+
+							<div class="ui-g-12 ui-lg-6">
+								<p:spinner id="ordem" value="#{cadastroFuncaoBean.funcao.ordem}"
+									min="1" max="20" />
+							</div>
+
+							<div class="ui-g-12">
+								<p:outputLabel value="Administrador" for="admin" />
+							</div>
+							
+							<div class="ui-g-12 ui-lg-6">
+								<p:selectBooleanButton id="admin"
+									value="#{cadastroFuncaoBean.funcao.administrador}"
+									onLabel="Sim" offLabel="Não" onIcon="ui-icon-check"
+									offIcon="ui-icon-close" style="width:60px" />
+							</div>
+
+
+							<div class="save ui-g-12">
+								<p:commandButton value="Salvar" style="width: auto;"
+									action="#{cadastroFuncaoBean.salvar()}" update="@form"
+									process="@form" icon="fa fa-save" styleClass="green-btn" />
+
+
+								<p:commandButton icon="fa fa-trash" value="Excluir"
+									style="width: auto; margin-left: 15px;"
+									oncomplete="PF('confirmacaoExclusao').show();" process="@this"
+									styleClass="red-btn"
+									update=":form-cadastro:confirmacaoExclusaoDialog"
+									rendered="#{cadastroFuncaoBean.editando}" />
+
+								<p:button value="Cancelar"
+									style="width: auto; margin-left: 15px;"
+									outcome="pesquisa-funcao" icon="fa fa-remove" />
+							</div>
+
+						</div>
+					</div>
+				</div>
+			</div>
+			<p:confirmDialog header="Exclusão da Função"
+				message="Tem certeza que deseja excluir a Função #{cadastroFuncaoBean.funcao.descricao}"
+				widgetVar="confirmacaoExclusao" id="confirmacaoExclusaoDialog">
+				<p:button value="Não"
+					onclick="PF('confirmacaoExclusao').hide(); return false;" />
+				<p:commandButton value="Sim"
+					action="#{cadastroFuncaoBean.excluir()}"
+					oncomplete="PF('confirmacaoExclusao').hide();" process="@this"
+					update="@form" />
+			</p:confirmDialog>
+		</h:form>
+	</ui:define>
+
+</ui:composition>

@@ -1,0 +1,44 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:jsf="http://xmlns.jcp.org/jsf" xmlns:p="http://primefaces.org/ui"
+	xmlns:o="http://omnifaces.org/ui" template="/WEB-INF/template.xhtml">
+
+	<ui:define name="title">Detalhes Casal</ui:define>
+
+	<f:metadata>
+		<o:viewParam name="casal" value="#{detalhesCasalBean.casal}" />
+		<f:viewAction action="#{detalhesCasalBean.inicializar()}" />
+	</f:metadata>
+	<ui:define name="toolbar">
+		<p:button outcome="/casal/pesquisa-casal" value="Pesquisar"
+			icon="fa fa-search" />
+		<p:commandButton value="Editar" icon="fa fa-pencil-square-o"
+			action="#{detalhesCasalBean.editar()}" process="@this" />
+	</ui:define>
+	<ui:define name="cancelar">
+		<p:button value="Cancelar" style="width: auto; margin-left: 15px;"
+			outcome="pesquisa-casal" icon="fa fa-remove" />
+	</ui:define>
+	<ui:define name="content">
+		<h:form id="form-cadastro" enctype="multipart/form-data">
+			<ui:include
+				src="/WEB-INF/facelets/casal/casal-detalhes-toolbar.xhtml" />
+			<div class="ui-fluid">
+				<div class="ui-g-12">
+					<div class="card card-w-title">
+						<h1>Ficha do Casal #{detalhesCasalBean.casal.nomeEle} e #{detalhesCasalBean.casal.nomeEla}</h1>
+						<ui:include src="/WEB-INF/facelets/mensagem/messages.xhtml" />
+						<p:growl />
+						<div class="ui-g">
+							<ui:include src="/WEB-INF/facelets/casal/ficha-casal.xhtml" />
+							<ui:include
+								src="/WEB-INF/facelets/casal/datatable-evento.xhtml" />
+						</div>
+					</div>
+				</div>
+			</div>
+		</h:form>
+	</ui:define>
+</ui:composition>

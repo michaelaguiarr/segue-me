@@ -1,0 +1,206 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:jsf="http://xmlns.jcp.org/jsf" xmlns:p="http://primefaces.org/ui"
+	xmlns:o="http://omnifaces.org/ui" template="/WEB-INF/template.xhtml">
+
+	<ui:define name="title">Cadastro Segue-me</ui:define>
+
+	<ui:define name="search">
+		<p:button outcome="/segueMe/pesquisa-segue-me" value="Pesquisar"
+			icon="fa fa-search" />
+	</ui:define>
+
+	<f:metadata>
+		<o:viewParam name="segue-me" value="#{cadastroSegueMeBean.segueMe}" />
+		<f:viewAction action="#{cadastroSegueMeBean.inicializar()}" />
+	</f:metadata>
+
+	<ui:define name="content">
+		<h:form id="form-cadastro">
+			<ui:include src="/WEB-INF/facelets/segue-me/segue-me-toolbar.xhtml" />
+			<div class="ui-fluid">
+				<div class="ui-g-12">
+					<div class="card card-w-title">
+						<h1>#{cadastroSegueMeBean.editando ? 'Edição Evento Segue-me'
+							: 'Novo Evento Segue-me'}</h1>
+						<ui:include src="/WEB-INF/facelets/mensagem/messages.xhtml" />
+
+						<p:tabView>
+							<p:tab title="Dados Segue-me">
+								<p:focus for="edicao" />
+								<div class="ui-g">
+									<div class="ui-g-12">
+										<p:outputLabel value="Título" />
+									</div>
+
+									<div class="ui-g-12 ui-lg-6">
+										<p:outputLabel value="#{cadastroSegueMeBean.segueMe.titulo}" />
+									</div>
+
+									<div class="ui-g-12">
+										<p:outputLabel value="Edição" for="edicao" />
+									</div>
+
+									<div class="ui-g-12 ui-lg-6">
+										<p:selectOneMenu id="edicao"
+											value="#{cadastroSegueMeBean.segueMe.numeroRomano}"
+											required="true">
+											<f:selectItem itemLabel="Selecione o Número da Edição" />
+											<f:selectItems
+												value="#{cadastroSegueMeBean.numeroRomanosFiltro}"
+												var="numero" itemValue="#{numero}"
+												itemLabel="#{numero.numero} - #{numero.numeroRomano}" />
+										</p:selectOneMenu>
+									</div>
+
+									<div class="ui-g-12">
+										<p:outputLabel value="Paróquia" for="paroquia" />
+									</div>
+
+									<div class="ui-g-12 ui-lg-6">
+										<p:selectOneMenu id="paroquia"
+											value="#{cadastroSegueMeBean.segueMe.paroquia}"
+											required="true">
+											<f:selectItem itemLabel="Selecione a Paróquia" />
+											<f:selectItems value="#{cadastroSegueMeBean.paroquiasFiltro}"
+												var="paroquias" itemValue="#{paroquias}"
+												itemLabel="#{paroquias.descricao}" />
+										</p:selectOneMenu>
+									</div>
+
+
+									<div class="ui-g-12">
+										<p:outputLabel value="Data Inicio" for="dtInicio" />
+									</div>
+									<div class="ui-g-12 ui-lg-6">
+										<p:calendar id="dtInicio" pattern="dd/MM/yyyy" mask="true"
+											value="#{cadastroSegueMeBean.segueMe.dtInicio}" />
+									</div>
+									<div class="ui-g-12">
+										<p:outputLabel value="Data Fim" for="dtFim" />
+									</div>
+									<div class="ui-g-12 ui-lg-6">
+										<p:calendar id="dtFim" pattern="dd/MM/yyyy" mask="true"
+											value="#{cadastroSegueMeBean.segueMe.dtFim}" />
+									</div>
+
+									<div class="ui-g-12">
+										<p:outputLabel value="Padroeiro" for="padroeiro" />
+									</div>
+									<div class="ui-g-12 ui-lg-6">
+										<p:selectOneMenu id="nomeclatura"
+											value="#{cadastroSegueMeBean.segueMe.nomeclatura}"
+											required="true">
+											<f:selectItem itemLabel="Selecione" noSelectionOption="true"/>
+											<f:selectItem itemLabel="PadroeirA" itemValue="Padroeira" />
+											<f:selectItem itemLabel="PadroeirO" itemValue="Padroeiro" />
+										</p:selectOneMenu>
+									</div>
+									<div class="ui-g-12">
+										<p:outputLabel />
+									</div>
+									<div class="ui-g-12 ui-lg-6">
+										<p:inputText id="padroeiro"
+											value="#{cadastroSegueMeBean.segueMe.padroeiro}" />
+									</div>
+								</div>
+							</p:tab>
+							<p:tab title="Imagem Padroeiro">
+								<div class="ui-g">
+									<div class="ui-g-12">
+										<p:outputLabel value="Imagem" />
+									</div>
+									<div class="ui-g-12 ui-lg-6">
+										<h:panelGrid id="fotoPanelGroupUpload">
+											<p:fileUpload
+												fileUploadListener="#{cadastroSegueMeBean.upload}"
+												allowTypes="/(\.|\/)(jpe?g)$/"
+												invalidFileMessage="São permitidas somente imagens (jpg)"
+												auto="true" label="Foto"
+												update="fotoPanelGroup fotoPanelGroupUpload"
+												rendered="#{cadastroSegueMeBean.imagem == null}" />
+										</h:panelGrid>
+									</div>
+
+									<div class="ui-g-12">
+										<h:panelGrid id="fotoPanelGroup">
+											<p:graphicImage value="#{cadastroSegueMeBean.imagem}"
+												rendered="#{cadastroSegueMeBean.imagem ne null}"
+												width="200px" id="foto" />
+											<p:commandButton value="Remover Foto"
+												style="width: auto; margin-left: 15px;"
+												actionListener="#{cadastroSegueMeBean.removerFoto}"
+												rendered="#{cadastroSegueMeBean.imagem ne null}"
+												process="@this"
+												update="fotoPanelGroup, fotoPanelGroupUpload" />
+										</h:panelGrid>
+									</div>
+
+									<div class="ui-g-12">
+										<p:outputLabel value="Imagem de Fundo" />
+									</div>
+									<div class="ui-g-12 ui-lg-6">
+										<h:panelGrid id="fotoPanelGroupUploadFundo">
+											<p:fileUpload
+												fileUploadListener="#{cadastroSegueMeBean.uploadFundo}"
+												allowTypes="/(\.|\/)(jpe?g)$/"
+												invalidFileMessage="São permitidas somente imagens (png)"
+												auto="true" label="Foto"
+												update="fotoPanelGroupFundo fotoPanelGroupUploadFundo"
+												rendered="#{cadastroSegueMeBean.imagemFundo == null}" />
+										</h:panelGrid>
+									</div>
+
+									<div class="ui-g-12">
+										<h:panelGrid id="fotoPanelGroupFundo">
+											<p:graphicImage value="#{cadastroSegueMeBean.imagemFundo}"
+												rendered="#{cadastroSegueMeBean.imagemFundo ne null}"
+												width="200px" id="fotoFundo" />
+
+											<p:commandButton value="Remover Foto"
+												style="width: auto; margin-left: 15px;"
+												actionListener="#{cadastroSegueMeBean.removerFotoFundo()}"
+												rendered="#{cadastroSegueMeBean.imagemFundo ne null}"
+												process="@this"
+												update="fotoPanelGroupFundo, fotoPanelGroupUploadFundo" />
+										</h:panelGrid>
+									</div>
+								</div>
+							</p:tab>
+						</p:tabView>
+						<div class="save ui-g-12">
+							<p:commandButton value="Salvar" style="width: auto;"
+								action="#{cadastroSegueMeBean.salvar()}" update="@form"
+								process="@form" icon="fa fa-save" styleClass="green-btn" />
+
+
+							<p:commandButton icon="fa fa-trash" value="Excluir"
+								style="width: auto; margin-left: 15px;"
+								oncomplete="PF('confirmacaoExclusao').show();" process="@this"
+								styleClass="red-btn"
+								update=":form-cadastro:confirmacaoExclusaoDialog"
+								rendered="#{cadastroSegueMeBean.editando}" />
+
+							<p:button value="Cancelar"
+								style="width: auto; margin-left: 15px;"
+								outcome="pesquisa-segue-me" icon="fa fa-remove" />
+						</div>
+					</div>
+				</div>
+			</div>
+			<p:confirmDialog header="Exclusão do Evento Segue-me"
+				message="Tem certeza que deseja excluir o Segue-Me #{cadastroSegueMeBean.segueMe.titulo}"
+				widgetVar="confirmacaoExclusao" id="confirmacaoExclusaoDialog">
+				<p:button value="Não"
+					onclick="PF('confirmacaoExclusao').hide(); return false;" />
+				<p:commandButton value="Sim"
+					action="#{cadastroSegueMeBean.excluir()}"
+					oncomplete="PF('confirmacaoExclusao').hide();" process="@this"
+					update="@form" />
+			</p:confirmDialog>
+		</h:form>
+	</ui:define>
+
+</ui:composition>

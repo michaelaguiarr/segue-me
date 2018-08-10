@@ -1,0 +1,52 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:jsf="http://xmlns.jcp.org/jsf" xmlns:p="http://primefaces.org/ui"
+	xmlns:o="http://omnifaces.org/ui" template="/WEB-INF/template.xhtml">
+
+	<ui:define name="title">Cadastro Casal</ui:define>
+
+	<f:metadata>
+		<o:viewParam name="casal" value="#{cadastroCasalBean.casal}" />
+		<f:viewAction action="#{cadastroCasalBean.inicializar()}" />
+	</f:metadata>
+	<ui:define name="cancelar">
+		<p:commandButton icon="fa fa-trash" value="Excluir"
+			style="width: auto; margin-left: 15px;"
+			oncomplete="PF('confirmacaoExclusao').show();" process="@this"
+			styleClass="red-btn"
+			update=":form-cadastro:confirmacaoExclusaoDialog"
+			rendered="#{cadastroCasalBean.editando}" />
+		<p:button value="Cancelar" style="width: auto; margin-left: 15px;"
+			outcome="cadastro-casal" icon="fa fa-remove" />
+	</ui:define>
+	<ui:define name="content">
+		<h:form id="form-cadastro" enctype="multipart/form-data">
+			<ui:include src="/WEB-INF/facelets/casal/casal-toolbar.xhtml" />
+			<div class="ui-fluid">
+				<div class="ui-g-12">
+					<div class="card card-w-title">
+						<h1>#{cadastroCasalBean.editando ? 'Edição Casal' : 'Novo
+							Casal'}</h1>
+						<ui:include src="/WEB-INF/facelets/mensagem/messages.xhtml" />
+						<p:growl />
+						<div class="ui-g">
+							<p:focus for="nomeEle" />
+							<ui:include src="/WEB-INF/facelets/casal/cadastro-casal.xhtml" />
+						</div>
+					</div>
+				</div>
+			</div>
+			<p:confirmDialog header="Exclusão do Casal"
+				message="Tem certeza que deseja excluir o Casal #{cadastroCasalBean.casal.apelidoEle} e #{cadastroCasalBean.casal.apelidoEla}"
+				widgetVar="confirmacaoExclusao" id="confirmacaoExclusaoDialog">
+				<p:button value="Não"
+					onclick="PF('confirmacaoExclusao').hide(); return false;" />
+				<p:commandButton value="Sim" action="#{cadastroCasalBean.excluir()}"
+					oncomplete="PF('confirmacaoExclusao').hide();" process="@this"
+					update="@form" />
+			</p:confirmDialog>
+		</h:form>
+	</ui:define>
+</ui:composition>

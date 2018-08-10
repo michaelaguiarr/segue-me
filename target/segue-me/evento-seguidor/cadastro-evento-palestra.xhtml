@@ -1,0 +1,433 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:jsf="http://xmlns.jcp.org/jsf" xmlns:p="http://primefaces.org/ui"
+	xmlns:o="http://omnifaces.org/ui" template="/WEB-INF/template.xhtml">
+
+	<ui:define name="title">Cadastro Palestra Seguidor no Segue-me</ui:define>
+
+	<ui:define name="toolbar">
+		<p:button outcome="/evento-seguidor/pesquisa-palestra"
+			value="Pesquisar" icon="fa fa-search" />
+	</ui:define>
+
+	<f:metadata>
+		<o:viewParam name="seguidor"
+			value="#{cadastroPalestraSeguidorBean.evento}" />
+		<f:viewAction action="#{cadastroPalestraSeguidorBean.inicializar()}" />
+	</f:metadata>
+
+	<ui:define name="content">
+		<h:form id="form-cadastro" enctype="multipart/form-data">
+			<ui:include
+				src="/WEB-INF/facelets/evento-seguidor/palestra-toolbar.xhtml" />
+			<div class="ui-fluid">
+				<div class="ui-g-12">
+					<div class="card card-w-title">
+						<h1>#{cadastroPalestraSeguidorBean.editando ? 'Edição
+							Seguidor' : 'Novo Seguidor'}</h1>
+						<ui:include src="/WEB-INF/facelets/mensagem/messages.xhtml" />
+						<p:growl />
+						<p:focus for="palestra" />
+						<div class="ui-g">
+							<div class="ui-g-12">
+								<!-- Seguidor -->
+								<p:fieldset legend="Segue-Me">
+									<div class="ui-g-6">
+										<p:outputLabel value="Paroquia" for="paroquia" />
+									</div>
+
+									<div class="ui-g-6">
+										<p:outputLabel value="Segue-Me" for="segueMe" />
+									</div>
+
+									<div class="ui-g-6 ui-lg-6">
+										<p:selectOneMenu id="paroquia"
+											value="#{cadastroPalestraSeguidorBean.paroquia}"
+											required="true"
+											disabled="#{not seguranca.administradorGeral}">
+											<f:selectItem itemLabel="Selecione a Paroquia" />
+											<f:selectItems
+												value="#{cadastroPalestraSeguidorBean.listaParoquia}"
+												var="paroquia" itemValue="#{paroquia}"
+												itemLabel="#{paroquia.descricao}" />
+											<p:ajax
+												listener="#{cadastroPalestraSeguidorBean.onSegueMeChange()}"
+												update="segueMe" />
+										</p:selectOneMenu>
+									</div>
+
+									<div class="ui-g-6 ui-lg-6">
+										<p:selectOneMenu id="segueMe" label="Segue-me" required="true"
+											value="#{cadastroPalestraSeguidorBean.evento.segueMe}"
+											disabled="#{not seguranca.administrador}">
+											<f:selectItem itemLabel="Selecione o Segue-Me" />
+											<f:selectItems
+												value="#{cadastroPalestraSeguidorBean.listaSegueMe}"
+												var="segueMe" itemValue="#{segueMe}"
+												itemLabel="#{segueMe.titulo} - #{segueMe.numeroRomano.numeroRomano}" />
+										</p:selectOneMenu>
+									</div>
+									<div class="ui-g-12">
+										<p:outputLabel value="Palestra" for="palestra" />
+									</div>
+
+									<div class="ui-g-12">
+										<p:selectOneMenu id="palestra"
+											value="#{cadastroPalestraSeguidorBean.evento.palestra}"
+											required="true"
+											disabled="#{not seguranca.graficaAndComandante}">
+											<f:selectItem itemLabel="Selecione a Palestra" />
+											<f:selectItems
+												value="#{cadastroPalestraSeguidorBean.listaPalestras}"
+												var="pa" itemValue="#{pa}" itemLabel="#{pa.nome}" />
+										</p:selectOneMenu>
+									</div>
+
+									<div class="ui-g-6"
+										jsf:rendered="#{cadastroPalestraSeguidorBean.seguidorValido}">
+										<p:outputLabel value="Situação" for="situacao" />
+									</div>
+
+									<div class="ui-g-6"
+										jsf:rendered="#{cadastroPalestraSeguidorBean.seguidorValido}">
+										<p:outputLabel value="Observação" for="obs" />
+									</div>
+
+									<div class="ui-g-6 ui-lg-6"
+										jsf:rendered="#{cadastroPalestraSeguidorBean.seguidorValido}">
+										<p:selectOneMenu id="situacao"
+											value="#{cadastroPalestraSeguidorBean.evento.statusConvite}"
+											required="false">
+											<f:selectItem itemLabel="Selecione a Situação" />
+											<f:selectItems
+												value="#{cadastroPalestraSeguidorBean.statusConvites}"
+												var="status" itemValue="#{status}"
+												itemLabel="#{status.nome}" />
+										</p:selectOneMenu>
+									</div>
+
+									<div class="ui-g-6 ui-lg-6"
+										jsf:rendered="#{cadastroPalestraSeguidorBean.seguidorValido}">
+										<p:inputTextarea rows="6" cols="33" id="obs"
+											value="#{cadastroFichaBean.evento.motivoRecusa}" />
+									</div>
+									<div class="ui-g-12"
+										jsf:rendered="#{cadastroPalestraSeguidorBean.seguidorValido}">
+										<p:outputLabel value="Imprimir Crachá?" for="cracha" />
+									</div>
+
+									<div class="ui-g-12 ui-lg-6"
+										jsf:rendered="#{cadastroPalestraSeguidorBean.seguidorValido}">
+										<p:selectBooleanButton id="cracha"
+											value="#{cadastroPalestraSeguidorBean.evento.cracha}"
+											onLabel="Sim" offLabel="Não" onIcon="ui-icon-check"
+											offIcon="ui-icon-close" style="width:60px" />
+									</div>
+
+								</p:fieldset>
+							</div>
+							<div class="ui-g-12">
+								<!-- Seguidor -->
+								<p:fieldset legend="Seguidor">
+									<div class="ui-g-12">
+										<p:graphicImage
+											value="#{cadastroPalestraSeguidorBean.evento.seguidor.carregarImagem()}"
+											rendered="#{cadastroPalestraSeguidorBean.evento.seguidor.exibirImagem}"
+											width="150px" height="150px" id="fotoEvento"
+											onclick="PF('fotoDialogWidgetVar').show()" cache="FALSE" />
+									</div>
+
+									<div class="ui-g-12">
+										<p:outputLabel value="Nome Seguidor" for="seguidor" />
+									</div>
+
+									<div class="ui-g-12 ui-md-12 ui-lg-12">
+										<div class="ui-inputgroup">
+											<p:autoComplete id="seguidor" required="true"
+												style="width: 90%;" styleClass="Fleft" autocomplete="off"
+												value="#{cadastroPalestraSeguidorBean.evento.seguidor}"
+												completeMethod="#{cadastroPalestraSeguidorBean.buscaPessoas}"
+												var="seguidor" itemLabel="#{seguidor.nome}"
+												itemValue="#{seguidor}" minQueryLength="3" maxResults="10"
+												forceSelection="true" emptyMessage="Nome não encontrado!">
+												<p:ajax event="itemSelect" update="@form" />
+												<p:column>
+													<p:outputLabel value="#{seguidor.nome}" />
+												</p:column>
+
+												<p:column>
+													<p:outputLabel value="#{seguidor.apelido}" />
+												</p:column>
+
+											</p:autoComplete>
+											<p:button icon="fa fa-plus"
+												outcome="/evento-seguidor/cadastro-seguidor"
+												style="width: 10%; margin: 0;" id="novo-seguidor"
+												styleClass="white-button"
+												rendered="#{not cadastroPalestraSeguidorBean.seguidorValido}" />
+											<p:button icon="fa fa-pencil"
+												outcome="/evento-seguidor/cadastro-seguidor"
+												style="width: 10%; margin: 0;" id="editar-seguidor"
+												styleClass="white-button"
+												rendered="#{cadastroPalestraSeguidorBean.seguidorValido}">
+												<f:param name="seguidor"
+													value="#{cadastroPalestraSeguidorBean.evento.seguidor.id}" />
+											</p:button>
+										</div>
+									</div>
+
+									<div class="ui-g-6"
+										jsf:rendered="#{cadastroPalestraSeguidorBean.seguidorValido}">
+										<p:outputLabel value="Telefone 1" for="telefoneUm" />
+									</div>
+									<div class="ui-g-6"
+										jsf:rendered="#{cadastroPalestraSeguidorBean.seguidorValido}">
+										<p:outputLabel value="Telefone 2" for="telefoneDois" />
+									</div>
+
+									<div class="ui-g-6 ui-lg-6"
+										jsf:rendered="#{cadastroPalestraSeguidorBean.seguidorValido}">
+										<p:inputMask id="telefoneUm" placeholder="Telefone 1"
+											value="#{cadastroPalestraSeguidorBean.evento.seguidor.telefoneUm}"
+											mask="(99)999999999">
+										</p:inputMask>
+									</div>
+									<div class="ui-g-6 ui-lg-6"
+										jsf:rendered="#{cadastroPalestraSeguidorBean.seguidorValido}">
+										<p:inputMask id="telefoneDois" placeholder="Telefone 2"
+											value="#{cadastroPalestraSeguidorBean.evento.seguidor.telefoneDois}"
+											mask="(99)999999999">
+										</p:inputMask>
+									</div>
+
+									<div class="ui-g-6"
+										jsf:rendered="#{cadastroPalestraSeguidorBean.seguidorValido}">
+										<p:outputLabel value="Telefone 3" for="telefone3" />
+									</div>
+									<div class="ui-g-6"
+										jsf:rendered="#{cadastroPalestraSeguidorBean.seguidorValido}">
+										<p:outputLabel value="Telefone 4" for="telefone4" />
+									</div>
+
+									<div class="ui-g-6 ui-lg-6"
+										jsf:rendered="#{cadastroPalestraSeguidorBean.seguidorValido}">
+										<p:inputMask id="telefone3" placeholder="Telefone 3"
+											value="#{cadastroPalestraSeguidorBean.evento.seguidor.telefoneTres}"
+											mask="(99)999999999">
+										</p:inputMask>
+									</div>
+									<div class="ui-g-6 ui-lg-6"
+										jsf:rendered="#{cadastroPalestraSeguidorBean.seguidorValido}">
+										<p:inputMask id="telefone4" placeholder="Telefone 4"
+											value="#{cadastroPalestraSeguidorBean.evento.seguidor.telefoneQuatro}"
+											mask="(99)999999999">
+										</p:inputMask>
+									</div>
+									<div class="ui-g-6"
+										jsf:rendered="#{cadastroPalestraSeguidorBean.seguidorValido}">
+										<p:outputLabel value="Sagramentos" />
+									</div>
+
+									<div class="ui-g-6"
+										jsf:rendered="#{cadastroPalestraSeguidorBean.seguidorValido}">
+										<p:outputLabel
+											value="Participa(ou) de algum movimento na igreja? Qual(is)" />
+									</div>
+
+									<div class="ui-g-6 ui-lg-6"
+										jsf:rendered="#{cadastroPalestraSeguidorBean.seguidorValido}">
+										<p:selectBooleanCheckbox
+											value="#{cadastroPalestraSeguidorBean.evento.seguidor.sagramentoBatismo}" />
+										<p:outputLabel value=" Batismos " />
+										<p:selectBooleanCheckbox
+											value="#{cadastroPalestraSeguidorBean.evento.seguidor.sagramentoEucaristia}" />
+										<p:outputLabel value=" Eucaristia " />
+										<p:selectBooleanCheckbox
+											value="#{cadastroPalestraSeguidorBean.evento.seguidor.sagramentoCrisma}" />
+										<p:outputLabel value=" Crisma " />
+									</div>
+
+									<div class="ui-g-6 ui-lg-6"
+										jsf:rendered="#{cadastroPalestraSeguidorBean.seguidorValido}">
+										<p:inputText id="movimentos"
+											value="#{cadastroPalestraSeguidorBean.evento.seguidor.movimentos}" />
+									</div>
+									<div class="ui-g-12"
+										jsf:rendered="#{cadastroPalestraSeguidorBean.seguidorValido}">
+										<p:outputLabel
+											value="Toca algum instrumento musical? Qual(is)?"
+											for="instrumento" />
+									</div>
+
+									<div class="ui-g-6 ui-lg-12"
+										jsf:rendered="#{cadastroPalestraSeguidorBean.seguidorValido}">
+										<p:inputText placeholder="Violão, Baixo..." id="instrumento"
+											value="#{cadastroPalestraSeguidorBean.evento.seguidor.tocarInstrumento}" />
+									</div>
+								</p:fieldset>
+							</div>
+							<div class="ui-g-12"
+								jsf:rendered="#{cadastroPalestraSeguidorBean.seguidorValido}">
+								<!-- Endereco -->
+								<p:fieldset legend="Endereço">
+									<div class="ui-g-12"
+										jsf:rendered="#{cadastroPalestraSeguidorBean.seguidorValido}">
+										<p:outputLabel value="Endereço" for="endereco" />
+									</div>
+									<div class="ui-g-12 ui-lg-12"
+										jsf:rendered="#{cadastroPalestraSeguidorBean.seguidorValido}">
+										<p:inputText id="endereco" required="true"
+											value="#{cadastroPalestraSeguidorBean.evento.seguidor.endereco.logradouro}" />
+									</div>
+
+									<div class="ui-g-6"
+										jsf:rendered="#{cadastroPalestraSeguidorBean.seguidorValido}">
+										<p:outputLabel value="Número" for="numero" />
+									</div>
+
+									<div class="ui-g-6"
+										jsf:rendered="#{cadastroPalestraSeguidorBean.seguidorValido}">
+										<p:outputLabel value="Bairro" for="bairro" />
+									</div>
+
+									<div class="ui-g-6 ui-lg-6"
+										jsf:rendered="#{cadastroPalestraSeguidorBean.seguidorValido}">
+										<p:inputText id="numero" required="true"
+											value="#{cadastroPalestraSeguidorBean.evento.seguidor.endereco.numero}" />
+									</div>
+
+									<div class="ui-g-6 ui-lg-6"
+										jsf:rendered="#{cadastroPalestraSeguidorBean.seguidorValido}">
+										<p:inputText id="bairro" required="true"
+											value="#{cadastroPalestraSeguidorBean.evento.seguidor.endereco.bairro}" />
+									</div>
+
+									<div class="ui-g-6"
+										jsf:rendered="#{cadastroPalestraSeguidorBean.seguidorValido}">
+										<p:outputLabel value="Cidade" for="cidade" />
+									</div>
+
+									<div class="ui-g-6"
+										jsf:rendered="#{cadastroPalestraSeguidorBean.seguidorValido}">
+										<p:outputLabel value="UF" for="uf" />
+									</div>
+
+									<div class="ui-g-6 ui-lg-6"
+										jsf:rendered="#{cadastroPalestraSeguidorBean.seguidorValido}">
+										<p:inputText id="cidade" required="true"
+											value="#{cadastroPalestraSeguidorBean.evento.seguidor.endereco.cidade}" />
+									</div>
+
+									<div class="ui-g-6 ui-lg-6"
+										jsf:rendered="#{cadastroPalestraSeguidorBean.seguidorValido}">
+										<p:selectOneMenu id="uf" label="UF" required="true"
+											value="#{cadastroPalestraSeguidorBean.evento.seguidor.endereco.estado}">
+											<f:selectItem itemLabel="Selecione" />
+											<f:selectItems value="#{cadastroFichaBean.estados}"
+												var="estado" itemValue="#{estado.sigla}"
+												itemLabel="#{estado.sigla}" />
+										</p:selectOneMenu>
+									</div>
+								</p:fieldset>
+							</div>
+							<div class="ui-g-12"
+								jsf:rendered="#{cadastroPalestraSeguidorBean.seguidorValido}">
+								<!-- Escolaridade -->
+								<p:fieldset legend="Escolaridade">
+									<div class="ui-g-6"
+										jsf:rendered="#{cadastroPalestraSeguidorBean.seguidorValido}">
+										<p:outputLabel value="Escolaridade" for="escolaridade" />
+									</div>
+
+									<div class="ui-g-6"
+										jsf:rendered="#{cadastroPalestraSeguidorBean.seguidorValido}">
+										<p:outputLabel value="Situação" for="situacaoEscola" />
+									</div>
+
+									<div class="ui-g-6 ui-lg-6"
+										jsf:rendered="#{cadastroPalestraSeguidorBean.seguidorValido}">
+										<p:inputText id="escolaridade"
+											placeholder="Superior, Ensino Medio..."
+											value="#{cadastroPalestraSeguidorBean.evento.seguidor.escolaridade}" />
+									</div>
+
+									<div class="ui-g-6 ui-lg-6"
+										jsf:rendered="#{cadastroPalestraSeguidorBean.seguidorValido}">
+										<p:inputText id="situacaoEscola"
+											placeholder="Completo, Incompleto, cursando..."
+											value="#{cadastroPalestraSeguidorBean.evento.seguidor.situacaoEscolaridade}" />
+									</div>
+
+									<div class="ui-g-6"
+										jsf:rendered="#{cadastroPalestraSeguidorBean.seguidorValido}">
+										<p:outputLabel value="Curso" for="curso" />
+									</div>
+
+									<div class="ui-g-6"
+										jsf:rendered="#{cadastroPalestraSeguidorBean.seguidorValido}">
+										<p:outputLabel value="Instituição" for="instituicao" />
+									</div>
+
+									<div class="ui-g-6 ui-lg-6"
+										jsf:rendered="#{cadastroPalestraSeguidorBean.seguidorValido}">
+										<p:inputText id="curso" placeholder="Qual seu curso?"
+											value="#{cadastroPalestraSeguidorBean.evento.seguidor.curso}" />
+									</div>
+
+									<div class="ui-g-6 ui-lg-6"
+										jsf:rendered="#{cadastroPalestraSeguidorBean.seguidorValido}">
+										<p:inputText id="instituicao"
+											placeholder="Nome Escola, faculdade..."
+											value="#{cadastroPalestraSeguidorBean.evento.seguidor.instituicao}" />
+									</div>
+								</p:fieldset>
+							</div>
+							<div class="save ui-g-12">
+								<p:commandButton id="salvar" value="Salvar" style="width: auto;"
+									action="#{cadastroPalestraSeguidorBean.salvar()}"
+									update="@form" process="@form" icon="fa fa-save"
+									styleClass="green-btn" title="Somente a Gráfica tem acesso." />
+
+								<p:commandButton icon="fa fa-trash" value="Excluir"
+									style="width: auto; margin-left: 15px;"
+									oncomplete="PF('confirmacaoExclusao').show();" process="@this"
+									styleClass="red-btn"
+									update=":form-cadastro:confirmacaoExclusaoDialog"
+									rendered="#{cadastroPalestraSeguidorBean.editando}" />
+
+								<p:button value="Cancelar"
+									style="width: auto; margin-left: 15px;"
+									outcome="pesquisa-seguidor" icon="fa fa-remove" />
+								<p:defaultCommand target="salvar" />
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<p:dialog
+				header="#{cadastroPalestraSeguidorBean.evento.seguidor.nome}"
+				id="fotoDialog" widgetVar="fotoDialogWidgetVar">
+				<p:graphicImage
+					value="#{cadastroPalestraSeguidorBean.evento.seguidor.carregarImagem()}"
+					style="max-width: 300px"
+					rendered="#{cadastroPalestraSeguidorBean.evento.seguidor.exibirImagem}"
+					id="produtoFoto" />
+			</p:dialog>
+
+			<p:confirmDialog header="Exclusão do Seguidor do Evento"
+				message="Tem certeza que deseja excluir o Seguidor #{cadastroPalestraSeguidorBean.evento.seguidor.nome}"
+				widgetVar="confirmacaoExclusao" id="confirmacaoExclusaoDialog">
+				<p:button value="Não"
+					onclick="PF('confirmacaoExclusao').hide(); return false;" />
+				<p:commandButton value="Sim"
+					action="#{cadastroPalestraSeguidorBean.excluir()}"
+					oncomplete="PF('confirmacaoExclusao').hide();" process="@this"
+					update="@form" />
+			</p:confirmDialog>
+		</h:form>
+	</ui:define>
+
+</ui:composition>

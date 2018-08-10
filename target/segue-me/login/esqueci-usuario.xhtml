@@ -1,0 +1,42 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" xmlns:o="http://omnifaces.org/ui"
+	template="/WEB-INF/template/template-login.xhtml">
+
+	<ui:define name="title">Interlab - Esqueci Minha Senha</ui:define>
+	<ui:define name="sub-title">Esqueci Minha Senha</ui:define>
+
+	<ui:define name="content">
+		<h:form id="frm" prependId="false">
+			<p:focus for="email" />
+			<div class="ui-g-12">
+				<ui:include src="/WEB-INF/facelets/mensagem/messages.xhtml" />
+			</div>
+			<div class="ui-g-12">
+				<p:outputLabel for="email" value="Email" />
+				<div class="input-wrapper">
+					<p:inputText id="email" value="#{envioSenhaMailController.email}" />
+					<i class="fa fa-envelope" />
+				</div>
+			</div>
+			<div class="ui-g-12">
+				<div class="ui-g-6">
+					<p:commandButton id="save" value="Solicitar"
+						styleClass="green-btn raised-btn"
+						action="#{envioSenhaMailController.recuperarSenha()}"
+						icon="fa fa-check" update="messages" />
+				</div>
+				<div class="ui-g-6">
+					<p:button value="Cancelar" process="@this" outcome="/login"
+						styleClass="raised-btn"
+						icon="fa fa-remove" />
+				</div>
+			</div>
+
+			<p:blockUI block="frm" trigger="save" />
+		</h:form>
+	</ui:define>
+
+</ui:composition>

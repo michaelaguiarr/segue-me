@@ -1,0 +1,102 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:jsf="http://xmlns.jcp.org/jsf" xmlns:p="http://primefaces.org/ui"
+	xmlns:o="http://omnifaces.org/ui" template="/WEB-INF/template.xhtml">
+
+	<ui:define name="title">Cadastro ECC</ui:define>
+
+	<ui:define name="search">
+		<p:button outcome="/ecc/pesquisa-ecc" value="Pesquisar"
+			icon="fa fa-search" />
+	</ui:define>
+
+	<f:metadata>
+		<o:viewParam name="ecc" value="#{cadastroEccBean.ecc}" />
+		<f:viewAction action="#{cadastroEccBean.inicializar()}" />
+	</f:metadata>
+
+	<ui:define name="content">
+		<h:form id="form-cadastro">
+			<ui:include src="/WEB-INF/facelets/ecc/ecc-toolbar.xhtml" />
+			<div class="ui-fluid">
+				<div class="ui-g-12">
+					<div class="card card-w-title">
+						<h1>#{cadastroEccBean.editando ? 'Edição Evento ECC' : 'Novo
+							Evento ECC'}</h1>
+						<ui:include src="/WEB-INF/facelets/mensagem/messages.xhtml" />
+						<p:focus for="edicao" />
+
+						<div class="ui-g">
+							<div class="ui-g-12">
+								<p:outputLabel value="Título" />
+							</div>
+
+							<div class="ui-g-12 ui-lg-6">
+								<p:outputLabel value="#{cadastroEccBean.ecc.titulo}" />
+							</div>
+
+							<div class="ui-g-12">
+								<p:outputLabel value="Edição" for="edicao" />
+							</div>
+
+							<div class="ui-g-12 ui-lg-6">
+								<p:selectOneMenu id="edicao"
+									value="#{cadastroEccBean.ecc.numeroRomano}" required="true">
+									<f:selectItem itemLabel="Selecione o Número da Edição" />
+									<f:selectItems value="#{cadastroEccBean.numeroRomanosFiltro}"
+										var="numero" itemValue="#{numero}"
+										itemLabel="#{numero.numero} - #{numero.numeroRomano}" />
+								</p:selectOneMenu>
+							</div>
+
+							<div class="ui-g-12">
+								<p:outputLabel value="Paróquia" for="paroquia" />
+							</div>
+
+							<div class="ui-g-12 ui-lg-6">
+								<p:selectOneMenu id="paroquia"
+									value="#{cadastroEccBean.ecc.paroquia}" required="true">
+									<f:selectItem itemLabel="Selecione a Paróquia" />
+									<f:selectItems value="#{cadastroEccBean.paroquiasFiltro}"
+										var="paroquias" itemValue="#{paroquias}"
+										itemLabel="#{paroquias.descricao}" />
+								</p:selectOneMenu>
+							</div>
+
+							<div class="save ui-g-12">
+								<p:commandButton value="Salvar" style="width: auto;"
+									action="#{cadastroEccBean.salvar()}" update="@form"
+									process="@form" icon="fa fa-save" styleClass="green-btn" />
+
+
+								<p:commandButton icon="fa fa-trash" value="Excluir"
+									style="width: auto; margin-left: 15px;"
+									oncomplete="PF('confirmacaoExclusao').show();" process="@this"
+									styleClass="red-btn"
+									update=":form-cadastro:confirmacaoExclusaoDialog"
+									rendered="#{cadastroEccBean.editando}" />
+
+								<p:button value="Cancelar"
+									style="width: auto; margin-left: 15px;" outcome="pesquisa-ecc"
+									icon="fa fa-remove" />
+							</div>
+
+						</div>
+					</div>
+				</div>
+			</div>
+			<p:confirmDialog header="Exclusão do Evento ECC"
+				message="Tem certeza que deseja excluir o ECC #{cadastroEccBean.ecc.titulo}"
+				widgetVar="confirmacaoExclusao" id="confirmacaoExclusaoDialog">
+				<p:button value="Não"
+					onclick="PF('confirmacaoExclusao').hide(); return false;" />
+				<p:commandButton value="Sim" action="#{cadastroEccBean.excluir()}"
+					oncomplete="PF('confirmacaoExclusao').hide();" process="@this"
+					update="@form" />
+			</p:confirmDialog>
+		</h:form>
+	</ui:define>
+
+</ui:composition>

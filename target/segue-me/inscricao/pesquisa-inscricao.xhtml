@@ -1,0 +1,134 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" xmlns:o="http://omnifaces.org/ui"
+	template="/WEB-INF/template.xhtml">
+
+	<ui:define name="title">Pesquisa Inscrições</ui:define>
+
+	<f:metadata>
+		<f:viewAction action="#{pesquisaInscricaoBean.inicializar()}" />
+	</f:metadata>
+
+	<ui:define name="search">
+		<div class="ui-fluid">
+			<div class="ui-g-12">
+				<div class="card card-w-title">
+					<h1>Pesquisa Inscrições</h1>
+					<div class="ui-g">
+						<div class="ui-g-12 ui-lg-6">
+							<p:selectOneMenu id="Paroquia"
+								value="#{pesquisaInscricaoBean.filter.paroquia}"
+								disabled="#{not seguranca.administradorGeral}">
+								<f:selectItem itemLabel="Todos as Paroquias" />
+								<f:selectItems value="#{pesquisaInscricaoBean.listaParoquia}"
+									var="paroquia" itemValue="#{paroquia}"
+									itemLabel="#{paroquia.descricao}" />
+								<p:ajax listener="#{pesquisaInscricaoBean.onSegueMeChange()}"
+									update="segueMe" />
+							</p:selectOneMenu>
+						</div>
+						<div class="ui-g-12 ui-lg-6">
+							<p:selectOneMenu id="segueMe" label="Segue-Me"
+								value="#{pesquisaInscricaoBean.filter.segueMe}"
+								disabled="#{not seguranca.administrador}">
+								<f:selectItem itemLabel="Todos os Segue-Me"
+									noSelectionOption="true" />
+								<f:selectItems value="#{pesquisaInscricaoBean.listaSegueMe}"
+									var="segueMe" itemValue="#{segueMe}"
+									itemLabel="#{segueMe.titulo} - #{segueMe.numeroRomano.numeroRomano}" />
+							</p:selectOneMenu>
+						</div>
+						<div class="ui-g-12 ui-lg-6">
+							<p:inputText id="nome" placeholder="Nome do Inscrito"
+								autocomplete="off" value="#{pesquisaInscricaoBean.filter.nome}" />
+						</div>
+						<div class="ui-g-12 ui-lg-6">
+							<p:inputText id="codigo" placeholder="Código da Inscrição"
+								autocomplete="off" value="#{pesquisaInscricaoBean.filter.id}" />
+						</div>
+						<div class="ui-g-12">
+							<p:commandButton id="pesquisar" value="Pesquisar"
+								style="width: auto;"
+								action="#{pesquisaInscricaoBean.pesquisar()}" update="@form"
+								process="@form" icon="fa fa-search" styleClass="green-btn" />
+							<p:defaultCommand target="pesquisar" />
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</ui:define>
+
+	<ui:define name="content">
+
+		<h:form id="form">
+			<ui:include src="/WEB-INF/facelets/inscritos/inscritos-toolbar.xhtml" />
+			<div class="ui-fluid">
+				<div class="ui-g-12">
+					<div class="card card-w-title">
+						<h1>Lista de Inscritos</h1>
+						<ui:include src="/WEB-INF/facelets/mensagem/messages.xhtml" />
+
+						<div class="ui-g">
+
+							<p:dataTable var="inscritos" id="datatable-inscritos"
+								value="#{pesquisaInscricaoBean.listaInscritos}" reflow="true"
+								selectionMode="single"
+								selection="#{pesquisaInscricaoBean.inscricao}"
+								rowKey="#{inscritos}" emptyMessage="Inscrição não encontrada!">
+
+								<p:ajax event="rowSelect"
+									listener="#{pesquisaInscricaoBean.selecionar()}" />
+
+								<p:column headerText="Proposta" sortBy="#{inscritos.id}" width="8%">
+									<h:outputText value="#{inscritos.inscricao.id}" />
+								</p:column>
+
+								<p:column headerText="Nome" sortBy="#{inscritos.seguidor.nome}">
+									<h:outputText value="#{inscritos.seguidor.nome}" />
+									<span class="borda"><h:outputText styleClass="idade" value="#{inscritos.idade}" /></span>
+									<i class="#{inscritos.seguidor.iconeParaSexo} Fright MarRight10"/>
+								</p:column>
+
+								<p:column headerText="Telefone"
+									sortBy="#{inscritos.seguidor.telefoneUm}">
+									<h:outputText value="#{inscritos.seguidor.telefoneUm}" />
+								</p:column>
+
+								<p:column headerText="Data Inscrição">
+									<h:outputText value="#{inscritos.inscricao.dataInsccricao}">
+										<f:convertDateTime pattern="dd/MM/yyyy" />
+									</h:outputText>
+								</p:column>
+
+								<p:column headerText="Situação"
+									sortBy="#{inscritos.inscricao.statusInscricao.nome}">
+									<h:outputText
+										value="#{inscritos.inscricao.statusInscricao.nome}" />
+								</p:column>
+
+								<p:column headerText="Paroquia"
+									sortBy="#{inscritos.inscricao.paroquia.descricao}"
+									rendered="#{seguranca.administradorGeral}">
+									<h:outputText value="#{inscritos.inscricao.paroquia.descricao}" />
+								</p:column>
+
+								<p:column headerText="Segue-me"
+									sortBy="#{inscritos.segueMe.numeroRomano.numeroRomano}"
+									rendered="#{seguranca.administrador}">
+									<h:outputText
+										value="#{inscritos.segueMe.titulo} - #{inscritos.segueMe.numeroRomano.numeroRomano}" />
+								</p:column>
+							</p:dataTable>
+
+						</div>
+					</div>
+				</div>
+			</div>
+		</h:form>
+
+	</ui:define>
+
+</ui:composition>

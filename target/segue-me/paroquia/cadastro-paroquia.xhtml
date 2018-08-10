@@ -1,0 +1,96 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:jsf="http://xmlns.jcp.org/jsf" xmlns:p="http://primefaces.org/ui"
+	xmlns:o="http://omnifaces.org/ui" template="/WEB-INF/template.xhtml">
+
+	<ui:define name="title">Cadastro Paróquia</ui:define>
+
+	<ui:define name="search">
+		<p:button outcome="/paroquia/pesquisa-paroquia" value="Pesquisar"
+			icon="fa fa-search" />
+	</ui:define>
+
+	<f:metadata>
+		<o:viewParam name="paroquia" value="#{cadastroParoquiaBean.paroquia}" />
+		<f:viewAction action="#{cadastroParoquiaBean.inicializar()}" />
+	</f:metadata>
+
+	<ui:define name="content">
+		<h:form id="form-cadastro">
+			<ui:include src="/WEB-INF/facelets/paroquia/paroquia-toolbar.xhtml" />
+			<div class="ui-fluid">
+				<div class="ui-g-12">
+					<div class="card card-w-title">
+						<h1>#{cadastroParoquiaBean.editando ? 'Edição Paróquia'
+							: 'Novo Paróquia'}</h1>
+						<ui:include src="/WEB-INF/facelets/mensagem/messages.xhtml" />
+						<p:focus for="nome" />
+
+						<div class="ui-g">
+							<div class="ui-g-12">
+								<p:outputLabel value="Nome" for="nome" />
+							</div>
+							<div class="ui-g-12 ui-lg-6">
+								<p:inputText id="nome"
+									value="#{cadastroParoquiaBean.paroquia.descricao}" />
+							</div>
+
+							<div class="ui-g-12">
+								<p:outputLabel value="Estado" for="estado" />
+							</div>
+
+							<div class="ui-g-12 ui-lg-6">
+								<p:selectOneMenu id="estado"
+									value="#{cadastroParoquiaBean.paroquia.estado}" required="true">
+									<f:selectItem itemLabel="Selecione o estado" />
+									<f:selectItems value="#{cadastroParoquiaBean.estados}" var="estado"
+										itemValue="#{estado.sigla}" itemLabel="#{estado.sigla}" />
+								</p:selectOneMenu>
+							</div>
+
+							<div class="ui-g-12">
+								<p:outputLabel value="Cidade" for="cidade" />
+							</div>
+							<div class="ui-g-12 ui-lg-6">
+								<p:inputText id="cidade" value="#{cadastroParoquiaBean.paroquia.cidade}"
+									required="true" />
+							</div>
+
+							<div class="save ui-g-12">
+								<p:commandButton value="Salvar" style="width: auto;"
+									action="#{cadastroParoquiaBean.salvar()}" update="@form"
+									process="@form" icon="fa fa-save" styleClass="green-btn" />
+
+
+								<p:commandButton icon="fa fa-trash" value="Excluir"
+									style="width: auto; margin-left: 15px;"
+									oncomplete="PF('confirmacaoExclusao').show();" process="@this"
+									styleClass="red-btn"
+									update=":form-cadastro:confirmacaoExclusaoDialog"
+									rendered="#{cadastroParoquiaBean.editando}" />
+
+								<p:button value="Cancelar"
+									style="width: auto; margin-left: 15px;"
+									outcome="pesquisa-paroquia" icon="fa fa-remove" />
+							</div>
+
+						</div>
+					</div>
+				</div>
+			</div>
+			<p:confirmDialog header="Exclusão do Evento Segue-me"
+				message="Tem certeza que deseja excluir a Paróquia #{cadastroParoquiaBean.paroquia.descricao}"
+				widgetVar="confirmacaoExclusao" id="confirmacaoExclusaoDialog">
+				<p:button value="Não"
+					onclick="PF('confirmacaoExclusao').hide(); return false;" />
+				<p:commandButton value="Sim"
+					action="#{cadastroParoquiaBean.excluir()}"
+					oncomplete="PF('confirmacaoExclusao').hide();" process="@this"
+					update="@form" />
+			</p:confirmDialog>
+		</h:form>
+	</ui:define>
+
+</ui:composition>

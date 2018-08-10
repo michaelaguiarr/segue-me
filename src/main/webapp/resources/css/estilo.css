@@ -1,0 +1,652 @@
+.save {
+	margin: 20px 10px .5em 0;
+	border-top: 1px solid #d5d5d5;
+	padding: .5em;
+}
+
+/** 
+.ui-growl {
+	position: fixed;
+	top: 50%;
+	left: 17%;
+	width: 70%;
+	height: 40px;
+	z-index: 9999;
+}
+*/
+
+.white-button.ui-button.ui-state-default {
+	background-color: #F0F0F0;
+	color: #222222;
+	border-color: #d6d6d6;
+	border-left: 0;
+}
+
+.examesCombo, .ui-fluid .ui-button {
+	width: 30%;
+	margin: 1px;
+}
+
+.borda {
+	float: right;
+	border: 0;
+	border-style: solid;
+	-moz-border-radius: 10px;
+	-webkit-border-radius: 10px;
+	border-radius: 10px;
+	text-align: center;
+	background-color: #dfe1e6;
+	width: 50px;
+}
+
+.borda .idade {
+	font-weight: bold;
+	color: #172b4d;
+	padding: 8px;
+	font-size: 12px;
+}
+
+.topbar #contadorSessao {
+	margin-bottom: 10px;
+	border-style: none;
+	padding: 0;
+	border: 0;
+	background: none;
+	text-align: right;
+	color: #556080;
+}
+
+.editar {
+	float: right;
+	color: #837A75;
+}
+
+.editar:hover {
+	color: #837A75;
+}
+
+/* Para Status ou Situacao */
+.situacao {
+	font-size: 11px;
+	padding: 2.5px;
+	border: 1px;
+	background: #fff;
+	border-style: solid;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+	padding: 2.5px;
+}
+
+/* Cadastrada */
+.status-azul {
+	color: #546E7A;
+	border-color: #90A4AE;
+}
+
+/* Aguardando Coleta */
+.status-amarelo {
+	color: #B8860B;
+	border-color: #EEDD82;
+}
+
+/* Processando */
+.status-laranja {
+	color: #FB8C00;
+	border-color: #FFCC80;
+}
+
+
+/* Cancelada */
+.status-rosa {
+	color: #FF69B4;
+	border-color: #FFC0CB;
+}
+
+/* Liberada */
+.status-verde {
+	color: #00875a;
+	border-color: #abf5d1;
+}
+
+/* Cancelada */
+.status-vermelho {
+	color: #E53935;
+	border-color: #EF9A9A;
+}
+
+.exame {
+	font-size: 11px;
+	border: 1px;
+	border-style: solid;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+	padding: 2.5px;
+	background: #fff;
+	color: #546E7A;
+	border-color: #90A4AE;
+}
+
+pre {
+	font-family: monospace;
+	background-color: #dee4e9;
+	color: #757575;
+	padding: 1em;
+	font-size: 14px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+.footer-version {
+	position: absolute;
+	bottom: 0;
+	width: 100%;
+	font-size: 14px;
+	text-align: center;
+	margin-bottom: 20px;
+}
+
+body .ui-fieldset {
+	padding: 0 0 6px 0;
+}
+
+body .ui-fieldset .ui-fieldset-legend {
+	color: #757575;
+	background-color: #ffffff;
+	margin-left: 10px;
+	border: 0px solid #c7cdd1;
+	-moz-transition: background-color 0.3s;
+	-o-transition: background-color 0.3s;
+	-webkit-transition: background-color 0.3s;
+	transition: background-color 0.3s;
+}
+
+body .ui-fieldset .ui-fieldset-legend .ui-fieldset-toggler {
+	float: none;
+	display: inline-block;
+	vertical-align: middle;
+	margin-right: 4px;
+	height: 13px;
+	margin-top: 0;
+	padding: 0;
+	color: #757575;
+}
+
+body .ui-fieldset .ui-fieldset-legend.ui-state-hover {
+	background-color: #dee4e9;
+}
+
+body .ui-fieldset .ui-fieldset-legend.ui-state-focus {
+	background-color: #dee4e9;
+}
+
+body .ui-fieldset .ui-fieldset-content {
+	padding: 6px 12px;
+}
+
+/* Estilo customizado */
+
+/* Width */
+.Wid100 {
+	width: 100%;
+}
+
+.Wid90 {
+	width: 90%;
+}
+
+.Wid80 {
+	width: 80%;
+}
+
+.Wid70 {
+	width: 70%;
+}
+
+.Wid60 {
+	width: 60%;
+}
+
+.Wid50 {
+	width: 50%;
+}
+
+.Wid45 {
+	width: 45%;
+}
+
+.Wid40 {
+	width: 40%;
+}
+
+.Wid30 {
+	width: 30%;
+}
+
+/* Width Special Values */
+.Wid33 {
+	width: 33.3%;
+}
+
+.Wid25 {
+	width: 25%;
+}
+
+.Wid20 {
+	width: 20%;
+}
+
+.Wid10 {
+	width: 10%;
+}
+
+.MaxWid500 {
+	max-width: 500px;
+}
+
+/* Height */
+.Hei100 {
+	height: 100%;
+}
+
+.Hei90 {
+	height: 90%;
+}
+
+.Hei80 {
+	height: 80%;
+}
+
+.Hei70 {
+	height: 70%;
+}
+
+.Hei60 {
+	height: 60%;
+}
+
+.Hei40 {
+	height: 40%;
+}
+
+.Hei50 {
+	height: 50%;
+}
+
+.Hei30 {
+	height: 30%;
+}
+
+.Hei20 {
+	height: 20%;
+}
+
+.Hei10 {
+	height: 10%;
+}
+
+/* Margins */
+.MarTop5 {
+	margin-top: 5px;
+}
+
+.MarTop10 {
+	margin-top: 10px;
+}
+
+.MarTop20 {
+	margin-top: 20px;
+}
+
+.MarTop25 {
+	margin-top: 25px;
+}
+
+.MarTop30 {
+	margin-top: 30px;
+}
+
+.MarTop40 {
+	margin-top: 40px;
+}
+
+.MarTop50 {
+	margin-top: 50px;
+}
+
+.MarTopQuarter {
+	margin-top: 25%;
+}
+
+.MarTopHalf {
+	margin-top: 50%;
+}
+
+.MarBot5 {
+	margin-bottom: 5px;
+}
+
+.MarBot10 {
+	margin-bottom: 10px;
+}
+
+.MarBot20 {
+	margin-bottom: 20px;
+}
+
+.MarBot30 {
+	margin-bottom: 20px;
+}
+
+.MarLeft5 {
+	margin-left: 5px;
+}
+
+.MarLeft10 {
+	margin-left: 10px;
+}
+
+.MarLeft20 {
+	margin-left: 20px;
+}
+
+.MarLeft30 {
+	margin-left: 30px;
+}
+
+.MarRight5 {
+	margin-right: 5px;
+}
+
+.MarRight10 {
+	margin-right: 10px;
+}
+
+.MarRight20 {
+	margin-right: 20px;
+}
+
+.MarRigh30 {
+	margin-right: 30px;
+}
+
+/* Floating */
+.Fleft {
+	float: left;
+}
+
+.Fright {
+	float: right;
+}
+
+.Fnone {
+	float: none !important;
+}
+
+/* text colors */
+.White {
+	color: #ffffff;
+}
+
+.WhiteBlue {
+	color: #E1F5FE;
+}
+
+.SoftBlue {
+	color: #03A9F4;
+}
+
+.Blue {
+	color: #0288D1;
+}
+
+.Turquoise {
+	color: #26C6DA;
+}
+
+.SoftGray {
+	color: #ECEFF1;
+}
+
+.Gray {
+	color: #90A4AE;
+}
+
+.BoldGray {
+	color: #546E7A;
+}
+
+.SoftOrange {
+	color: #FFCC80;
+}
+
+.Orange {
+	color: #FB8C00;
+}
+
+.SoftGreen {
+	color: #A5D6A7;
+}
+
+.Green {
+	color: #43A047;
+}
+
+.LeadenGreen {
+	color: #26A69A;
+}
+
+.SoftRed {
+	color: #EF9A9A;
+}
+
+.Red {
+	color: #E53935;
+}
+
+.Pink {
+	color: #FF4081;
+}
+
+.SoftPurple {
+	color: #CE93D8;
+}
+
+.Purple {
+	color: #8E24AA;
+}
+
+.Yellow {
+	color: #F7D100;
+}
+
+.WhiteOpac {
+	color: rgba(255, 255, 255, 0.4);
+}
+
+.BlackOpac {
+	color: rgba(0, 0, 0, 0.4);
+}
+
+/* background colors */
+.WhiteBlueBack {
+	background-color: #E1F5FE;
+}
+
+.SoftBlueBack {
+	background-color: #03A9F4;
+}
+
+.BlueBack {
+	background-color: #0288D1;
+}
+
+.TurquoiseBack {
+	background-color: #26C6DA;
+}
+
+.SoftGrayBack {
+	background-color: #f5f5f5;
+}
+
+.GrayBack {
+	background-color: #90A4AE;
+}
+
+.BoldGrayBack {
+	background-color: #546E7A;
+}
+
+.SoftOrangeBack {
+	background-color: #FFCC80;
+}
+
+.OrangeBack {
+	background-color: #FB8C00;
+}
+
+.SoftGreenBack {
+	background-color: #A5D6A7;
+}
+
+.GreenBack {
+	background-color: #43A047;
+}
+
+.LeadenGreenBack {
+	background-color: #26A69A;
+}
+
+.SoftRedBack {
+	background-color: #EF9A9A;
+}
+
+.RedBack {
+	background-color: #E53935;
+}
+
+.PinkBack {
+	background-color: #FF4081;
+}
+
+.SoftPurpleBack {
+	background-color: #CE93D8;
+}
+
+.PurpleBack {
+	background-color: #8E24AA;
+}
+
+.YellowBack {
+	background-color: #F7D100;
+}
+
+/* Font Sizes */
+.Fs9 {
+	font-size: 9px !important;
+}
+
+.Fs10 {
+	font-size: 10px !important;
+}
+
+.Fs11 {
+	font-size: 11px !important;
+}
+
+.Fs12 {
+	font-size: 12px !important;
+}
+
+.Fs13 {
+	font-size: 13px !important;
+}
+
+.Fs14 {
+	font-size: 14px !important;
+}
+
+.Fs15 {
+	font-size: 15px !important;
+}
+
+.Fs16 {
+	font-size: 16px !important;
+}
+
+.Fs17 {
+	font-size: 17px !important;
+}
+
+.Fs18 {
+	font-size: 18px !important;
+}
+
+.Fs19 {
+	font-size: 19px !important;
+}
+
+.Fs20 {
+	font-size: 20px !important;
+}
+
+.Fs21 {
+	font-size: 21px !important;
+}
+
+.Fs22 {
+	font-size: 22px !important;
+}
+
+.Fs23 {
+	font-size: 23px !important;
+}
+
+.Fs24 {
+	font-size: 24px !important;
+}
+
+.Fs25 {
+	font-size: 25px !important;
+}
+
+.Fs26 {
+	font-size: 26px !important;
+}
+
+.Fs27 {
+	font-size: 27px !important;
+}
+
+.Fs28 {
+	font-size: 28px !important;
+}
+
+.Fs29 {
+	font-size: 29px !important;
+}
+
+.Fs30 {
+	font-size: 30px !important;
+}
+
+.Fs40 {
+	font-size: 40px !important;
+}
+
+.Fs50 {
+	font-size: 50px !important;
+}
+
+.Fs60 {
+	font-size: 60px !important;
+}
+
+.Fs100 {
+	font-size: 100px !important;
+}
+
+.Fs130 {
+	font-size: 130px !important;
+}

@@ -1,0 +1,169 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" xmlns:o="http://omnifaces.org/ui"
+	template="/WEB-INF/template/template-login.xhtml">
+
+	<ui:define name="title">Encontro de Jovem com Cristo "SEGUE-ME" - Solicitação de Acesso</ui:define>
+	<ui:define name="sub-title">Solicitação de Acesso</ui:define>
+	<f:metadata>
+		<f:viewAction action="#{solicitacaoUsuarioController.inicializar()}" />
+	</f:metadata>
+
+
+	<ui:define name="content">
+		<h:form id="frm">
+			<div class="card card-w-title ui-fluid">
+				<ui:include src="/WEB-INF/facelets/mensagem/messages.xhtml" />
+				<p:focus for="nome" />
+				<p:panelGrid columns="2" layout="grid"
+					styleClass="ui-panelgrid-blank form-group"
+					columnClasses="ui-grid-col-3,ui-grid-col-9">
+
+					<p:outputLabel value="Nome" for="nome" />
+					<p:inputText placeholder="Nome Completo" id="nome"
+						value="#{solicitacaoUsuarioController.usuario.nome}" />
+				</p:panelGrid>
+
+				<p:panelGrid columns="2" layout="grid"
+					styleClass="ui-panelgrid-blank form-group"
+					columnClasses="ui-grid-col-3,ui-grid-col-9">
+					<p:outputLabel value="Email" for="email" />
+
+					<p:inputText id="email"
+						value="#{solicitacaoUsuarioController.usuario.email}"
+						required="true" />
+				</p:panelGrid>
+
+				<p:panelGrid columns="3" layout="grid"
+					styleClass="ui-panelgrid-blank form-group"
+					columnClasses="ui-grid-col-3, ui-grid-col-4, ui-grid-col-5">
+
+					<p:outputLabel value="Data de Nascimento" for="nascimento" />
+					<p:calendar id="nascimento" required="true"
+						value="#{solicitacaoUsuarioController.usuario.dataNascimento}"
+						mask="true" pattern="dd/MM/yyyy" />
+
+					<p:selectOneMenu id="sexo" label="Sexo"
+						converter="omnifaces.SelectItemsConverter"
+						value="#{solicitacaoUsuarioController.usuario.sexo}"
+						style="height:28px;">
+						<f:selectItem itemLabel="Sexo" noSelectionOption="true" />
+						<f:selectItems value="#{solicitacaoUsuarioController.listaSexo}"
+							var="sexo" itemValue="#{sexo}" itemLabel="#{sexo.nome}" />
+					</p:selectOneMenu>
+				</p:panelGrid>
+
+				<p:panelGrid columns="2" layout="grid"
+					styleClass="ui-panelgrid-blank form-group"
+					columnClasses="ui-grid-col-3, ui-grid-col-9">
+
+					<p:outputLabel value="Telefone" />
+					<p:inputMask id="celular" required="true"
+						requiredMessage="Telefone é campo obrigatório"
+						value="#{solicitacaoUsuarioController.usuario.numeroCompleto}"
+						mask="(99)999999999" />
+				</p:panelGrid>
+
+				<p:panelGrid columns="2" layout="grid"
+					styleClass="ui-panelgrid-blank form-group"
+					columnClasses="ui-grid-col-3,ui-grid-col-9">
+
+					<p:outputLabel value="Paroquia" for="paroquia" />
+					<p:selectOneMenu id="paroquia"
+						value="#{solicitacaoUsuarioController.paroquia}" required="true">
+						<f:selectItem itemLabel="Selecione a Paroquia" />
+						<f:selectItems
+							value="#{solicitacaoUsuarioController.listaParoquia}"
+							var="paroquia" itemValue="#{paroquia}"
+							itemLabel="#{paroquia.descricao}" />
+						<p:ajax
+							listener="#{solicitacaoUsuarioController.onSegueMeChange()}"
+							update="segueMe" event="change" />
+					</p:selectOneMenu>
+				</p:panelGrid>
+
+
+				<p:panelGrid columns="2" layout="grid"
+					styleClass="ui-panelgrid-blank form-group"
+					columnClasses="ui-grid-col-3,ui-grid-col-9">
+
+					<p:outputLabel value="Segue-Me (Que vai Servir)" for="segueMe" />
+					<p:selectOneMenu id="segueMe" label="Segue-me" required="true"
+						value="#{solicitacaoUsuarioController.usuario.segueMe}">
+						<f:selectItem itemLabel="Selecione o Segue-Me" />
+						<f:selectItems
+							value="#{solicitacaoUsuarioController.listaSegueMe}"
+							var="segueMe" itemValue="#{segueMe}"
+							itemLabel="#{segueMe.titulo} - #{segueMe.numeroRomano.numeroRomano}" />
+					</p:selectOneMenu>
+				</p:panelGrid>
+
+				<p:panelGrid columns="2" layout="grid"
+					styleClass="ui-panelgrid-blank form-group"
+					columnClasses="ui-grid-col-3,ui-grid-col-9">
+
+					<p:outputLabel value="Equipe" for="equipe" />
+					<p:selectOneMenu id="equipe"
+						value="#{solicitacaoUsuarioController.usuario.equipe}"
+						required="true">
+						<f:selectItem itemLabel="Selecione a Equipe" />
+						<f:selectItems value="#{solicitacaoUsuarioController.listaEquipe}"
+							var="equipe" itemValue="#{equipe}" itemLabel="#{equipe.titulo}" />
+						<p:ajax
+							listener="#{solicitacaoUsuarioController.onFuncaoChange()}"
+							update="funcao" />
+					</p:selectOneMenu>
+				</p:panelGrid>
+
+				<p:panelGrid columns="2" layout="grid"
+					styleClass="ui-panelgrid-blank form-group"
+					columnClasses="ui-grid-col-3,ui-grid-col-9">
+					<p:outputLabel value="Função" for="funcao" />
+					<p:selectOneMenu id="funcao" label="Função" required="true"
+						value="#{solicitacaoUsuarioController.usuario.funcao}">
+						<f:selectItem itemLabel="Selecione a função" />
+						<f:selectItems value="#{solicitacaoUsuarioController.listaFuncao}"
+							var="funcao" itemValue="#{funcao}"
+							itemLabel="#{funcao.descricao}" />
+					</p:selectOneMenu>
+				</p:panelGrid>
+
+
+				<p:panelGrid columns="3" layout="grid"
+					styleClass="ui-panelgrid-blank form-group"
+					columnClasses="ui-grid-col-3,ui-grid-col-4, ui-grid-col-5">
+
+					<p:outputLabel value="Senha de acesso" for="senha" />
+					<p:password id="senha"
+						value="#{solicitacaoUsuarioController.usuario.senha}"
+						match="senha2" validatorMessage="Senhas precisam ser iguais"
+						feedback="true" inline="true" promptLabel="Digite a senha"
+						weakLabel="Força da senha : Fraca"
+						goodLabel="Força da senha : Média"
+						strongLabel="Força da senha : Forte" />
+
+					<p:password placeholder="Informe novamente a senha" id="senha2"
+						match="senha2" />
+				</p:panelGrid>
+
+				<p:panelGrid columns="3" layout="grid"
+					styleClass="ui-panelgrid-blank form-group"
+					style="margin-top: 20px;"
+					columnClasses="ui-grid-col-3,ui-grid-col-5, ui-grid-col-4">
+
+					<p:outputLabel value="" />
+					<p:commandButton value="Salvar" styleClass="green-btn raised-btn"
+						action="#{solicitacaoUsuarioController.enviarSolicitacao}"
+						icon="fa fa-save" process="@form" update="@form" />
+
+					<p:button value="Cancelar" process="@this" outcome="/login"
+						styleClass="raised-btn" icon="fa fa-remove" />
+				</p:panelGrid>
+
+			</div>
+		</h:form>
+	</ui:define>
+
+</ui:composition>

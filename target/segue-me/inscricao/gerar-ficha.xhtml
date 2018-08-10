@@ -1,0 +1,72 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:jsf="http://xmlns.jcp.org/jsf" xmlns:p="http://primefaces.org/ui"
+	xmlns:o="http://omnifaces.org/ui" template="/WEB-INF/template.xhtml">
+
+	<ui:define name="title">Gerar Ficha de Incrições -  Segue-me</ui:define>
+
+	<ui:define name="toolbar">
+		<p:button outcome="/segueMe/pesquisa-segue-me" value="Pesquisar"
+			icon="fa fa-search" />
+	</ui:define>
+
+	<f:metadata>
+		<f:viewAction action="#{gerarFichaBean.inicializar()}" />
+	</f:metadata>
+
+	<ui:define name="content">
+		<h:form id="form-cadastro">
+			<ui:include src="/WEB-INF/facelets/inscritos/inscritos-toolbar.xhtml" />
+			<div class="ui-fluid">
+				<div class="ui-g-12">
+					<div class="card card-w-title">
+						<h1>Gerar Ficha de Incrições</h1>
+						<ui:include src="/WEB-INF/facelets/mensagem/messages.xhtml" />
+						<p:focus for="numero" />
+
+						<div class="ui-g">
+							<div class="ui-g-12">
+								<p:outputLabel value="Paroquia" />
+							</div>
+
+							<div class="ui-g-12 ui-lg-6">
+								<p:outputLabel value="#{gerarFichaBean.segueMe.paroquia.descricao}" />
+							</div>
+							
+							<div class="ui-g-12">
+								<p:outputLabel value="Segue-me" />
+							</div>
+
+							<div class="ui-g-12 ui-lg-6">
+								<p:outputLabel value="#{gerarFichaBean.segueMe.titulo} - #{gerarFichaBean.segueMe.numeroRomano.numeroRomano}" />
+							</div>
+
+							<div class="ui-g-12">
+								<p:outputLabel value="Número de fichas" for="numero" />
+							</div>
+							<div class="ui-g-12 ui-lg-6">
+								<p:inputText id="numero"
+									value="#{gerarFichaBean.numero}" />
+							</div>
+
+
+							<div class="save ui-g-12">
+								<p:commandButton value="Gerar" style="width: auto;"
+									action="#{gerarFichaBean.salvar()}" update="@form"
+									process="@form" icon="fa fa-save" styleClass="green-btn" />
+
+								<p:button value="Cancelar"
+									style="width: auto; margin-left: 15px;"
+									outcome="pesquisa-inscricao" icon="fa fa-remove" />
+							</div>
+
+						</div>
+					</div>
+				</div>
+			</div>
+		</h:form>
+	</ui:define>
+
+</ui:composition>

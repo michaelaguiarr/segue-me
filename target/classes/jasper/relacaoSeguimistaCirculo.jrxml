@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.5.1.final using JasperReports Library version 6.5.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="quadranteSeguidor" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" isSummaryWithPageHeaderAndFooter="true" uuid="a71ed9bd-1d82-4eaa-901f-34a0ff606867">
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="SEGUE-ME"/>
+	<parameter name="segueMe" class="java.lang.Long"/>
+	<parameter name="circulo" class="java.lang.Long"/>
+	<queryString language="SQL">
+		<![CDATA[SELECT
+public.inscricao.id,
+public.segue_me.cidade,
+public.segue_me.data_fim,
+public.segue_me.data_inicio,
+public.segue_me.estado,
+public.segue_me.padroeiro,
+public.segue_me.titulo,
+public.segue_me.nomeclatura AS segue_me_nomeclatura,
+public.numero_romano.numero,
+public.numero_romano.numero_romano,
+public.paroquias.descricao AS paroquia,
+public.paroquias.cidade AS paroquia_cidade_0,
+public.paroquias.estado AS paroquia_estado_0,
+public.evento_segue_me.idade_no_evento AS idade,
+public.seguidor.dt_nascimento,
+public.seguidor.telefone_um AS seguidor_telefone,
+public.sexo.nome AS sexo,
+public.inscricao.statusinscricao,
+public.endereco.bairro,
+public.endereco.cidade AS cidade_0,
+public.seguidor.nome,
+public.evento_segue_me.fk_circulo_id,
+public.circulo.corcirculo,
+public.circulo.nome AS nome_0,
+"public".seguidor."rede_social_instagram",
+"public".seguidor."rede_social_facebook",
+"public".seguidor."rede_social_twitter"
+FROM
+public.segue_me
+JOIN public.evento_segue_me
+ON public.segue_me.id = public.evento_segue_me.fk_segue_me_id 
+JOIN public.numero_romano
+ON public.numero_romano.id = public.segue_me.fk_numero_cod 
+JOIN public.paroquias
+ON public.segue_me.paroquia_id = public.paroquias.id 
+JOIN public.seguidor
+ON public.evento_segue_me.fk_seguidor_id = public.seguidor.id 
+JOIN public.sexo
+ON public.sexo.cod = public.seguidor.fk_sexo_id 
+JOIN public.inscricao
+ON public.evento_segue_me.fk_inscricao_id = public.inscricao.id 
+JOIN public.endereco
+ON public.endereco.cod = public.seguidor.fk_endereco_id 
+LEFT JOIN public.circulo
+ON public.circulo.id = public.evento_segue_me.fk_circulo_id
+WHERE
+public.inscricao.statusinscricao like 'APROVADO' AND
+public.evento_segue_me.fk_circulo_id =  $P{circulo} AND
+ public.segue_me.id =  $P{segueMe} 
+ORDER BY
+public.circulo.corcirculo ASC,
+public.endereco.bairro ASC]]>
+	</queryString>
+	<field name="id" class="java.lang.Long">
+		<property name="com.jaspersoft.studio.field.label" value="id"/>
+	</field>
+	<field name="cidade" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="cidade"/>
+	</field>
+	<field name="data_fim" class="java.sql.Date">
+		<property name="com.jaspersoft.studio.field.label" value="data_fim"/>
+	</field>
+	<field name="data_inicio" class="java.sql.Date">
+		<property name="com.jaspersoft.studio.field.label" value="data_inicio"/>
+	</field>
+	<field name="estado" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="estado"/>
+	</field>
+	<field name="padroeiro" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="padroeiro"/>
+	</field>
+	<field name="titulo" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="titulo"/>
+	</field>
+	<field name="segue_me_nomeclatura" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="segue_me_nomeclatura"/>
+	</field>
+	<field name="numero" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="numero"/>
+	</field>
+	<field name="numero_romano" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="numero_romano"/>
+	</field>
+	<field name="paroquia" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="paroquia"/>
+	</field>
+	<field name="paroquia_cidade_0" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="paroquia_cidade_0"/>
+	</field>
+	<field name="paroquia_estado_0" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="paroquia_estado_0"/>
+	</field>
+	<field name="idade" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="idade"/>
+	</field>
+	<field name="dt_nascimento" class="java.sql.Timestamp">
+		<property name="com.jaspersoft.studio.field.label" value="dt_nascimento"/>
+	</field>
+	<field name="seguidor_telefone" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="seguidor_telefone"/>
+	</field>
+	<field name="sexo" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="sexo"/>
+	</field>
+	<field name="statusinscricao" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="statusinscricao"/>
+	</field>
+	<field name="bairro" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="bairro"/>
+	</field>
+	<field name="cidade_0" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="cidade_0"/>
+	</field>
+	<field name="nome" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="nome"/>
+	</field>
+	<field name="fk_circulo_id" class="java.lang.Long">
+		<property name="com.jaspersoft.studio.field.label" value="fk_circulo_id"/>
+	</field>
+	<field name="corcirculo" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="corcirculo"/>
+	</field>
+	<field name="nome_0" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="nome_0"/>
+	</field>
+	<field name="rede_social_instagram" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="rede_social_instagram"/>
+	</field>
+	<field name="rede_social_facebook" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="rede_social_facebook"/>
+	</field>
+	<field name="rede_social_twitter" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="rede_social_twitter"/>
+	</field>
+	<variable name="id1" class="java.lang.Integer" resetType="Group" resetGroup="Group1" calculation="Count">
+		<variableExpression><![CDATA[$F{id}]]></variableExpression>
+	</variable>
+	<group name="Group1">
+		<groupExpression><![CDATA[$F{fk_circulo_id}]]></groupExpression>
+		<groupHeader>
+			<band height="15">
+				<textField>
+					<reportElement x="17" y="0" width="536" height="15" uuid="172c0757-feb9-4c46-8ff0-e49ed7fe0b2a"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="ComicSan" size="10" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Círculo "+$F{corcirculo}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band height="20">
+				<staticText>
+					<reportElement x="10" y="0" width="450" height="20" uuid="f0341ec1-b0f0-4146-8930-9dee87223205"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="ComicSan" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Total :   ]]></text>
+				</staticText>
+				<textField>
+					<reportElement x="460" y="0" width="92" height="20" uuid="0858768a-cdae-49bb-bdbb-97a4a39fc919"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{id1}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupFooter>
+	</group>
+	<background>
+		<band height="802">
+			<image hAlign="Center" vAlign="Middle" onErrorType="Blank">
+				<reportElement x="0" y="40" width="552" height="730" uuid="48b194d7-b4bb-4fb9-a49c-6bc1f722eb6e"/>
+				<imageExpression><![CDATA["../../resources/temp/segueMeFundo/"+$F{id}+".jpg"]]></imageExpression>
+			</image>
+		</band>
+	</background>
+	<pageHeader>
+		<band height="110">
+			<image hAlign="Center" vAlign="Middle" onErrorType="Blank">
+				<reportElement x="18" y="10" width="79" height="60" uuid="11dadc6b-385f-4f24-a1be-999e5183ed79"/>
+				<imageExpression><![CDATA["../../resources/images/segue-me.png"]]></imageExpression>
+			</image>
+			<image hAlign="Center" vAlign="Middle" onErrorType="Blank">
+				<reportElement x="490" y="10" width="62" height="58" uuid="0bb4f7df-0777-4456-8b2f-b564609d01ac"/>
+				<imageExpression><![CDATA["../../resources/temp/segueMe/"+$F{id}+".jpg"]]></imageExpression>
+			</image>
+			<textField>
+				<reportElement x="97" y="0" width="392" height="25" uuid="ea8da274-7ee6-4dc3-8319-a1bd3cc17e2f"/>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font fontName="Comic Sans MS" size="16" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{numero_romano}+" SEGUE - ME"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="97" y="26" width="392" height="15" uuid="3c4f1b92-cb41-4131-b939-d33dcc792742"/>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font fontName="Comic Sans MS" size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Paróquia "+$F{paroquia}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="97" y="42" width="392" height="15" uuid="9a6767f2-3769-46d7-8716-c7888fc59efc"/>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font fontName="Comic Sans MS" size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{padroeiro}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="98" y="57" width="392" height="15" uuid="94ba2cb8-c7a4-4332-abcf-6aed4765d4e6"/>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font fontName="Comic Sans MS" size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{segue_me_nomeclatura}+" do Encontro"]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="2" y="80" width="550" height="30" uuid="7b8b7949-ed95-4166-9edc-c851a6f32a67"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Comic Sans MS" size="19" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Relação dos Seguimistas]]></text>
+			</staticText>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="20" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="0" width="553" height="20" uuid="51869704-5574-461a-9248-c2df7e4ac5e5"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="ComicSan" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Nome (Idade) - Sexo / Telefone / Bairro]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="42">
+			<textField>
+				<reportElement x="0" y="0" width="553" height="20" uuid="2269184c-d920-4584-8e94-8a2f00c49c2f"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="ComicSan"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nome}+"("+$F{idade}+ ")"+" "+$F{sexo}+" / "+$F{seguidor_telefone}+" / "+$F{bairro}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="21" width="553" height="20" uuid="b6ca9e35-fb35-4c16-995d-27462699ce25"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="ComicSan"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Facebook( "+$F{rede_social_facebook}+ " )"+" Instagram( "+$F{rede_social_instagram}+ " ) Twitter ( "+$F{rede_social_twitter}+" )"]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="50">
+			<image hAlign="Center" vAlign="Middle">
+				<reportElement x="2" y="6" width="550" height="34" uuid="4eec6159-014d-4039-90ab-442859e54d9d"/>
+				<imageExpression><![CDATA["../../resources/images/peixe.png"]]></imageExpression>
+			</image>
+		</band>
+	</pageFooter>
+</jasperReport>
