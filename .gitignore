@@ -1,5 +1,2 @@
-*.class
-build/
-out/
-dist/
-target/
+*/target/*.
+/target/
