@@ -1,5 +1,6 @@
 package com.segue.controller;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -7,6 +8,9 @@ import java.util.List;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
+
+import org.primefaces.event.FileUploadEvent;
+import org.primefaces.model.UploadedFile;
 
 import com.segue.model.Circulo;
 import com.segue.model.CorCirculo;
@@ -17,6 +21,7 @@ import com.segue.repository.ParoquiaRepository;
 import com.segue.repository.SegueMeRepository;
 import com.segue.security.Seguranca;
 import com.segue.service.CadastroCirculoService;
+import com.segue.service.FotoService;
 import com.segue.service.NegocioException;
 import com.segue.util.jsf.FacesUtil;
 
@@ -35,10 +40,14 @@ public class CadastroCirculoBean implements Serializable {
 	@Inject
 	private ParoquiaRepository paroquiaRepository;
 
+	@Inject
+	private FotoService fotoService;
+
 	private Seguranca seguranca;
 	private Usuario usuarioLogado;
 	private Circulo circulo;
 	private Paroquia paroquia;
+	private String imagem;
 
 	private List<Paroquia> listaParaquia;
 	private List<SegueMe> listaSegueMe;
@@ -50,14 +59,16 @@ public class CadastroCirculoBean implements Serializable {
 	public void inicializar() {
 		if (this.circulo == null) {
 			limpar();
-			this.circulo.setSegueMe(this.usuarioLogado.getSegueMe());	
+			this.circulo.setSegueMe(this.usuarioLogado.getSegueMe());
+		} else {
+			imagem = fotoService.recuperarViaByte(this.circulo.getImagem(), "circulo", this.circulo.getId());
 		}
 		this.seguranca = new Seguranca();
 		this.usuarioLogado = this.seguranca.usuarioLogado();
 		this.listaParaquia = paroquiaRepository.listaParoquias();
 		this.paroquia = this.usuarioLogado.getSegueMe().getParoquia();
 		this.listaSegueMe = segueMeRepository.findByParoquia(paroquia);
-		
+
 	}
 
 	private void limpar() {
@@ -67,6 +78,7 @@ public class CadastroCirculoBean implements Serializable {
 		this.seguranca = new Seguranca();
 		this.usuarioLogado = new Usuario();
 		this.paroquia = new Paroquia();
+		this.imagem = null;
 	}
 
 	public void salvar() {
@@ -89,6 +101,28 @@ public class CadastroCirculoBean implements Serializable {
 		} catch (NegocioException ne) {
 			FacesUtil.addErrorMessage(ne.getMessage());
 		}
+	}
+
+	public void upload(FileUploadEvent event) {
+		UploadedFile uploadedFile = event.getFile();
+
+		try {
+			byte[] fotoFile = fotoService.salvarFotoTempByte(uploadedFile.getFileName(), event.getFile().getContents());
+			circulo.setImagem(fotoFile);
+			imagem = fotoService.recuperarViaByte(this.circulo.getImagem(), "circulo", this.circulo.getId());
+		} catch (Exception e) {
+			FacesUtil.addErrorMessage(e.getMessage());
+		}
+	}
+
+	public void removerFoto() {
+		try {
+			fotoService.deletarTemp(this.circulo.getId(), "circulo");
+		} catch (IOException e) {
+			FacesUtil.addErrorMessage(e.getMessage());
+		}
+		circulo.setImagem(null);
+		imagem = null;
 	}
 
 	/**
@@ -139,6 +173,14 @@ public class CadastroCirculoBean implements Serializable {
 
 	public void setListaSegueMe(List<SegueMe> listaSegueMe) {
 		this.listaSegueMe = listaSegueMe;
+	}
+
+	public String getImagem() {
+		return imagem;
+	}
+
+	public void setImagem(String imagem) {
+		this.imagem = imagem;
 	}
 
 }

@@ -34,7 +34,7 @@ public class CirculoRepository implements Serializable {
 	@Inject
 	private EntityManager manager;
 
-	public Circulo porId(Long id) {
+	public Circulo porId(Integer id) {
 		return manager.find(Circulo.class, id);
 	}
 

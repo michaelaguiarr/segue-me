@@ -111,12 +111,16 @@ public class Seguranca {
 
 	public boolean isAdministradorGeral() {
 		UsuarioSistema usuarioLogado = getUsuarioLogado();
-		return usuarioLogado.getUsuario().getFuncao().isAdministradorGeral();
+		if (usuarioLogado.getUsuario().getFuncao().isAdministradorGeral() || isDeveloper()) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	public boolean isAdministrador() {
 		UsuarioSistema usuarioLogado = getUsuarioLogado();
-		if (usuarioLogado.getUsuario().getEquipe().getId() == 6 || isAdministradorGeral()) {
+		if (usuarioLogado.getUsuario().getEquipe().getId() == 6 || isAdministradorGeral() || isDeveloper()) {
 			return true;
 		} else {
 			return false;
@@ -126,13 +130,13 @@ public class Seguranca {
 	public boolean isGraficaAndComandante() {
 		UsuarioSistema usuarioLogado = getUsuarioLogado();
 		if (usuarioLogado.getUsuario().getEquipe().getId() == 15 || usuarioLogado.getUsuario().getEquipe().getId() == 7
-				|| isAdministrador() || isAdministradorGeral()) {
+				|| isAdministrador() || isAdministradorGeral() || isDeveloper()) {
 			return true;
 		} else {
 			return false;
 		}
 	}
-	
+
 	public boolean isGrafica() {
 		UsuarioSistema usuarioLogado = getUsuarioLogado();
 		if (usuarioLogado.getUsuario().getEquipe().getId() == 15) {
@@ -186,7 +190,7 @@ public class Seguranca {
 	public boolean isGerenciarFichas() {
 		return externalContext.isUserInRole("GERENCIAR_FICHAS");
 	}
-	
+
 	public boolean isGerenciarParoquia() {
 		return externalContext.isUserInRole("GERENCIAR_PAROQUIA");
 	}
@@ -194,31 +198,30 @@ public class Seguranca {
 	public boolean isGerenciarEvento() {
 		return externalContext.isUserInRole("GERENCIAR_EVENTO");
 	}
-	
+
 	public boolean isGerenciarSeguidor() {
 		return externalContext.isUserInRole("GERENCIAR_SEGUIDOR");
 	}
-	
+
 	public boolean isGerenciarCasal() {
 		return externalContext.isUserInRole("GERENCIAR_CASAL");
 	}
-	
+
 	public boolean isGerenciarRelatorioDirigente() {
 		return externalContext.isUserInRole("GERENCIAR_RELATORIO_DIR");
 	}
-	
+
 	public boolean isGerenciarPadre() {
 		return externalContext.isUserInRole("GERENCIAR_PADRE");
 	}
-	
+
 	public boolean isGerenciarVenda() {
 		return externalContext.isUserInRole("GERENCIAR_VENDAS");
 	}
-	
+
 	public boolean isSettings() {
-		return isDeveloper() || isGerenciarSegueMe() || isGerenciarEquipe()
-				|| isGerenciarFuncao() || isGerenciarPerfil() || isGerenciarCirculo()
-				|| isGerenciarPalestra() || isGerenciarParoquia();
+		return isDeveloper() || isGerenciarSegueMe() || isGerenciarEquipe() || isGerenciarFuncao()
+				|| isGerenciarPerfil() || isGerenciarCirculo() || isGerenciarPalestra() || isGerenciarParoquia();
 	}
 
 }
