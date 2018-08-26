@@ -75,6 +75,34 @@
 							<div class="ui-g-12 ui-lg-6">
 								<p:inputTextarea id="obs" value="#{cadastroEquipeBean.equipe.obs}" rows="6" cols="33" />
 							</div>
+							
+							<div class="ui-g-12">
+								<p:outputLabel value="Imagem" />
+							</div>
+							<div class="ui-g-12 ui-lg-6">
+								<h:panelGrid id="fotoPanelGroupUpload">
+									<p:fileUpload
+										fileUploadListener="#{cadastroEquipeBean.upload}"
+										allowTypes="/(\.|\/)(jpe?g)$/"
+										invalidFileMessage="São permitidas somente imagens (jpg)"
+										auto="true" label="Foto"
+										update="fotoPanelGroup fotoPanelGroupUpload"
+										rendered="#{cadastroEquipeBean.imagem == null}" />
+								</h:panelGrid>
+							</div>
+
+							<div class="ui-g-12">
+								<h:panelGrid id="fotoPanelGroup">
+									<p:graphicImage value="#{cadastroEquipeBean.imagem}"
+										rendered="#{cadastroEquipeBean.imagem ne null}" width="200px"
+										id="foto" />
+									<p:commandButton value="Remover Foto"
+										style="width: auto; margin-left: 15px;"
+										actionListener="#{cadastroEquipeBean.removerFoto}"
+										rendered="#{cadastroEquipeBean.imagem ne null}"
+										process="@this" update="fotoPanelGroup, fotoPanelGroupUpload" />
+								</h:panelGrid>
+							</div>
 
 							<div class="save ui-g-12">
 								<p:commandButton value="Salvar" style="width: auto;"

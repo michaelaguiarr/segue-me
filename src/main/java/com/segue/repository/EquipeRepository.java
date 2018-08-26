@@ -18,7 +18,7 @@ public class EquipeRepository implements Serializable {
 	@Inject
 	private EntityManager manager;
 
-	public Equipe porId(Long id) {
+	public Equipe porId(Integer id) {
 		return manager.find(Equipe.class, id);
 	}
 

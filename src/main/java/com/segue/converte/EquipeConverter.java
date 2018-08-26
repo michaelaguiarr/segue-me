@@ -22,7 +22,7 @@ public class EquipeConverter implements Converter {
 		Equipe retorno = null;
 		
 		if (StringUtils.isNotEmpty(value)) {
-			Long id = new Long(value);
+			Integer id = new Integer(value);
 			retorno = repoditory.porId(id);
 		}
 		
