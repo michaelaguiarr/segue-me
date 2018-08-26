@@ -63,6 +63,7 @@ public class RelatorioCrachaCasal implements Serializable {
 	private Usuario usarioLogado;
 	private Paroquia paroquia;
 	private boolean atualizar;
+	private String nomeArquivo = "cracha";
 
 	private List<Paroquia> listaParoquia;
 	private List<SegueMe> listaSegueMe;
@@ -103,7 +104,12 @@ public class RelatorioCrachaCasal implements Serializable {
 			Map<String, Object> parametros = new HashMap<>();
 			parametros.put(JRParameter.REPORT_LOCALE, new Locale("pt", "BR"));
 			parametros.put("segueMe", this.segueMe.getId());
-			ExecutorRelatorioDownload executor = new ExecutorRelatorioDownload("/jasper/crachaCasal.jasper",
+			if(this.segueMe.getNomeArquivoCracha().isEmpty()) {
+				this.nomeArquivo = "cracha";
+			}else {
+				this.nomeArquivo = this.segueMe.getNomeArquivoCracha();
+			}
+			ExecutorRelatorioDownload executor = new ExecutorRelatorioDownload("/jasper/"+nomeArquivo+"Casal.jasper",
 					this.response, parametros, "CrachaCasal" + this.segueMe.getNumeroRomano().getNumeroRomano() + ".pdf");
 			Session session = manager.unwrap(Session.class);
 			session.doWork(executor);

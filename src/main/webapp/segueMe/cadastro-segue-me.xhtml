@@ -93,7 +93,7 @@
 										<p:selectOneMenu id="nomeclatura"
 											value="#{cadastroSegueMeBean.segueMe.nomeclatura}"
 											required="true">
-											<f:selectItem itemLabel="Selecione" noSelectionOption="true"/>
+											<f:selectItem itemLabel="Selecione" noSelectionOption="true" />
 											<f:selectItem itemLabel="PadroeirA" itemValue="Padroeira" />
 											<f:selectItem itemLabel="PadroeirO" itemValue="Padroeiro" />
 										</p:selectOneMenu>
@@ -104,6 +104,16 @@
 									<div class="ui-g-12 ui-lg-6">
 										<p:inputText id="padroeiro"
 											value="#{cadastroSegueMeBean.segueMe.padroeiro}" />
+									</div>
+
+									<div class="ui-g-12">
+										<p:outputLabel value="Nome Arquivo Crachá"
+											rendered="#{seguranca.developer}" />
+									</div>
+									<div class="ui-g-12 ui-lg-6">
+										<p:inputText id="nomeCracha"
+											value="#{cadastroSegueMeBean.segueMe.nomeArquivoCracha}"
+											rendered="#{seguranca.developer}" />
 									</div>
 								</div>
 							</p:tab>

@@ -40,6 +40,8 @@ public class SegueMe implements Serializable {
 	private boolean ativo = true;
 	private byte[] imagem;
 	private byte[] imagemFundo;
+	@Column(name = "nome_cracha")
+	private String nomeArquivoCracha;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -144,6 +146,14 @@ public class SegueMe implements Serializable {
 
 	public void setImagemFundo(byte[] imagemFundo) {
 		this.imagemFundo = imagemFundo;
+	}
+
+	public String getNomeArquivoCracha() {
+		return nomeArquivoCracha;
+	}
+
+	public void setNomeArquivoCracha(String nomeArquivoCracha) {
+		this.nomeArquivoCracha = nomeArquivoCracha;
 	}
 
 	@Override
