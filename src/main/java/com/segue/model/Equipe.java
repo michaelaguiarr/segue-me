@@ -21,7 +21,7 @@ public class Equipe implements Serializable {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+	private Integer id;
 
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "timestamp", columnDefinition = "timestamp with time zone default now()")
@@ -38,11 +38,13 @@ public class Equipe implements Serializable {
 	@Column(columnDefinition = "BOOLEAN DEFAULT true")
 	private boolean ativo = true;
 
-	public Long getId() {
+	private byte[] imagem;
+
+	public Integer getId() {
 		return id;
 	}
 
-	public void setId(Long id) {
+	public void setId(Integer id) {
 		this.id = id;
 	}
 
@@ -84,6 +86,22 @@ public class Equipe implements Serializable {
 
 	public void setAtivo(boolean ativo) {
 		this.ativo = ativo;
+	}
+
+	public Calendar getTimestamp() {
+		return timestamp;
+	}
+
+	public void setTimestamp(Calendar timestamp) {
+		this.timestamp = timestamp;
+	}
+
+	public byte[] getImagem() {
+		return imagem;
+	}
+
+	public void setImagem(byte[] imagem) {
+		this.imagem = imagem;
 	}
 
 	@Override
