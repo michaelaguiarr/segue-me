@@ -8,12 +8,12 @@
 
 		<properties>
 			<property name="javax.persistence.jdbc.driver" value="org.postgresql.Driver" />
-			<property name="javax.persistence.jdbc.url" value="jdbc:postgresql://127.0.0.1:5432/segue_me" />
+			<property name="javax.persistence.jdbc.url" value="jdbc:postgresql://127.0.0.1:5433/segue_me" />
 			<property name="javax.persistence.jdbc.user" value="segue-me" />
 			<property name="javax.persistence.jdbc.password" value="segue-me@@" />
 <!-- 			<property name="javax.persistence.jdbc.password" value="@@cti@@dev" /> -->
 
-			<property name="hibernate.hbm2ddl.auto" value="update" />
+<!-- 			<property name="hibernate.hbm2ddl.auto" value="update" /> -->
 			<property name="hibernate.show_sql" value="false" />
 			<property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect" />
 
@@ -21,8 +21,8 @@
 			<property name="hibernate.connection.provider_class"
 				value="org.hibernate.connection.C3P0ConnectionProvider" />
 
-			<property name="hibernate.c3p0.max_size" value="20" />
-			<property name="hibernate.c3p0.min_size" value="5" />
+			<property name="hibernate.c3p0.max_size" value="10" />
+			<property name="hibernate.c3p0.min_size" value="2" />
 			<property name="hibernate.c3p0.acquire_increment" value="1" />
 			<property name="hibernate.c3p0.idle_test_period" value="300" />
 			<property name="hibernate.c3p0.max_statements" value="50" />

@@ -177,6 +177,37 @@
 												update="fotoPanelGroupFundo, fotoPanelGroupUploadFundo" />
 										</h:panelGrid>
 									</div>
+									
+									
+									<div class="ui-g-12">
+										<p:outputLabel value="Imagem de Rodapé" />
+									</div>
+									<div class="ui-g-12 ui-lg-6">
+									<h:panelGrid id="fotoPanelGroupUploadRoda">
+											<p:fileUpload
+												fileUploadListener="#{cadastroSegueMeBean.uploadRoda}"
+												allowTypes="/(\.|\/)(jpe?g)$/"
+												invalidFileMessage="São permitidas somente imagens (png)"
+												auto="true" label="Foto"
+												update="fotoPanelGroupRoda fotoPanelGroupUploadRoda"
+												rendered="#{cadastroSegueMeBean.imagemRoda == null}" />
+										</h:panelGrid>
+									</div>
+
+									<div class="ui-g-12">
+										<h:panelGrid id="fotoPanelGroupRoda">
+											<p:graphicImage value="#{cadastroSegueMeBean.imagemRoda}"
+												rendered="#{cadastroSegueMeBean.imagemRoda ne null}"
+												width="200px" id="fotoRoda" />
+
+											<p:commandButton value="Remover Foto"
+												style="width: auto; margin-left: 15px;"
+												actionListener="#{cadastroSegueMeBean.removerFotoRoda()}"
+												rendered="#{cadastroSegueMeBean.imagemRoda ne null}"
+												process="@this"
+												update="fotoPanelGroupRoda, fotoPanelGroupUploadRoda" />
+										</h:panelGrid>
+									</div>
 								</div>
 							</p:tab>
 						</p:tabView>

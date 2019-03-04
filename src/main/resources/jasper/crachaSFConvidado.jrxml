@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.5.1.final using JasperReports Library version 6.5.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Blank_A4" columnCount="2" printOrder="Horizontal" pageWidth="595" pageHeight="842" columnWidth="270" columnSpacing="14" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="ae4098e2-6e47-4e98-a411-cbf7fea0e5fa">
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="cm"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="mm"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="SEGUE-ME"/>
+	<parameter name="segueMe" class="java.lang.Long"/>
+	<queryString>
+		<![CDATA[SELECT
+public.evento_segue_me.id AS id,
+public.evento_segue_me.cracha,
+public.evento_segue_me.fk_segue_me_id,
+public.segue_me.data_fim,
+public.segue_me.data_inicio,
+public.paroquias.descricao,
+public.paroquias.cidade,
+public.paroquias.estado,
+public.segue_me.padroeiro,
+public.numero_romano.numero_romano,
+public.evento_segue_me.fk_equipe_id,
+public.palestrante_convidado.id AS id_0,
+public.evento_segue_me.fk_palestrante_convidado_id,
+public.palestrante_convidado.apelido
+FROM
+public.segue_me
+JOIN public.evento_segue_me
+ON public.segue_me.id = public.evento_segue_me.fk_segue_me_id 
+JOIN public.paroquias
+ON public.segue_me.paroquia_id = public.paroquias.id 
+JOIN public.numero_romano
+ON public.numero_romano.id = public.segue_me.fk_numero_cod 
+JOIN public.palestrante_convidado
+ON public.evento_segue_me.fk_palestrante_convidado_id = public.palestrante_convidado.id
+WHERE
+public.evento_segue_me.fk_inscricao_id is null and
+public.evento_segue_me.fk_segue_me_id =  $P{segueMe}  and
+public.evento_segue_me.cracha = true]]>
+	</queryString>
+	<field name="id" class="java.lang.Long">
+		<property name="com.jaspersoft.studio.field.label" value="id"/>
+	</field>
+	<field name="cracha" class="java.lang.Boolean">
+		<property name="com.jaspersoft.studio.field.label" value="cracha"/>
+	</field>
+	<field name="fk_segue_me_id" class="java.lang.Long">
+		<property name="com.jaspersoft.studio.field.label" value="fk_segue_me_id"/>
+	</field>
+	<field name="data_fim" class="java.sql.Date">
+		<property name="com.jaspersoft.studio.field.label" value="data_fim"/>
+	</field>
+	<field name="data_inicio" class="java.sql.Date">
+		<property name="com.jaspersoft.studio.field.label" value="data_inicio"/>
+	</field>
+	<field name="descricao" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="descricao"/>
+	</field>
+	<field name="cidade" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="cidade"/>
+	</field>
+	<field name="estado" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="estado"/>
+	</field>
+	<field name="padroeiro" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="padroeiro"/>
+	</field>
+	<field name="numero_romano" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="numero_romano"/>
+	</field>
+	<field name="fk_equipe_id" class="java.lang.Long">
+		<property name="com.jaspersoft.studio.field.label" value="fk_equipe_id"/>
+	</field>
+	<field name="id_0" class="java.lang.Long">
+		<property name="com.jaspersoft.studio.field.label" value="id_0"/>
+	</field>
+	<field name="fk_palestrante_convidado_id" class="java.lang.Long">
+		<property name="com.jaspersoft.studio.field.label" value="fk_palestrante_convidado_id"/>
+	</field>
+	<field name="apelido" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="apelido"/>
+	</field>
+	<title>
+		<band/>
+	</title>
+	<pageHeader>
+		<band/>
+	</pageHeader>
+	<columnHeader>
+		<band/>
+	</columnHeader>
+	<detail>
+		<band height="190" splitType="Stretch">
+			<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
+			<image scaleImage="FillFrame" hAlign="Center" vAlign="Middle" onErrorType="Blank" evaluationTime="Auto">
+				<reportElement x="0" y="0" width="275" height="190" uuid="21434f09-6633-4220-8fba-e85ef0a179d0"/>
+				<graphicElement fill="Solid"/>
+				<imageExpression><![CDATA["../../resources/images/cracha-fundo-sf.png"]]></imageExpression>
+			</image>
+			<line>
+				<reportElement x="0" y="0" width="271" height="1" uuid="5968657a-1f97-4e9e-ad7c-d5f0ad6a486c"/>
+			</line>
+			<textField>
+				<reportElement x="20" y="54" width="238" height="76" uuid="00470fd6-e548-417c-8375-d5aace6ad92d"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Comic Sans MS" size="24" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{apelido}]]></textFieldExpression>
+			</textField>
+			<image hAlign="Center" onErrorType="Blank">
+				<reportElement x="21" y="14" width="50" height="40" uuid="42b2a426-4f25-47ff-a2c5-9b0a8829f33b"/>
+				<imageExpression><![CDATA["../../resources/images/segue-me.png"]]></imageExpression>
+			</image>
+			<image scaleImage="FillFrame" hAlign="Center" vAlign="Middle" onErrorType="Blank">
+				<reportElement x="20" y="130" width="53" height="50" uuid="27e18a07-1c08-4c6a-ac74-83f90fccd6a2"/>
+				<graphicElement fill="Solid"/>
+				<imageExpression><![CDATA["../../resources/temp/segueMe/"+$F{fk_segue_me_id}+".jpg"]]></imageExpression>
+			</image>
+			<image scaleImage="FillFrame" hAlign="Left" vAlign="Middle" onErrorType="Blank">
+				<reportElement x="73" y="14" width="185" height="40" uuid="02915220-d2f7-4912-89d9-e220caff5fdc"/>
+				<imageExpression><![CDATA["../../resources/images/titulo-sf.png"]]></imageExpression>
+			</image>
+			<image scaleImage="FillFrame" hAlign="Center" vAlign="Middle" onErrorType="Blank">
+				<reportElement x="190" y="130" width="53" height="50" uuid="968b2da3-a71b-4eac-8566-4eae671d4aac"/>
+				<graphicElement fill="Solid"/>
+				<imageExpression><![CDATA["../../resources/temp/equipe/"+$F{fk_equipe_id}+".jpg"]]></imageExpression>
+			</image>
+		</band>
+	</detail>
+	<columnFooter>
+		<band/>
+	</columnFooter>
+	<pageFooter>
+		<band/>
+	</pageFooter>
+	<summary>
+		<band/>
+	</summary>
+</jasperReport>

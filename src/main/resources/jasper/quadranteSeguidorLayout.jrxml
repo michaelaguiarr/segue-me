@@ -695,9 +695,9 @@ ORDER BY
 	</detail>
 	<pageFooter>
 		<band height="50">
-			<image hAlign="Center" vAlign="Middle">
+			<image hAlign="Center" vAlign="Middle" onErrorType="Blank">
 				<reportElement x="2" y="6" width="550" height="34" uuid="4eec6159-014d-4039-90ab-442859e54d9d"/>
-				<imageExpression><![CDATA["../../resources/images/peixe.png"]]></imageExpression>
+				<imageExpression><![CDATA["../../resources/temp/segueMeRoda/"+$F{fk_segue_me_id}+".jpg"]]></imageExpression>
 			</image>
 			<textField>
 				<reportElement x="520" y="40" width="30" height="10" uuid="a4bc9e55-b2a6-451e-b1c8-386b0ac943a1"/>

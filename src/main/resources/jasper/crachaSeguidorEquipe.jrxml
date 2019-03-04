@@ -13,7 +13,7 @@
 	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="SEGUE-ME"/>
 	<parameter name="segueMe" class="java.lang.Long"/>
-	<parameter name="equipe" class="java.lang.Long"/>
+	<parameter name="equipe" class="java.lang.Integer"/>
 	<queryString>
 		<![CDATA[SELECT
 public.evento_segue_me.id AS id,

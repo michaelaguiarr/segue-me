@@ -1,0 +1,58 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:jsf="http://xmlns.jcp.org/jsf" xmlns:p="http://primefaces.org/ui"
+	xmlns:o="http://omnifaces.org/ui" template="/WEB-INF/template.xhtml">
+
+	<ui:define name="title">Cadastro Palestrante Convidado</ui:define>
+
+	<f:metadata>
+		<o:viewParam name="convidado" value="#{cadastroConvidadoPalestraBean.palestranteConvidado}" />
+		<f:viewAction action="#{cadastroConvidadoPalestraBean.inicializar()}" />
+	</f:metadata>
+	<ui:define name="toolbar">
+		<p:button outcome="/palestranteConvidado/pesquisa-convidado" value="Pesquisar"
+			icon="fa fa-search" />
+	</ui:define>
+	<ui:define name="cancelar">
+		<p:commandButton icon="fa fa-trash" value="Excluir"
+			style="width: auto; margin-left: 15px;"
+			oncomplete="PF('confirmacaoExclusao').show();" process="@this"
+			styleClass="red-btn"
+			update=":form-cadastro:confirmacaoExclusaoDialog"
+			rendered="#{cadastroConvidadoPalestraBean.editando}" />
+		<p:button value="Cancelar" style="width: auto; margin-left: 15px;"
+			outcome="pesquisa-convidado" icon="fa fa-remove" />
+	</ui:define>
+	<ui:define name="content">
+		<h:form id="form-cadastro" enctype="multipart/form-data">
+			<ui:include src="/WEB-INF/facelets/palestranteConvidado/convidado-toolbar.xhtml" />
+			<div class="ui-fluid">
+				<div class="ui-g-12">
+					<div class="card card-w-title">
+						<h1>#{cadastroConvidadoPalestraBean.editando ? 'Edição Palestrante Convidado' :
+							'Novo Palestrante Convidado'}</h1>
+						<ui:include src="/WEB-INF/facelets/mensagem/messages.xhtml" />
+						<p:growl />
+						<div class="ui-g">
+							<p:focus for="nome" />
+							<ui:include
+								src="/WEB-INF/facelets/palestranteConvidado/cadastro-convidado.xhtml" />
+						</div>
+					</div>
+				</div>
+			</div>
+			<p:confirmDialog header="Exclusão do Seguidor"
+				message="Tem certeza que deseja excluir o Seguidor #{cadastroConvidadoPalestraBean.palestranteConvidado.nome}"
+				widgetVar="confirmacaoExclusao" id="confirmacaoExclusaoDialog">
+				<p:button value="Não"
+					onclick="PF('confirmacaoExclusao').hide(); return false;" />
+				<p:commandButton value="Sim"
+					action="#{cadastroConvidadoPalestraBean.excluir()}"
+					oncomplete="PF('confirmacaoExclusao').hide();" process="@this"
+					update="@form" />
+			</p:confirmDialog>
+		</h:form>
+	</ui:define>
+</ui:composition>

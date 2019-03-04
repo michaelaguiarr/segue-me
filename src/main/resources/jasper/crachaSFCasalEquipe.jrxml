@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.5.1.final using JasperReports Library version 6.5.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Blank_A4" pageWidth="595" pageHeight="842" columnWidth="541" columnSpacing="14" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="ae4098e2-6e47-4e98-a411-cbf7fea0e5fa">
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="cm"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="mm"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="SEGUE-ME"/>
+	<parameter name="segueMe" class="java.lang.Long"/>
+	<parameter name="equipe" class="java.lang.Integer"/>
+	<queryString>
+		<![CDATA[SELECT
+public.evento_segue_me.id AS id,
+public.evento_segue_me.cracha,
+public.evento_segue_me.fk_segue_me_id,
+public.segue_me.data_fim,
+public.segue_me.data_inicio,
+public.paroquias.descricao,
+public.paroquias.cidade,
+public.paroquias.estado,
+public.segue_me.padroeiro,
+public.numero_romano.numero_romano,
+public.evento_segue_me.fk_casal_id,
+public.casal.apelido_ela,
+public.casal.apelido_ele,
+public.evento_segue_me.fk_equipe_id
+FROM
+public.segue_me
+JOIN public.evento_segue_me
+ON public.segue_me.id = public.evento_segue_me.fk_segue_me_id 
+JOIN public.paroquias
+ON public.segue_me.paroquia_id = public.paroquias.id 
+JOIN public.numero_romano
+ON public.numero_romano.id = public.segue_me.fk_numero_cod 
+JOIN public.casal
+ON public.casal.id = public.evento_segue_me.fk_casal_id
+WHERE
+public.evento_segue_me.fk_inscricao_id is null and
+public.evento_segue_me.fk_segue_me_id =  $P{segueMe}  and
+public.evento_segue_me.fk_equipe_id = $P{equipe}  AND
+public.evento_segue_me.cracha = true]]>
+	</queryString>
+	<field name="id" class="java.lang.Long">
+		<property name="com.jaspersoft.studio.field.label" value="id"/>
+	</field>
+	<field name="cracha" class="java.lang.Boolean">
+		<property name="com.jaspersoft.studio.field.label" value="cracha"/>
+	</field>
+	<field name="fk_segue_me_id" class="java.lang.Long">
+		<property name="com.jaspersoft.studio.field.label" value="fk_segue_me_id"/>
+	</field>
+	<field name="data_fim" class="java.sql.Date">
+		<property name="com.jaspersoft.studio.field.label" value="data_fim"/>
+	</field>
+	<field name="data_inicio" class="java.sql.Date">
+		<property name="com.jaspersoft.studio.field.label" value="data_inicio"/>
+	</field>
+	<field name="descricao" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="descricao"/>
+	</field>
+	<field name="cidade" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="cidade"/>
+	</field>
+	<field name="estado" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="estado"/>
+	</field>
+	<field name="padroeiro" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="padroeiro"/>
+	</field>
+	<field name="numero_romano" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="numero_romano"/>
+	</field>
+	<field name="fk_casal_id" class="java.lang.Long">
+		<property name="com.jaspersoft.studio.field.label" value="fk_casal_id"/>
+	</field>
+	<field name="apelido_ela" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="apelido_ela"/>
+	</field>
+	<field name="apelido_ele" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="apelido_ele"/>
+	</field>
+	<field name="fk_equipe_id" class="java.lang.Long">
+		<property name="com.jaspersoft.studio.field.label" value="fk_equipe_id"/>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band/>
+	</title>
+	<pageHeader>
+		<band/>
+	</pageHeader>
+	<columnHeader>
+		<band/>
+	</columnHeader>
+	<detail>
+		<band height="198" splitType="Stretch">
+			<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
+			<image scaleImage="FillFrame" hAlign="Center" vAlign="Middle" onErrorType="Blank" evaluationTime="Auto">
+				<reportElement x="0" y="0" width="275" height="190" uuid="0d6c85a0-f7bd-4eee-b360-34b8afe0058a"/>
+				<graphicElement fill="Solid"/>
+				<imageExpression><![CDATA["../../resources/images/cracha-fundo-sf.png"]]></imageExpression>
+			</image>
+			<textField>
+				<reportElement x="20" y="60" width="238" height="70" uuid="15a98e29-f266-4667-9db6-5dc33cad7ad2"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Comic Sans MS" size="24" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{apelido_ele}]]></textFieldExpression>
+			</textField>
+			<image hAlign="Center" onErrorType="Blank">
+				<reportElement x="21" y="14" width="50" height="40" uuid="3d17d970-06b4-431b-b853-8e05ba09a98e"/>
+				<imageExpression><![CDATA["../../resources/images/segue-me.png"]]></imageExpression>
+			</image>
+			<image scaleImage="FillFrame" hAlign="Center" vAlign="Middle" onErrorType="Blank">
+				<reportElement x="20" y="130" width="53" height="50" uuid="38367b9c-5b89-434c-bf99-279ff6cfceee"/>
+				<graphicElement fill="Solid"/>
+				<imageExpression><![CDATA["../../resources/temp/segueMe/"+$F{fk_segue_me_id}+".jpg"]]></imageExpression>
+			</image>
+			<image scaleImage="FillFrame" hAlign="Left" vAlign="Middle" onErrorType="Blank">
+				<reportElement x="73" y="14" width="185" height="40" uuid="cc079011-6f3b-4466-a50b-3388486da6a8"/>
+				<imageExpression><![CDATA["../../resources/images/titulo-sf.png"]]></imageExpression>
+			</image>
+			<line>
+				<reportElement x="0" y="0" width="550" height="1" uuid="047f88f4-16f5-4adb-9b4d-aa219b5bf3a1"/>
+			</line>
+			<image scaleImage="FillFrame" hAlign="Center" vAlign="Middle" onErrorType="Blank" evaluationTime="Auto">
+				<reportElement x="280" y="0" width="275" height="190" uuid="d605eae6-8e59-4350-b348-42fafd35f478"/>
+				<graphicElement fill="Solid"/>
+				<imageExpression><![CDATA["../../resources/images/cracha-fundo-sf.png"]]></imageExpression>
+			</image>
+			<textField>
+				<reportElement x="300" y="60" width="238" height="70" uuid="d7ec81a4-ec25-46ad-81af-1f785d6f4f8f"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Comic Sans MS" size="24" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{apelido_ela}]]></textFieldExpression>
+			</textField>
+			<image hAlign="Center" onErrorType="Blank">
+				<reportElement x="301" y="14" width="50" height="40" uuid="6af464dd-c952-46c6-971e-6322f85b746b"/>
+				<imageExpression><![CDATA["../../resources/images/segue-me.png"]]></imageExpression>
+			</image>
+			<image scaleImage="FillFrame" hAlign="Center" vAlign="Middle" onErrorType="Blank">
+				<reportElement x="300" y="130" width="53" height="50" uuid="9e4ee2de-7793-446c-a5a3-a2752b6294b3"/>
+				<graphicElement fill="Solid"/>
+				<imageExpression><![CDATA["../../resources/temp/segueMe/"+$F{fk_segue_me_id}+".jpg"]]></imageExpression>
+			</image>
+			<image scaleImage="FillFrame" hAlign="Left" vAlign="Middle" onErrorType="Blank">
+				<reportElement x="353" y="14" width="185" height="40" uuid="a43f674b-8ddb-4877-9dbc-dc9cf0703f56"/>
+				<imageExpression><![CDATA["../../resources/images/titulo-sf.png"]]></imageExpression>
+			</image>
+			<image scaleImage="FillFrame" hAlign="Center" vAlign="Middle" onErrorType="Blank">
+				<reportElement x="190" y="130" width="53" height="50" uuid="b738a725-56d3-4888-8c90-d51bdba2d131"/>
+				<graphicElement fill="Solid"/>
+				<imageExpression><![CDATA["../../resources/temp/equipe/"+$F{fk_equipe_id}+".jpg"]]></imageExpression>
+			</image>
+			<image scaleImage="FillFrame" hAlign="Center" vAlign="Middle" onErrorType="Blank">
+				<reportElement x="470" y="130" width="53" height="50" uuid="d8cfaba9-f441-4a6d-b89b-98d409931c85"/>
+				<graphicElement fill="Solid"/>
+				<imageExpression><![CDATA["../../resources/temp/equipe/"+$F{fk_equipe_id}+".jpg"]]></imageExpression>
+			</image>
+		</band>
+	</detail>
+	<columnFooter>
+		<band/>
+	</columnFooter>
+	<pageFooter>
+		<band/>
+	</pageFooter>
+	<summary>
+		<band/>
+	</summary>
+</jasperReport>

@@ -109,16 +109,6 @@
 								<p:ajax event="rowSelect"
 									listener="#{pesquisaEventoSeguimistaBean.selecionar()}" />
 
-								<p:column headerText="Foto" width="50">
-									<p:commandButton update=":form:fotoDialog"
-										style="width: auto; margin-left: 15px;"
-										oncomplete="PF('fotoDialogWidgetVar').show()"
-										icon="fa fa-picture-o">
-										<f:setPropertyActionListener
-											target="#{pesquisaEventoSeguimistaBean.evento}"
-											value="#{seguidor}" />
-									</p:commandButton>
-								</p:column>
 								<p:column headerText="Nome" sortBy="#{seguidor.seguidor.nome}"
 									width="200">
 									<h:outputText value="#{seguidor.seguidor.nome}" />

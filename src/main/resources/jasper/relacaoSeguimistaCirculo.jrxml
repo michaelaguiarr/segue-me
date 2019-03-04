@@ -4,10 +4,11 @@
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="SEGUE-ME"/>
 	<parameter name="segueMe" class="java.lang.Long"/>
-	<parameter name="circulo" class="java.lang.Long"/>
+	<parameter name="circulo" class="java.lang.Integer"/>
 	<queryString language="SQL">
 		<![CDATA[SELECT
 public.inscricao.id,
+public.evento_segue_me.fk_segue_me_id ,
 public.segue_me.cidade,
 public.segue_me.data_fim,
 public.segue_me.data_inicio,
@@ -62,6 +63,9 @@ public.endereco.bairro ASC]]>
 	</queryString>
 	<field name="id" class="java.lang.Long">
 		<property name="com.jaspersoft.studio.field.label" value="id"/>
+	</field>
+	<field name="fk_segue_me_id" class="java.lang.Long">
+		<property name="com.jaspersoft.studio.field.label" value="fk_segue_me_id"/>
 	</field>
 	<field name="cidade" class="java.lang.String">
 		<property name="com.jaspersoft.studio.field.label" value="cidade"/>
@@ -177,7 +181,7 @@ public.endereco.bairro ASC]]>
 		</groupFooter>
 	</group>
 	<background>
-		<band height="802">
+		<band height="770">
 			<image hAlign="Center" vAlign="Middle" onErrorType="Blank">
 				<reportElement x="0" y="40" width="552" height="730" uuid="48b194d7-b4bb-4fb9-a49c-6bc1f722eb6e"/>
 				<imageExpression><![CDATA["../../resources/temp/segueMeFundo/"+$F{id}+".jpg"]]></imageExpression>
@@ -262,9 +266,10 @@ public.endereco.bairro ASC]]>
 	</detail>
 	<pageFooter>
 		<band height="50">
-			<image hAlign="Center" vAlign="Middle">
+			<image hAlign="Center" vAlign="Middle" onErrorType="Blank">
 				<reportElement x="2" y="6" width="550" height="34" uuid="4eec6159-014d-4039-90ab-442859e54d9d"/>
-				<imageExpression><![CDATA["../../resources/images/peixe.png"]]></imageExpression>
+				<graphicElement fill="Solid"/>
+				<imageExpression><![CDATA["../../resources/temp/segueMeRoda/"+$F{fk_segue_me_id}+".jpg"]]></imageExpression>
 			</image>
 		</band>
 	</pageFooter>

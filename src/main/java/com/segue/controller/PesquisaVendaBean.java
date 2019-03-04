@@ -75,6 +75,7 @@ public class PesquisaVendaBean implements Serializable {
 	public void inicializar() {
 		exibirPagar = true;
 		carregarUsuarioLogado();
+		filter.setSegueMe(segueMe);
 	}
 
 	public void carregarUsuarioLogado() {

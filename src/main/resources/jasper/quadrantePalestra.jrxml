@@ -55,7 +55,13 @@ public.endereco.cidade,
 public.endereco.estado,
 public.evento_segue_me.fk_palestra_id,
 public.palestra.nome AS nome_palestra,
-public.palestra.ordem AS ordem_palestra
+public.palestra.ordem AS ordem_palestra,
+public.evento_segue_me.fk_palestrante_convidado_id,
+public.palestrante_convidado.dt_nascimento AS palestrante_convidado_dt_nascimento_0,
+public.palestrante_convidado.email AS palestrante_convidado_email_0,
+public.palestrante_convidado.nome AS palestrante_convidado_nome_0,
+public.palestrante_convidado.telefone_um AS palestrante_convidado_telefone_um_0,
+public.palestrante_convidado.apelido AS palestrante_convidado_apelido_0
 FROM
 public.evento_segue_me
 LEFT JOIN public.seguidor
@@ -64,6 +70,8 @@ LEFT JOIN public.casal
 ON public.casal.id = public.evento_segue_me.fk_casal_id 
 LEFT JOIN public.padre
 ON public.padre.id = public.evento_segue_me.fk_padre_id 
+LEFT JOIN public.palestrante_convidado
+ON public.palestrante_convidado.id = public.evento_segue_me.fk_palestrante_convidado_id
 JOIN public.segue_me
 ON public.evento_segue_me.fk_segue_me_id = public.segue_me.id 
 JOIN public.numero_romano
@@ -74,6 +82,7 @@ JOIN public.endereco
 ON public.seguidor.fk_endereco_id = public.endereco.cod
 OR public.casal.fk_endereco_id = public.endereco.cod
 OR public.padre.fk_endereco_id = public.endereco.cod
+OR public.palestrante_convidado.fk_endereco_id = public.endereco.cod
 JOIN public.palestra
 ON public.palestra.id = public.evento_segue_me.fk_palestra_id
 WHERE
@@ -232,6 +241,24 @@ public.seguidor.nome ASC]]>
 	<field name="ordem_palestra" class="java.lang.Long">
 		<property name="com.jaspersoft.studio.field.label" value="ordem_palestra"/>
 	</field>
+	<field name="fk_palestrante_convidado_id" class="java.lang.Long">
+		<property name="com.jaspersoft.studio.field.label" value="fk_palestrante_convidado_id"/>
+	</field>
+	<field name="palestrante_convidado_dt_nascimento_0" class="java.sql.Timestamp">
+		<property name="com.jaspersoft.studio.field.label" value="palestrante_convidado_dt_nascimento_0"/>
+	</field>
+	<field name="palestrante_convidado_email_0" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="palestrante_convidado_email_0"/>
+	</field>
+	<field name="palestrante_convidado_nome_0" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="palestrante_convidado_nome_0"/>
+	</field>
+	<field name="palestrante_convidado_telefone_um_0" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="palestrante_convidado_telefone_um_0"/>
+	</field>
+	<field name="palestrante_convidado_apelido_0" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="palestrante_convidado_apelido_0"/>
+	</field>
 	<group name="funcao">
 		<groupExpression><![CDATA[$F{fk_funcao_id}]]></groupExpression>
 	</group>
@@ -367,6 +394,96 @@ public.seguidor.nome ASC]]>
 					<font fontName="Comic Sans MS"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{email}]]></textFieldExpression>
+			</textField>
+		</band>
+		<band height="50">
+			<printWhenExpression><![CDATA[$F{fk_palestrante_convidado_id} != null]]></printWhenExpression>
+			<rectangle>
+				<reportElement x="17" y="0" width="535" height="50" uuid="051e19bc-49d8-4fe0-8d51-63c001a26e98"/>
+			</rectangle>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="18" y="2" width="300" height="15" uuid="40d303ef-2866-4322-a819-4450bc7277f8">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="1a5071b3-81ad-45f5-a236-37b9f3f71ced"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0" lineStyle="Dotted"/>
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="1.0" lineStyle="Dotted"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Comic Sans MS"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{palestrante_convidado_nome_0}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="18" y="32" width="534" height="15" uuid="e532a241-096b-47d6-98e2-ee135b9ab8e6">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="1a5071b3-81ad-45f5-a236-37b9f3f71ced"/>
+				</reportElement>
+				<box>
+					<bottomPen lineWidth="0.0" lineStyle="Dotted"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Comic Sans MS"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{logradouro}+", "+$F{numero}+" "+$F{bairro}+" - "+$F{cidade}+"/"+$F{estado}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern=" d MMM yyyy" isBlankWhenNull="true">
+				<reportElement x="480" y="2" width="70" height="15" uuid="000081dd-8aa0-47f5-a983-f6473d41062c">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="1a5071b3-81ad-45f5-a236-37b9f3f71ced"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0" lineStyle="Dotted"/>
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0" lineStyle="Dotted"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Comic Sans MS"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{palestrante_convidado_dt_nascimento_0}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="318" y="17" width="234" height="15" uuid="4b1b4151-5fe2-4f4c-91fd-4b53175a2805">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="1a5071b3-81ad-45f5-a236-37b9f3f71ced"/>
+				</reportElement>
+				<box>
+					<bottomPen lineWidth="1.0" lineStyle="Dotted"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Comic Sans MS"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{palestrante_convidado_telefone_um_0}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="318" y="2" width="162" height="15" uuid="174ded70-267d-4a54-b897-381c3bb5a922">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="1a5071b3-81ad-45f5-a236-37b9f3f71ced"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0" lineStyle="Dotted"/>
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="1.0" lineStyle="Dotted"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Comic Sans MS"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{palestrante_convidado_apelido_0}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="18" y="17" width="300" height="15" uuid="1aa79418-3ba5-4fd7-b26c-4b2cdb938827">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="1a5071b3-81ad-45f5-a236-37b9f3f71ced"/>
+				</reportElement>
+				<box>
+					<bottomPen lineWidth="1.0" lineStyle="Dotted"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Comic Sans MS"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{palestrante_convidado_email_0}]]></textFieldExpression>
 			</textField>
 		</band>
 		<band height="86">

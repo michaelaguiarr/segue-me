@@ -5,7 +5,7 @@
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="SEGUE-ME"/>
 	<parameter name="pagina" class="java.lang.Integer"/>
 	<parameter name="segueMe" class="java.lang.Long"/>
-	<parameter name="circulo" class="java.lang.Long"/>
+	<parameter name="circulo" class="java.lang.Integer"/>
 	<queryString language="SQL">
 		<![CDATA[SELECT
 public.evento_segue_me.fk_equipe_id,
@@ -619,9 +619,9 @@ public.seguidor.nome ASC]]>
 				</textElement>
 				<textFieldExpression><![CDATA[$P{pagina} + $V{PAGE_NUMBER}]]></textFieldExpression>
 			</textField>
-			<image hAlign="Center" vAlign="Middle">
+			<image hAlign="Center" vAlign="Middle" onErrorType="Blank">
 				<reportElement x="2" y="6" width="550" height="34" uuid="d85af15a-439b-4279-af89-77312f38b8fa"/>
-				<imageExpression><![CDATA["../../resources/images/peixe.png"]]></imageExpression>
+				<imageExpression><![CDATA["../../resources/temp/segueMeRoda/"+$F{fk_segue_me_id}+".jpg"]]></imageExpression>
 			</image>
 		</band>
 	</pageFooter>

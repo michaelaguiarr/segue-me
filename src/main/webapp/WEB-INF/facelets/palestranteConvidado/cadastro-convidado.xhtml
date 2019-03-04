@@ -1,0 +1,196 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:jsf="http://xmlns.jcp.org/jsf" xmlns:p="http://primefaces.org/ui"
+	xmlns:o="http://omnifaces.org/ui">
+	<h:panelGroup id="palestranteConvidadoPanelGroup">
+		<p:focus for="nome" />
+		<div class="ui-g-12">
+			<!-- Seguidor -->
+			<p:fieldset legend="Palestrante Convidado">
+				<div class="ui-g-12">
+					<p:outputLabel value="Foto" />
+				</div>
+				<div class="ui-g-12 ui-lg-6">
+					<h:panelGrid id="fotoPanelGroupUpload">
+						<p:fileUpload
+							fileUploadListener="#{cadastroConvidadoPalestraBean.upload}"
+							allowTypes="/(\.|\/)(gif|png|jpe?g)$/"
+							invalidFileMessage="São permitidas somente imagens (jpg)"
+							auto="true" label="Foto"
+							update="fotoPanelGroup fotoPanelGroupUpload"
+							rendered="#{cadastroConvidadoPalestraBean.imagemDoUsuario == null}" />
+					</h:panelGrid>
+				</div>
+
+				<div class="ui-g-12">
+					<h:panelGrid id="fotoPanelGroup">
+						<p:graphicImage
+							value="#{cadastroConvidadoPalestraBean.imagemDoUsuario}"
+							rendered="#{cadastroConvidadoPalestraBean.imagemDoUsuario ne null}"
+							width="100px" height="200px" id="foto"
+							onclick="PF('fotoDialogWidgetVar').show()" />
+
+						<p:commandButton value="Remover Foto"
+							style="width: auto; margin-left: 15px;"
+							actionListener="#{cadastroConvidadoPalestraBean.removerFoto}"
+							rendered="#{cadastroConvidadoPalestraBean.imagemDoUsuario ne null}"
+							process="@this" update="fotoPanelGroup, fotoPanelGroupUpload" />
+					</h:panelGrid>
+				</div>
+				<div class="ui-g-8">
+					<p:outputLabel value="Nome" for="nome" />
+				</div>
+				<div class="ui-g-4">
+					<p:outputLabel value="Apelido" for="apelido" />
+				</div>
+
+				<div class="ui-g-8 ui-lg-8">
+					<p:inputText placeholder="Nome Completo" id="nome" required="true"
+						value="#{cadastroConvidadoPalestraBean.palestranteConvidado.nome}" />
+				</div>
+
+				<div class="ui-g-4 ui-lg-4">
+					<p:inputText placeholder="Nome no Crachá" id="apelido"
+						required="true"
+						value="#{cadastroConvidadoPalestraBean.palestranteConvidado.apelido}" />
+				</div>
+
+				<div class="ui-g-6">
+					<p:outputLabel value="Data de Nascimento" for="nascimento" />
+				</div>
+				<div class="ui-g-6">
+					<p:outputLabel value="Sexo" for="sexo" />
+				</div>
+
+				<div class="ui-g-6 ui-lg-6">
+					<p:calendar id="nascimento" required="true"
+						value="#{cadastroConvidadoPalestraBean.palestranteConvidado.dataNascimento}"
+						mask="true" pattern="dd/MM/yyyy" mode="popup"
+						showButtonPanel="true" showOn="button" />
+				</div>
+
+				<div class="ui-g-6 ui-lg-6">
+					<p:selectOneMenu id="sexo" label="Sexo" required="true"
+						converter="omnifaces.SelectItemsConverter"
+						value="#{cadastroConvidadoPalestraBean.palestranteConvidado.sexo}">
+						<f:selectItem itemLabel="Sexo" noSelectionOption="true" />
+						<f:selectItems value="#{cadastroConvidadoPalestraBean.listaSexo}"
+							var="sexo" itemValue="#{sexo}" itemLabel="#{sexo.nome}" />
+					</p:selectOneMenu>
+				</div>
+
+				<div class="ui-g-12">
+					<p:outputLabel value="Email" for="email" />
+				</div>
+
+				<div class="ui-g-6 ui-lg-12">
+					<p:inputText placeholder="Email" id="email"
+						value="#{cadastroConvidadoPalestraBean.palestranteConvidado.email}" />
+				</div>
+
+
+				<div class="ui-g-12">
+					<p:outputLabel value="Telefone 1" for="telefoneUm" />
+				</div>
+
+				<div class="ui-g-6 ui-lg-12">
+					<p:inputMask id="telefoneUm" placeholder="Telefone 1"
+						required="true"
+						value="#{cadastroConvidadoPalestraBean.palestranteConvidado.telefoneUm}"
+						mask="(99)999999999">
+					</p:inputMask>
+				</div>
+
+				<div class="ui-g-6">
+					<p:outputLabel value="Naturalidade" for="naturalidade" />
+				</div>
+				<div class="ui-g-6">
+					<p:outputLabel value="Nacionalidade" for="nacionalidade" />
+				</div>
+				<div class="ui-g-6">
+					<p:inputText placeholder="Boa Vista - RR, Manaus - AM...."
+						id="naturalidade"
+						value="#{cadastroConvidadoPalestraBean.palestranteConvidado.naturalidade}" />
+				</div>
+
+				<div class="ui-g-6">
+					<p:inputText placeholder="Brasil, Venezuela...." id="nacionalidade"
+						value="#{cadastroConvidadoPalestraBean.palestranteConvidado.nacionalidade}" />
+				</div>
+			</p:fieldset>
+		</div>
+		<div class="ui-g-12">
+			<!-- Endereco -->
+			<p:fieldset legend="Endereço">
+				<div class="ui-g-12">
+					<p:outputLabel value="Endereço" for="endereco" />
+				</div>
+				<div class="ui-g-12 ui-lg-12">
+					<p:inputText id="endereco" required="true"
+						value="#{cadastroConvidadoPalestraBean.palestranteConvidado.endereco.logradouro}" />
+				</div>
+
+				<div class="ui-g-6">
+					<p:outputLabel value="Número" for="numero" />
+				</div>
+
+				<div class="ui-g-6">
+					<p:outputLabel value="Bairro" for="bairro" />
+				</div>
+
+				<div class="ui-g-6 ui-lg-6">
+					<p:inputText id="numero" required="true"
+						value="#{cadastroConvidadoPalestraBean.palestranteConvidado.endereco.numero}" />
+				</div>
+
+				<div class="ui-g-6 ui-lg-6">
+					<p:inputText id="bairro" required="true"
+						value="#{cadastroConvidadoPalestraBean.palestranteConvidado.endereco.bairro}" />
+				</div>
+
+				<div class="ui-g-6">
+					<p:outputLabel value="Cidade" for="cidade" />
+				</div>
+
+				<div class="ui-g-6">
+					<p:outputLabel value="UF" for="uf" />
+				</div>
+
+				<div class="ui-g-6 ui-lg-6">
+					<p:inputText id="cidade" required="true"
+						value="#{cadastroConvidadoPalestraBean.palestranteConvidado.endereco.cidade}" />
+				</div>
+
+				<div class="ui-g-6 ui-lg-6">
+					<p:selectOneMenu id="uf" label="UF" required="true"
+						value="#{cadastroConvidadoPalestraBean.palestranteConvidado.endereco.estado}">
+						<f:selectItem itemLabel="Selecione" />
+						<f:selectItems value="#{cadastroFichaBean.estados}" var="estado"
+							itemValue="#{estado.sigla}" itemLabel="#{estado.sigla}" />
+					</p:selectOneMenu>
+				</div>
+			</p:fieldset>
+		</div>
+		<div class="ui-g-12">
+			<div class="save ui-g-12">
+				<p:commandButton value="Salvar"
+					style="width: auto; margin-left: 20px;"
+					action="#{cadastroConvidadoPalestraBean.salvar()}" update="@form"
+					process="palestranteConvidadoPanelGroup" icon="fa fa-save"
+					styleClass="green-btn" />
+
+				<ui:insert name="cancelar" />
+			</div>
+		</div>
+	</h:panelGroup>
+
+	<p:dialog header="foto" id="fotoDialog" widgetVar="fotoDialogWidgetVar">
+		<p:graphicImage
+			value="#{cadastroConvidadoPalestraBean.palestranteConvidado.carregarImagem()}"
+			style="max-width: 300px"
+			rendered="#{cadastroConvidadoPalestraBean.palestranteConvidado.exibirImagem}"
+			id="produtoFoto" />
+	</p:dialog>
+</ui:composition>

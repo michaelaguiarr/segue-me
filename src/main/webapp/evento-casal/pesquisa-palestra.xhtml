@@ -112,16 +112,6 @@
 									</p:column>
 								</p:headerRow>
 
-								<p:column width="50">
-									<p:commandButton update=":form:fotoDialogEle"
-										style="width: auto;"
-										oncomplete="PF('fotoDialogWidgetVarEle').show()"
-										icon="fa fa-picture-o">
-										<f:setPropertyActionListener
-											target="#{pesquisaPalestraCasalBean.evento}" value="#{casal}" />
-									</p:commandButton>
-								</p:column>
-
 								<p:column headerText="Casal" sortBy="#{casal.casal.apelidoEle}"
 									width="200">
 									<h:outputText
