@@ -26,6 +26,7 @@ import com.segue.filter.EventoPadreFilter;
 import com.segue.filter.EventoSeguidorFilter;
 import com.segue.filter.EventoSeguimistaFilter;
 import com.segue.filter.PalestraCasalFilter;
+import com.segue.filter.PalestraConvidadoFilter;
 import com.segue.filter.PalestraPadreFilter;
 import com.segue.filter.PalestraSeguidorFilter;
 import com.segue.model.Casal;
@@ -33,9 +34,9 @@ import com.segue.model.Equipe;
 import com.segue.model.Evento;
 import com.segue.model.Padre;
 import com.segue.model.Palestra;
+import com.segue.model.PalestranteConvidado;
 import com.segue.model.SegueMe;
 import com.segue.model.Seguidor;
-import com.segue.model.SituacaoSeguidor;
 import com.segue.model.StatusInscricao;
 import com.segue.service.NegocioException;
 
@@ -588,6 +589,72 @@ public class EventoRepository implements Serializable {
 		TypedQuery<Evento> query = manager.createQuery(criteriaQuery);
 		return query.getResultList();
 	}
+	
+	
+
+	public List<Evento> filtradosPalestraConvidado(PalestraConvidadoFilter filtro) {
+		CriteriaBuilder builder = manager.getCriteriaBuilder();
+		CriteriaQuery<Evento> criteriaQuery = builder.createQuery(Evento.class);
+		List<Predicate> predicates = new ArrayList<>();
+
+		Root<Evento> root = criteriaQuery.from(Evento.class);
+		From<?, ?> seguidorJoin = (From<?, ?>) root.fetch("seguidor", JoinType.LEFT);
+		From<?, ?> enderecoJoin = (From<?, ?>) seguidorJoin.fetch("endereco", JoinType.LEFT);
+		From<?, ?> paroquiaJoin = (From<?, ?>) seguidorJoin.fetch("paroquia", JoinType.LEFT);
+		From<?, ?> segueMeSeguidorJoin = (From<?, ?>) seguidorJoin.fetch("segueMe", JoinType.LEFT);
+		From<?, ?> circuloJoin = (From<?, ?>) seguidorJoin.fetch("circulo", JoinType.LEFT);
+		From<?, ?> sexoJoin = (From<?, ?>) seguidorJoin.fetch("sexo", JoinType.LEFT);
+		From<?, ?> casalJoin = (From<?, ?>) root.fetch("casal", JoinType.LEFT);
+		From<?, ?> padreJoin = (From<?, ?>) root.fetch("padre", JoinType.LEFT);
+		From<?, ?> palestranteConvidadoJoin = (From<?, ?>) root.fetch("palestranteConvidado", JoinType.INNER);
+		From<?, ?> funcaoJoin = (From<?, ?>) root.fetch("funcao", JoinType.LEFT);
+		From<?, ?> segueMeJoin = (From<?, ?>) root.fetch("segueMe", JoinType.INNER);
+		From<?, ?> equipeJoin = (From<?, ?>) root.fetch("equipe", JoinType.LEFT);
+		From<?, ?> inscricaoJoin = (From<?, ?>) root.fetch("inscricao", JoinType.LEFT);
+		From<?, ?> palestraJoin = (From<?, ?>) root.fetch("palestra", JoinType.INNER);
+		From<?, ?> usuarioJoin = (From<?, ?>) root.fetch("usuario", JoinType.INNER);
+		From<?, ?> numeroRomanoJoin = (From<?, ?>) segueMeJoin.fetch("numeroRomano", JoinType.INNER);
+
+		if (filtro.getParoquia() != null) {
+			predicates.add(builder.equal(segueMeJoin.get("paroquia"), filtro.getParoquia()));
+		}
+
+		if (filtro.getSegueMe() != null) {
+			predicates.add(builder.equal(root.get("segueMe"), filtro.getSegueMe()));
+		}
+
+		if (StringUtils.isNotBlank(filtro.getNome())) {
+			predicates.add(
+					builder.like(builder.lower(palestranteConvidadoJoin.get("nome")), "%" + filtro.getNome().toLowerCase() + "%"));
+		}
+
+		if (StringUtils.isNotBlank(filtro.getApelido())) {
+			predicates.add(builder.like(builder.lower(palestranteConvidadoJoin.get("apelido")),
+					"%" + filtro.getApelido().toLowerCase() + "%"));
+		}
+
+		if (filtro.getPalestra() != null) {
+			predicates.add(builder.equal(root.get("palestra"), filtro.getPalestra()));
+		}
+
+		if (filtro.getCracha() != "TODOS") {
+			if (filtro.getCracha().equals("SIM")) {
+				predicates.add(builder.equal(root.get("cracha"), true));
+			} else {
+				predicates.add(builder.equal(root.get("cracha"), false));
+			}
+		}
+
+		predicates.add(builder.isNull(root.get("funcao")));
+		predicates.add(builder.isNull(root.get("equipe")));
+		criteriaQuery.select(root);
+		criteriaQuery.where(predicates.toArray(new Predicate[0]));
+		criteriaQuery.orderBy(builder.asc(root.get("segueMe")), builder.asc(palestraJoin.get("ordem")),
+				builder.asc(palestranteConvidadoJoin.get("nome")));
+
+		TypedQuery<Evento> query = manager.createQuery(criteriaQuery);
+		return query.getResultList();
+	}
 
 	public List<Evento> filtradosHistorico(Seguidor seguidor) {
 		CriteriaBuilder builder = manager.getCriteriaBuilder();
@@ -664,6 +731,34 @@ public class EventoRepository implements Serializable {
 		criteriaQuery.orderBy(builder.asc(segueMeJoin.get("numeroRomano")), builder.asc(segueMeJoin.get("dtInicio")),
 				builder.asc(equipeJoin.get("ordem")), builder.asc(funcaoJoin.get("ordem")),
 				builder.asc(padreJoin.get("nome")));
+
+		TypedQuery<Evento> query = manager.createQuery(criteriaQuery);
+		return query.getResultList();
+	}
+	
+	
+	public List<Evento> filtradosHistoricoConvidado(PalestranteConvidado palestranteConvidado) {
+		CriteriaBuilder builder = manager.getCriteriaBuilder();
+		CriteriaQuery<Evento> criteriaQuery = builder.createQuery(Evento.class);
+		List<Predicate> predicates = new ArrayList<>();
+
+		Root<Evento> root = criteriaQuery.from(Evento.class);
+		From<?, ?> seguidorJoin = (From<?, ?>) root.fetch("seguidor", JoinType.LEFT);
+		From<?, ?> casalJoin = (From<?, ?>) root.fetch("casal", JoinType.LEFT);
+		From<?, ?> padreJoin = (From<?, ?>) root.fetch("padre", JoinType.LEFT);
+		From<?, ?> palestranteConvidadoJoin = (From<?, ?>) root.fetch("palestranteConvidado", JoinType.INNER);
+		From<?, ?> funcaoJoin = (From<?, ?>) root.fetch("funcao", JoinType.LEFT);
+		From<?, ?> segueMeJoin = (From<?, ?>) root.fetch("segueMe", JoinType.INNER);
+		From<?, ?> equipeJoin = (From<?, ?>) root.fetch("equipe", JoinType.LEFT);
+		From<?, ?> inscricaoJoin = (From<?, ?>) root.fetch("inscricao", JoinType.LEFT);
+		From<?, ?> palestraJoin = (From<?, ?>) root.fetch("palestra", JoinType.LEFT);
+
+		predicates.add(builder.equal(root.get("palestranteConvidado"), palestranteConvidado));
+		criteriaQuery.select(root);
+		criteriaQuery.where(predicates.toArray(new Predicate[0]));
+		criteriaQuery.orderBy(builder.asc(segueMeJoin.get("numeroRomano")), builder.asc(segueMeJoin.get("dtInicio")),
+				builder.asc(equipeJoin.get("ordem")), builder.asc(funcaoJoin.get("ordem")),
+				builder.asc(seguidorJoin.get("nome")));
 
 		TypedQuery<Evento> query = manager.createQuery(criteriaQuery);
 		return query.getResultList();
@@ -790,6 +885,23 @@ public class EventoRepository implements Serializable {
 							+ "AND e.segueMe = :segueme " + "AND e.palestra = :palestra ", Evento.class)
 					.setParameter("padre", padre).setParameter("segueme", segueMe).setParameter("palestra", palestra)
 					.getSingleResult();
+		} catch (NoResultException nr) {
+			return null;
+		}
+	}
+	
+	
+	public Evento findByConvidadoEventoPalestra(PalestranteConvidado convidado, SegueMe segueMe, Palestra palestra)
+			throws NegocioException {
+		try {
+			return manager
+					.createQuery("SELECT distinct(e) FROM Evento e " + "LEFT JOIN e.seguidor s "
+							+ "LEFT JOIN e.casal c " + "LEFT JOIN e.padre p " + "JOIN FETCH e.palestranteConvidado pc "
+							+ "JOIN FETCH e.segueMe sm " + "LEFT JOIN e.equipe eq " + "LEFT JOIN e.funcao f "
+							+ "LEFT JOIN e.inscricao i " + "JOIN FETCH e.palestra p " + "WHERE e.palestranteConvidado = :palestranteConvidado "
+							+ "AND e.segueMe = :segueme " + "AND e.palestra = :palestra ", Evento.class)
+					.setParameter("palestranteConvidado", convidado).setParameter("segueme", segueMe)
+					.setParameter("palestra", palestra).getSingleResult();
 		} catch (NoResultException nr) {
 			return null;
 		}

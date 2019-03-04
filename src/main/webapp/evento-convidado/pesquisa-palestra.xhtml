@@ -1,0 +1,170 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" xmlns:o="http://omnifaces.org/ui"
+	template="/WEB-INF/template.xhtml">
+
+	<ui:define name="title">Pesquisa Palestra Convidado no Segue-me</ui:define>
+
+	<f:metadata>
+		<f:viewAction action="#{pesquisaPalestraConvidadoBean.inicializar()}" />
+	</f:metadata>
+
+	<ui:define name="search">
+		<div class="ui-fluid">
+			<div class="ui-g-12">
+				<div class="card card-w-title">
+					<h1>Pesquisa Palestra Covidado no Segue-me</h1>
+					<div class="ui-g">
+						<div class="ui-g-12 ui-lg-6">
+							<p:selectOneMenu id="Paroquia"
+								value="#{pesquisaPalestraConvidadoBean.filter.paroquia}"
+								disabled="#{not seguranca.administradorGeral}">
+								<f:selectItem itemLabel="Todos as Paroquias" />
+								<f:selectItems
+									value="#{pesquisaPalestraConvidadoBean.listaParoquia}"
+									var="paroquia" itemValue="#{paroquia}"
+									itemLabel="#{paroquia.descricao}" />
+								<p:ajax
+									listener="#{pesquisaPalestraConvidadoBean.onSegueMeChange()}"
+									update="segueMe" />
+							</p:selectOneMenu>
+						</div>
+						<div class="ui-g-12 ui-lg-6">
+							<p:selectOneMenu id="segueMe" label="Segue-Me"
+								value="#{pesquisaPalestraConvidadoBean.filter.segueMe}"
+								disabled="#{not seguranca.administrador}">
+								<f:selectItem itemLabel="Todos os Segue-Me"
+									noSelectionOption="true" />
+								<f:selectItems
+									value="#{pesquisaPalestraConvidadoBean.listaSegueMe}"
+									var="segueMe" itemValue="#{segueMe}"
+									itemLabel="#{segueMe.titulo} - #{segueMe.numeroRomano.numeroRomano}" />
+							</p:selectOneMenu>
+						</div>
+						<div class="ui-g-12">
+							<p:selectOneMenu id="palestra"
+								value="#{pesquisaPalestraConvidadoBean.filter.palestra}"
+								disabled="#{not seguranca.graficaAndComandante}">
+								<f:selectItem itemLabel="Todos as Palestras" />
+								<f:selectItems
+									value="#{pesquisaPalestraConvidadoBean.listaPalestras}"
+									var="palestra" itemValue="#{palestra}"
+									itemLabel="#{palestra.nome}" />
+							</p:selectOneMenu>
+						</div>
+						<div class="ui-g-12 ui-lg-6">
+							<p:inputText id="nome" placeholder="Nome do Seguidor"
+								autocomplete="off"
+								value="#{pesquisaPalestraConvidadoBean.filter.nome}" />
+						</div>
+						<div class="ui-g-12 ui-lg-6">
+							<p:inputText id="apelido" placeholder="Apelido"
+								autocomplete="off"
+								value="#{pesquisaPalestraConvidadoBean.filter.apelido}" />
+						</div>
+						<div class="ui-g-12">
+							<p:commandButton id="pesquisar" value="Pesquisar"
+								style="width: auto;"
+								action="#{pesquisaPalestraConvidadoBean.pesquisar()}"
+								update="@form" process="@form" icon="fa fa-search"
+								styleClass="green-btn" />
+							<p:defaultCommand target="pesquisar" />
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</ui:define>
+
+	<ui:define name="content">
+
+		<h:form id="form">
+			<ui:include
+				src="/WEB-INF/facelets/evento-convidado/palestra-toolbar.xhtml" />
+			<div class="ui-fluid">
+				<div class="ui-g-12">
+					<div class="card card-w-title">
+						<h1>Lista de Convidado no Segue-me</h1>
+						<ui:include src="/WEB-INF/facelets/mensagem/messages.xhtml" />
+
+						<div class="ui-g">
+
+
+							<p:dataTable var="convidado" id="datatable-convidado"
+								value="#{pesquisaPalestraConvidadoBean.listaEventoSeguidor}"
+								reflow="true" selectionMode="single"
+								selection="#{pesquisaPalestraConvidadoBean.evento}"
+								rowKey="#{convidado}" emptyMessage="Convidado não encontrado!"
+								paginator="true" sortBy="#{convidado.equipe.ordem}"
+								paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+								currentPageReportTemplate=" Exibindo de {startRecord} a {endRecord} no total de {totalRecords} - Página: {currentPage}/{totalPages} "
+								rows="25" rowsPerPageTemplate="25,50,100,150,200">
+
+								<p:ajax event="rowSelect"
+									listener="#{pesquisaPalestraConvidadoBean.selecionar()}" />
+
+								<p:headerRow>
+									<p:column colspan="2">
+										<h:outputText value="#{convidado.equipe.titulo}" />
+									</p:column>
+								</p:headerRow>
+
+								<p:column headerText="Nome" sortBy="#{convidado.palestranteConvidado.nome}"
+									width="200">
+									<h:outputText value="#{convidado.palestranteConvidado.nome}" />
+									<span class="borda"><h:outputText styleClass="idade"
+											value="#{convidado.idade}" /></span>
+									<i class="#{convidado.palestranteConvidado.iconeParaSexo} Fright MarRight10" />
+								</p:column>
+
+								<p:column headerText="Telefone"
+									sortBy="#{convidado.palestranteConvidado.telefoneUm}" width="100">
+									<h:outputText value="#{convidado.palestranteConvidado.telefoneUm}" />
+								</p:column>
+
+								<p:column headerText="Palestra" sortBy="#{convidado.palestra.ordem}"
+									width="100">
+									<h:outputText value="#{convidado.palestra.nome}" />
+								</p:column>
+
+								<p:column headerText="Situação" width="50"
+									sortBy="#{convidado.statusConvite.nome}">
+									<span class="situacao #{convidado.statusConvite.coresParaStyle}">#{convidado.statusConvite.nome}</span>
+								</p:column>
+
+								<p:column headerText="Paroquia"
+									sortBy="#{convidado.segueMe.paroquia.descricao}"
+									rendered="#{seguranca.administradorGeral}" width="200">
+									<h:outputText value="#{convidado.segueMe.paroquia.descricao}" />
+								</p:column>
+
+								<p:column headerText="Segue-me"
+									sortBy="#{convidado.segueMe.numeroRomano.numeroRomano}"
+									rendered="#{seguranca.administrador}" width="50">
+									<h:outputText
+										value="#{convidado.segueMe.numeroRomano.numeroRomano}" />
+								</p:column>
+
+								<p:column headerText="Crachá Impresso?"
+									sortBy="#{convidado.cracha}" width="50">
+									<h:outputText value="#{convidado.cracha ? 'Não' : 'Sim'}" />
+								</p:column>
+							</p:dataTable>
+							<p:dialog
+								header="#{pesquisaPalestraConvidadoBean.evento.palestranteConvidado.nome}"
+								id="fotoDialog" widgetVar="fotoDialogWidgetVar">
+								<p:graphicImage
+									value="#{pesquisaPalestraConvidadoBean.evento.palestranteConvidado.carregarImagem()}"
+									style="max-width: 300px" id="produtoFoto" />
+							</p:dialog>
+						</div>
+					</div>
+				</div>
+			</div>
+		</h:form>
+
+	</ui:define>
+
+</ui:composition>

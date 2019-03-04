@@ -43,6 +43,7 @@ public class CadastroSegueMeBean implements Serializable {
 	private SegueMe segueMe;
 	private String imagem;
 	private String imagemFundo;
+	private String imagemRoda;
 
 	private List<Paroquia> paroquiasFiltro;
 
@@ -59,6 +60,7 @@ public class CadastroSegueMeBean implements Serializable {
 			Integer id = Integer.valueOf(this.segueMe.getId().toString());
 			imagem = fotoService.recuperarViaByte(this.segueMe.getImagem(), "segueMe", id);
 			imagemFundo = fotoService.recuperarViaByte(this.segueMe.getImagemFundo(), "segueMeFundo", id);
+			imagemRoda = fotoService.recuperarViaByte(this.segueMe.getImagemRoda(), "segueMeRoda", id);
 		}
 		paroquiasFiltro = paroquias.listaParoquias();
 		numeroRomanosFiltro = numeroRomanoRepoditory.listaNumerosRomanos();
@@ -69,6 +71,7 @@ public class CadastroSegueMeBean implements Serializable {
 		segueMe = new SegueMe();
 		imagem = null;
 		imagemFundo = null;
+		imagemRoda = null;
 	}
 
 	public void salvar() {
@@ -139,6 +142,30 @@ public class CadastroSegueMeBean implements Serializable {
 		imagemFundo = null;
 	}
 
+	public void uploadRoda(FileUploadEvent event) {
+		UploadedFile uploadedFile = event.getFile();
+
+		try {
+			byte[] fotoFile = fotoService.salvarFotoTempByte(uploadedFile.getFileName(), event.getFile().getContents());
+			segueMe.setImagemRoda(fotoFile);
+			Integer id = Integer.valueOf(this.segueMe.getId().toString());
+			imagemRoda = fotoService.recuperarViaByte(this.segueMe.getImagemFundo(), "segueMeRoda", id);
+		} catch (Exception e) {
+			FacesUtil.addErrorMessage(e.getMessage());
+		}
+	}
+
+	public void removerFotoRoda() {
+		try {
+			Integer id = Integer.valueOf(this.segueMe.getId().toString());
+			fotoService.deletarTemp(id, "segueMeRoda");
+		} catch (IOException e) {
+			FacesUtil.addErrorMessage(e.getMessage());
+		}
+		segueMe.setImagemRoda(null);
+		imagemRoda = null;
+	}
+
 	public Estados[] getEstados() {
 		return Estados.values();
 	}
@@ -177,6 +204,14 @@ public class CadastroSegueMeBean implements Serializable {
 
 	public boolean isEditando() {
 		return this.segueMe.getId() != null;
+	}
+
+	public String getImagemRoda() {
+		return imagemRoda;
+	}
+
+	public void setImagemRoda(String imagemRoda) {
+		this.imagemRoda = imagemRoda;
 	}
 
 }

@@ -1,0 +1,102 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" xmlns:o="http://omnifaces.org/ui"
+	template="/WEB-INF/template.xhtml">
+
+	<ui:define name="title">Pesquisa Palestrante Convidado</ui:define>
+
+	<f:metadata>
+		<f:viewAction action="#{pesquisaPalestranteConvidadoBean.inicializar()}" />
+	</f:metadata>
+
+	<ui:define name="search">
+		<div class="ui-fluid">
+			<div class="ui-g-12">
+				<div class="card card-w-title">
+					<h1>Pesquisa Palestrante Convidado</h1>
+					<div class="ui-g">
+						<div class="ui-g-12 ui-lg-12">
+							<p:inputText id="nome" placeholder="Nome do Seguidor"
+								autocomplete="off" value="#{pesquisaPalestranteConvidadoBean.filter.nome}" />
+						</div>
+						<div class="ui-g-12">
+							<p:commandButton id="pesquisar" value="Pesquisar"
+								style="width: auto;"
+								action="#{pesquisaPalestranteConvidadoBean.pesquisar()}" update="@form"
+								process="@form" icon="fa fa-search" styleClass="green-btn" />
+							<p:defaultCommand target="pesquisar" />
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</ui:define>
+
+	<ui:define name="content">
+
+		<h:form id="form">
+			<ui:include src="/WEB-INF/facelets/palestranteConvidado/convidado-toolbar.xhtml" />
+			<div class="ui-fluid">
+				<div class="ui-g-12">
+					<div class="card card-w-title">
+						<h1>Lista de Palestrante Convidado</h1>
+						<ui:include src="/WEB-INF/facelets/mensagem/messages.xhtml" />
+
+						<div class="ui-g">
+
+							<p:dataTable var="convidado" id="datatable-convidado"
+								value="#{pesquisaPalestranteConvidadoBean.listaPalestranteConvidado}" reflow="true"
+								selectionMode="single"
+								selection="#{pesquisaPalestranteConvidadoBean.palestranteConvidado}"
+								rowKey="#{convidado}" emptyMessage="Palestrante Convidado não encontrado!"
+								paginator="true" sortBy="#{convidado.nome}"
+								paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+								currentPageReportTemplate=" Exibindo de {startRecord} a {endRecord} no total de {totalRecords} - Página: {currentPage}/{totalPages} "
+								rows="25" rowsPerPageTemplate="25,50,100,150,200">
+
+								<p:ajax event="rowSelect"
+									listener="#{pesquisaPalestranteConvidadoBean.selecionar()}" />
+
+								<p:column headerText="Foto" width="50">
+									<p:commandButton update=":form:fotoDialog"
+										style="width: auto; margin-left: 15px;"
+										oncomplete="PF('fotoDialogWidgetVar').show()"
+										icon="fa fa-picture-o">
+										<f:setPropertyActionListener
+											target="#{pesquisaPalestranteConvidadoBean.palestranteConvidado}" value="#{convidado}" />
+									</p:commandButton>
+								</p:column>
+								<p:column headerText="Data Cadastro"
+									sortBy="#{convidado.timestamp.time}" width="100">
+									<h:outputText value="#{convidado.timestamp.time}">
+										<f:convertDateTime pattern="dd/MM/yyyy" />
+									</h:outputText>
+								</p:column>
+								<p:column headerText="Nome" sortBy="#{convidado.nome}"
+									width="200">
+									<h:outputText value="#{convidado.nome} - (#{convidado.apelido})" />
+									<i class="#{convidado.iconeParaSexo} Fright MarRight10" />
+								</p:column>
+
+								<p:column headerText="Telefone" sortBy="#{convidado.telefoneUm}"
+									width="100">
+									<h:outputText value="#{convidado.telefoneUm}" />
+								</p:column>
+							</p:dataTable>
+							<p:dialog header="#{pesquisaPalestranteConvidadoBean.palestranteConvidado.nome}"
+								id="fotoDialog" widgetVar="fotoDialogWidgetVar">
+								<p:graphicImage
+									value="#{pesquisaPalestranteConvidadoBean.palestranteConvidado.carregarImagem()}"
+									style="max-width: 300px" id="produtoFoto" />
+							</p:dialog>
+						</div>
+					</div>
+				</div>
+			</div>
+		</h:form>
+
+	</ui:define>
+
+</ui:composition>

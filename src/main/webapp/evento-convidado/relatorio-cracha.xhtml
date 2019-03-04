@@ -1,0 +1,77 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:jsf="http://xmlns.jcp.org/jsf" xmlns:p="http://primefaces.org/ui"
+	xmlns:o="http://omnifaces.org/ui" template="/WEB-INF/template.xhtml">
+
+	<ui:define name="title">Crachá Palestrante Convidado -  Segue-me</ui:define>
+
+	<f:metadata>
+		<f:viewAction action="#{relatorioCrachaConvidado.inicializar()}" />
+	</f:metadata>
+
+	<ui:define name="content">
+		<h:form id="form-cadastro">
+			<div class="ui-fluid">
+				<div class="ui-g-12">
+					<div class="card card-w-title">
+						<h1>Crachá Palestrante Convidado - Segue-me</h1>
+						<ui:include src="/WEB-INF/facelets/mensagem/messages.xhtml" />
+						<div class="ui-g">
+							<div class="ui-g-12">
+								<p:outputLabel value="Paroquia" for="paroquia" />
+							</div>
+
+							<div class="ui-g-12 ui-lg-6">
+								<p:selectOneMenu id="paroquia"
+									value="#{relatorioCrachaConvidado.paroquia}" required="true"
+									disabled="#{not seguranca.administradorGeral}">
+									<f:selectItem itemLabel="Selecione a Paroquia" />
+									<f:selectItems value="#{relatorioCrachaConvidado.listaParoquia}"
+										var="paroquia" itemValue="#{paroquia}"
+										itemLabel="#{paroquia.descricao}" />
+									<p:ajax listener="#{relatorioCrachaConvidado.onSegueMeChange()}"
+										update="segueMe" />
+								</p:selectOneMenu>
+							</div>
+
+							<div class="ui-g-12">
+								<p:outputLabel value="Segue-Me" for="segueMe" />
+							</div>
+
+							<div class="ui-g-12 ui-lg-6">
+								<p:selectOneMenu id="segueMe" label="Segue-me" required="true"
+									value="#{relatorioCrachaConvidado.segueMe}">
+									<f:selectItem itemLabel="Selecione o Segue-Me" />
+									<f:selectItems value="#{relatorioCrachaConvidado.listaSegueMe}"
+										var="segueMe" itemValue="#{segueMe}"
+										itemLabel="#{segueMe.titulo} - #{segueMe.numeroRomano.numeroRomano}" />
+								</p:selectOneMenu>
+							</div>
+
+							<div class="ui-g-12">
+								<p:outputLabel value="Atualizar Seguidor?" for="seguidor" />
+							</div>
+
+							<div class="ui-g-12 ui-lg-6">
+								<p:selectBooleanButton id="seguidor"
+									value="#{relatorioCrachaConvidado.atualizar}" onLabel="Sim"
+									offLabel="Não" onIcon="ui-icon-check" offIcon="ui-icon-close"
+									style="width:60px" />
+							</div>
+							<div class="save ui-g-12">
+								<p:commandButton value="Gerar" style="width: auto;"
+									action="#{relatorioCrachaConvidado.emitir()}" update="@form"
+									process="@form" icon="fa fa-save" styleClass="green-btn topo"
+									ajax="false" />
+							</div>
+
+						</div>
+					</div>
+				</div>
+			</div>
+		</h:form>
+	</ui:define>
+
+</ui:composition>

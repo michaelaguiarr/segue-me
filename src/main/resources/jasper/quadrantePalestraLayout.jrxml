@@ -42,8 +42,8 @@ public.segue_me.data_fim AS segue_me_data_fim,
 public.segue_me.data_inicio AS segue_me_data_inicio,
 public.segue_me.estado AS segue_me_estado,
 public.segue_me.padroeiro AS segue_me_padroeiro,
-public.segue_me.titulo AS segue_me_titulo,
 public.segue_me.nomeclatura AS segue_me_nomeclatura,
+public.segue_me.titulo AS segue_me_titulo,
 public.numero_romano.numero AS segue_me_numero,
 public.numero_romano.numero_romano,
 public.paroquias.descricao AS paroquias_descricao_0,
@@ -56,7 +56,13 @@ public.endereco.cidade,
 public.endereco.estado,
 public.evento_segue_me.fk_palestra_id,
 public.palestra.nome AS nome_palestra,
-public.palestra.ordem AS ordem_palestra
+public.palestra.ordem AS ordem_palestra,
+public.evento_segue_me.fk_palestrante_convidado_id,
+public.palestrante_convidado.dt_nascimento AS palestrante_convidado_dt_nascimento_0,
+public.palestrante_convidado.email AS palestrante_convidado_email_0,
+public.palestrante_convidado.nome AS palestrante_convidado_nome_0,
+public.palestrante_convidado.telefone_um AS palestrante_convidado_telefone_um_0,
+public.palestrante_convidado.apelido AS palestrante_convidado_apelido_0
 FROM
 public.evento_segue_me
 LEFT JOIN public.seguidor
@@ -65,6 +71,8 @@ LEFT JOIN public.casal
 ON public.casal.id = public.evento_segue_me.fk_casal_id 
 LEFT JOIN public.padre
 ON public.padre.id = public.evento_segue_me.fk_padre_id 
+LEFT JOIN public.palestrante_convidado
+ON public.palestrante_convidado.id = public.evento_segue_me.fk_palestrante_convidado_id
 JOIN public.segue_me
 ON public.evento_segue_me.fk_segue_me_id = public.segue_me.id 
 JOIN public.numero_romano
@@ -75,6 +83,7 @@ JOIN public.endereco
 ON public.seguidor.fk_endereco_id = public.endereco.cod
 OR public.casal.fk_endereco_id = public.endereco.cod
 OR public.padre.fk_endereco_id = public.endereco.cod
+OR public.palestrante_convidado.fk_endereco_id = public.endereco.cod
 JOIN public.palestra
 ON public.palestra.id = public.evento_segue_me.fk_palestra_id
 WHERE
@@ -191,11 +200,11 @@ public.seguidor.nome ASC]]>
 	<field name="segue_me_padroeiro" class="java.lang.String">
 		<property name="com.jaspersoft.studio.field.label" value="segue_me_padroeiro"/>
 	</field>
-	<field name="segue_me_titulo" class="java.lang.String">
-		<property name="com.jaspersoft.studio.field.label" value="segue_me_titulo"/>
-	</field>
 	<field name="segue_me_nomeclatura" class="java.lang.String">
 		<property name="com.jaspersoft.studio.field.label" value="segue_me_nomeclatura"/>
+	</field>
+	<field name="segue_me_titulo" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="segue_me_titulo"/>
 	</field>
 	<field name="segue_me_numero" class="java.lang.Integer">
 		<property name="com.jaspersoft.studio.field.label" value="segue_me_numero"/>
@@ -235,6 +244,24 @@ public.seguidor.nome ASC]]>
 	</field>
 	<field name="ordem_palestra" class="java.lang.Long">
 		<property name="com.jaspersoft.studio.field.label" value="ordem_palestra"/>
+	</field>
+	<field name="fk_palestrante_convidado_id" class="java.lang.Long">
+		<property name="com.jaspersoft.studio.field.label" value="fk_palestrante_convidado_id"/>
+	</field>
+	<field name="palestrante_convidado_dt_nascimento_0" class="java.sql.Timestamp">
+		<property name="com.jaspersoft.studio.field.label" value="palestrante_convidado_dt_nascimento_0"/>
+	</field>
+	<field name="palestrante_convidado_email_0" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="palestrante_convidado_email_0"/>
+	</field>
+	<field name="palestrante_convidado_nome_0" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="palestrante_convidado_nome_0"/>
+	</field>
+	<field name="palestrante_convidado_telefone_um_0" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="palestrante_convidado_telefone_um_0"/>
+	</field>
+	<field name="palestrante_convidado_apelido_0" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="palestrante_convidado_apelido_0"/>
 	</field>
 	<group name="palestra">
 		<groupExpression><![CDATA[$F{fk_palestra_id}]]></groupExpression>
@@ -289,13 +316,6 @@ public.seguidor.nome ASC]]>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{segue_me_padroeiro}]]></textFieldExpression>
 			</textField>
-			<textField>
-				<reportElement x="98" y="57" width="392" height="15" uuid="081ccd86-48f2-4fe5-b7da-0ae822920ef4"/>
-				<textElement textAlignment="Center" verticalAlignment="Top">
-					<font fontName="Comic Sans MS" size="10" isBold="false"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$F{segue_me_nomeclatura}+" do Encontro"]]></textFieldExpression>
-			</textField>
 			<staticText>
 				<reportElement x="2" y="80" width="550" height="30" uuid="acde32cf-4c44-466a-911c-6ab8ce41ef15"/>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
@@ -303,6 +323,13 @@ public.seguidor.nome ASC]]>
 				</textElement>
 				<text><![CDATA[Relação dos Palestrantes]]></text>
 			</staticText>
+			<textField>
+				<reportElement x="98" y="57" width="392" height="15" uuid="08ff2cfb-2ce1-4d8b-aaca-6e5b6436425a"/>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font fontName="Comic Sans MS" size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{segue_me_nomeclatura}+" do Encontro"]]></textFieldExpression>
+			</textField>
 		</band>
 	</pageHeader>
 	<columnHeader>
@@ -412,6 +439,96 @@ public.seguidor.nome ASC]]>
 					<font fontName="Comic Sans MS"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{email}]]></textFieldExpression>
+			</textField>
+		</band>
+		<band height="50" splitType="Stretch">
+			<printWhenExpression><![CDATA[$F{fk_palestrante_convidado_id} != null]]></printWhenExpression>
+			<rectangle>
+				<reportElement x="17" y="0" width="535" height="50" uuid="5067c022-fd69-4def-b9da-606107227e56"/>
+			</rectangle>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="18" y="2" width="300" height="15" uuid="79604f75-6d08-4279-8f4d-2ca6944570c6">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="1a5071b3-81ad-45f5-a236-37b9f3f71ced"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0" lineStyle="Dotted"/>
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="1.0" lineStyle="Dotted"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Comic Sans MS"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{palestrante_convidado_nome_0}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="18" y="32" width="534" height="15" uuid="73ee1471-8074-4282-a7ed-4320ae6afb2d">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="1a5071b3-81ad-45f5-a236-37b9f3f71ced"/>
+				</reportElement>
+				<box>
+					<bottomPen lineWidth="0.0" lineStyle="Dotted"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Comic Sans MS"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{logradouro}+", "+$F{numero}+" "+$F{bairro}+" - "+$F{cidade}+"/"+$F{estado}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern=" d MMM yyyy" isBlankWhenNull="true">
+				<reportElement x="480" y="2" width="70" height="15" uuid="be1febd0-2a74-45d5-9306-9af9e635a6fa">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="1a5071b3-81ad-45f5-a236-37b9f3f71ced"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0" lineStyle="Dotted"/>
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0" lineStyle="Dotted"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Comic Sans MS"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{palestrante_convidado_dt_nascimento_0}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="318" y="17" width="234" height="15" uuid="6eae1cdc-fdc2-4927-be43-ca2241fe4390">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="1a5071b3-81ad-45f5-a236-37b9f3f71ced"/>
+				</reportElement>
+				<box>
+					<bottomPen lineWidth="1.0" lineStyle="Dotted"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Comic Sans MS"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{palestrante_convidado_telefone_um_0}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="318" y="2" width="162" height="15" uuid="6bee86e0-58e6-4480-aed6-0171940103cd">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="1a5071b3-81ad-45f5-a236-37b9f3f71ced"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0" lineStyle="Dotted"/>
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="1.0" lineStyle="Dotted"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Comic Sans MS"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{palestrante_convidado_apelido_0}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="18" y="17" width="300" height="15" uuid="5f1831c6-89a4-4c45-89a0-c85878e17f89">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="1a5071b3-81ad-45f5-a236-37b9f3f71ced"/>
+				</reportElement>
+				<box>
+					<bottomPen lineWidth="1.0" lineStyle="Dotted"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Comic Sans MS"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{palestrante_convidado_email_0}]]></textFieldExpression>
 			</textField>
 		</band>
 		<band height="86">
@@ -669,9 +786,9 @@ public.seguidor.nome ASC]]>
 	</detail>
 	<pageFooter>
 		<band height="50">
-			<image hAlign="Center" vAlign="Middle">
+			<image hAlign="Center" vAlign="Middle" onErrorType="Blank">
 				<reportElement x="2" y="6" width="550" height="34" uuid="4eec6159-014d-4039-90ab-442859e54d9d"/>
-				<imageExpression><![CDATA["../../resources/images/peixe.png"]]></imageExpression>
+				<imageExpression><![CDATA["../../resources/temp/segueMeRoda/"+$F{fk_segue_me_id}+".jpg"]]></imageExpression>
 			</image>
 			<textField>
 				<reportElement x="520" y="40" width="30" height="10" uuid="a4bc9e55-b2a6-451e-b1c8-386b0ac943a1"/>

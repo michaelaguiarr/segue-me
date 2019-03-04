@@ -110,15 +110,6 @@
 								<p:ajax event="rowSelect"
 									listener="#{pesquisaEventoPadreBean.selecionar()}" />
 
-								<p:column width="50">
-									<p:commandButton update=":form:fotoDialog"
-										style="width: auto; margin-left: 10px;"
-										oncomplete="PF('fotoDialogWidgetVar').show()"
-										icon="fa fa-picture-o">
-										<f:setPropertyActionListener
-											target="#{pesquisaEventoPadreBean.evento}" value="#{padre}" />
-									</p:commandButton>
-								</p:column>
 								<p:column headerText="Nome" sortBy="#{padre.padre.nome}"
 									width="200">
 									<h:outputText value="#{padre.padre.nome} (#{padre.padre.apelido})" />

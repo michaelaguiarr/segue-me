@@ -1,0 +1,54 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:jsf="http://xmlns.jcp.org/jsf" xmlns:p="http://primefaces.org/ui"
+	xmlns:o="http://omnifaces.org/ui">
+	<h:panelGroup id="eventoPanelGroup">
+		<p:focus for="nome" />
+		<div class="ui-g-12">
+			<!-- convidado -->
+			<p:fieldset legend="Historico">
+
+				<p:dataTable var="convidado" id="datatable-convidado"
+					value="#{detalhesPalestranteConvidadoBean.listaEvento}"
+					reflow="true" emptyMessage="Nenhuma partipação não encontrado!"
+					paginator="true"
+					paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+					currentPageReportTemplate=" Exibindo de {startRecord} a {endRecord} no total de {totalRecords} - Página: {currentPage}/{totalPages} "
+					rows="25" rowsPerPageTemplate="25,50,100,150,200">
+
+					<p:column headerText="Palestra" sortBy="#{convidado.palestra.nome}"
+						width="300">
+						<h:outputText value="#{convidado.palestra.nome}" />
+					</p:column>
+
+					<p:column headerText="Paroquia"
+						sortBy="#{convidado.segueMe.paroquia.descricao}" width="200">
+						<h:outputText value="#{convidado.segueMe.paroquia.descricao}" />
+					</p:column>
+
+					<p:column headerText="Segue-me"
+						sortBy="#{convidado.segueMe.numeroRomano.numeroRomano}"
+						width="200">
+						<h:outputText
+							value="#{convidado.segueMe.titulo} - #{convidado.segueMe.numeroRomano.numeroRomano}" />
+					</p:column>
+
+					<p:column headerText="Situação" width="100"
+						sortBy="#{convidado.statusConvite.nome}">
+						<span class="situacao #{convidado.statusConvite.coresParaStyle}">#{convidado.statusConvite.nome}</span>
+					</p:column>
+
+					<p:column headerText="Obs" sortBy="#{convidado.motivoRecusa}"
+						width="200">
+						<h:outputText value="#{convidado.motivoRecusa}" />
+					</p:column>
+				</p:dataTable>
+			</p:fieldset>
+			<div class="save ui-g-12">
+				<ui:insert name="cancelar" />
+			</div>
+		</div>
+	</h:panelGroup>
+</ui:composition>

@@ -7,6 +7,7 @@
 	<queryString language="SQL">
 		<![CDATA[SELECT
 public.inscricao.id,
+public.evento_segue_me.fk_segue_me_id ,
 public.segue_me.cidade,
 public.segue_me.data_fim,
 public.segue_me.data_inicio,
@@ -60,6 +61,9 @@ public.endereco.bairro ASC]]>
 	</queryString>
 	<field name="id" class="java.lang.Long">
 		<property name="com.jaspersoft.studio.field.label" value="id"/>
+	</field>
+	<field name="fk_segue_me_id" class="java.lang.Long">
+		<property name="com.jaspersoft.studio.field.label" value="fk_segue_me_id"/>
 	</field>
 	<field name="cidade" class="java.lang.String">
 		<property name="com.jaspersoft.studio.field.label" value="cidade"/>
@@ -260,9 +264,9 @@ public.endereco.bairro ASC]]>
 	</detail>
 	<pageFooter>
 		<band height="50">
-			<image hAlign="Center" vAlign="Middle">
+			<image hAlign="Center" vAlign="Middle" onErrorType="Blank">
 				<reportElement x="2" y="6" width="550" height="34" uuid="4eec6159-014d-4039-90ab-442859e54d9d"/>
-				<imageExpression><![CDATA["../../resources/images/peixe.png"]]></imageExpression>
+				<imageExpression><![CDATA["../../resources/temp/segueMeRoda/"+$F{fk_segue_me_id}+".jpg"]]></imageExpression>
 			</image>
 		</band>
 	</pageFooter>

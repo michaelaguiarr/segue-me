@@ -40,6 +40,7 @@ public class SegueMe implements Serializable {
 	private boolean ativo = true;
 	private byte[] imagem;
 	private byte[] imagemFundo;
+	private byte[] imagemRoda;
 	@Column(name = "nome_cracha")
 	private String nomeArquivoCracha;
 
@@ -146,6 +147,15 @@ public class SegueMe implements Serializable {
 
 	public void setImagemFundo(byte[] imagemFundo) {
 		this.imagemFundo = imagemFundo;
+	}
+	
+	@Column(name = "imagem_roda")
+	public byte[] getImagemRoda() {
+		return imagemRoda;
+	}
+
+	public void setImagemRoda(byte[] imagemRoda) {
+		this.imagemRoda = imagemRoda;
 	}
 
 	public String getNomeArquivoCracha() {

@@ -20,12 +20,14 @@
 						<pv:menu>
 							<p:menuitem id="pm_dashboard" value="Dashboard" icon="fa fa-home"
 								outcome="/dashboard" />
-								
+
 							<p:menuitem id="pm_venda" value="Nova Venda" icon="fa fa-money"
-								outcome="/venda/cadastro-venda" rendered="#{seguranca.gerenciarVenda}" />
-								
-							<p:menuitem id="pm_venda_pesquisa" value="Pesquisa Venda" icon="fa fa-usd"
-								outcome="/venda/pesquisa-venda" rendered="#{seguranca.gerenciarVenda}" />
+								outcome="/venda/cadastro-venda"
+								rendered="#{seguranca.gerenciarVenda}" />
+
+							<p:menuitem id="pm_venda_pesquisa" value="Pesquisa Venda"
+								icon="fa fa-usd" outcome="/venda/pesquisa-venda"
+								rendered="#{seguranca.gerenciarVenda}" />
 
 							<p:submenu id="pm_evento" label="Evento" icon="fa fa-folder-open"
 								rendered="#{seguranca.gerenciarEvento}">
@@ -51,15 +53,21 @@
 									rendered="#{seguranca.gerenciarEvento}">
 
 									<p:menuitem id="pm_evento_palestra_casal" value="Casal"
-										icon="fa fa-venus-mars" outcome="/evento-casal/pesquisa-palestra"
+										icon="fa fa-venus-mars"
+										outcome="/evento-casal/pesquisa-palestra"
 										rendered="#{seguranca.gerenciarEvento}" />
-										
+
 									<p:menuitem id="pm_evento_palestra_seguidor" value="Seguidor"
-										icon="fa fa-users" outcome="/evento-seguidor/pesquisa-palestra"
+										icon="fa fa-users"
+										outcome="/evento-seguidor/pesquisa-palestra"
 										rendered="#{seguranca.gerenciarEvento}" />
-										
+
 									<p:menuitem id="pm_evento_palestra_padre" value="Padre/Bispo"
 										icon="fa fa-user-o" outcome="/evento-padre/pesquisa-palestra"
+										rendered="#{seguranca.gerenciarEvento}" />
+
+									<p:menuitem id="pm_evento_palestra_convidado" value="Convidado"
+										icon="fa fa-street-view" outcome="/evento-convidado/pesquisa-palestra"
 										rendered="#{seguranca.gerenciarEvento}" />
 
 								</p:submenu>
@@ -74,6 +82,13 @@
 										icon="fa fa-users"
 										outcome="/seguidor-public/cadastro-seguidor"
 										rendered="#{seguranca.gerenciarEvento}" />
+
+									<p:menuitem id="pm_convidado_public"
+										value="Palestrante Convidado" icon="fa fa-street-view"
+										outcome="/palestrante-public/cadastro-convidado"
+										rendered="#{seguranca.gerenciarEvento}" />
+
+
 								</p:submenu>
 
 								<p:submenu id="pm_relatorios_evento" label="Relatótios"
@@ -98,6 +113,9 @@
 										<p:menuitem id="pm_crach_evento_padre" value="Padre/Bispo"
 											icon="fa fa-line-chart"
 											outcome="/evento-padre/relatorio-cracha" />
+										<p:menuitem id="pm_crach_evento_convidado" value="Palestrante Convidado"
+											icon="fa fa-line-chart"
+											outcome="/evento-convidado/relatorio-cracha" />
 									</p:submenu>
 									<p:menuitem id="pm_quadrante_evento" value="Quadrante Seguidor"
 										icon="fa fa-line-chart"
@@ -108,8 +126,8 @@
 									<p:menuitem id="pm_quadrante_evento_segumista"
 										value="Quadrante Seguimista" icon="fa fa-line-chart"
 										outcome="/evento-seguidor/relatorio-quadrante-seguimista" />
-									<p:menuitem id="pm_quadrante_evento_palestrante" value="Quadrante Palestrantes"
-										icon="fa fa-line-chart"
+									<p:menuitem id="pm_quadrante_evento_palestrante"
+										value="Quadrante Palestrantes" icon="fa fa-line-chart"
 										outcome="/evento-seguidor/relatorio-quadrante-palestra" />
 								</p:submenu>
 							</p:submenu>
@@ -124,6 +142,11 @@
 
 							<p:menuitem id="pm_padre" value="Padre" icon="fa fa-user-o"
 								outcome="/padre/pesquisa-padre"
+								rendered="#{seguranca.gerenciarPadre}" />
+
+							<p:menuitem id="pm_conivado" value="Palestrante Convidado"
+								icon="fa fa-street-view"
+								outcome="/palestranteConvidado/pesquisa-convidado"
 								rendered="#{seguranca.gerenciarPadre}" />
 
 							<p:submenu id="pm_fichas" label="Fichas" icon="fa fa-folder-open"
