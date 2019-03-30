@@ -90,7 +90,12 @@ public class Seguranca {
 
 	public Usuario usuarioLogado() {
 		UsuarioSistema usuarioLogado = getUsuarioLogado();
-		return usuarioLogado.getUsuario();
+		if (usuarioLogado != null) {
+			return usuarioLogado.getUsuario();
+		} else {
+			return null;
+		}
+
 	}
 
 	@Produces

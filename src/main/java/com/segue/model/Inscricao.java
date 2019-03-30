@@ -48,7 +48,7 @@ public class Inscricao implements Serializable {
 
 	@Temporal(TemporalType.DATE)
 	@Column(name = "dt_gerar_doc", columnDefinition = "timestamp with time zone default now()")
-	private Calendar dataGerarDoc  = Calendar.getInstance();
+	private Calendar dataGerarDoc = Calendar.getInstance();
 
 	@Column(columnDefinition = "BOOLEAN DEFAULT true", name = "mora_com_pais")
 	private Boolean moraComPais;
@@ -100,6 +100,8 @@ public class Inscricao implements Serializable {
 	@ManyToOne
 	@JoinColumn(name = "fk_segue_me", foreignKey = @ForeignKey(name = "fk_segue_me"))
 	private SegueMe segueMe;
+
+	private Integer numero;
 
 	public Long getId() {
 		return id;
@@ -299,6 +301,14 @@ public class Inscricao implements Serializable {
 
 	public void setSegueMe(SegueMe segueMe) {
 		this.segueMe = segueMe;
+	}
+
+	public Integer getNumero() {
+		return numero;
+	}
+
+	public void setNumero(Integer numero) {
+		this.numero = numero;
 	}
 
 	@Override

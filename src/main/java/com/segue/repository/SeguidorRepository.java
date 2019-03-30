@@ -95,7 +95,30 @@ public class SeguidorRepository implements Serializable {
 		} else {
 			predicates.add(builder.equal(root.get("situacaoSeguidor"), SituacaoSeguidor.INATIVO));
 		}
-		predicates.add(builder.isNotNull(root.get("imagem")));
+		//predicates.add(builder.isNotNull(root.get("imagem")));
+		criteriaQuery.select(root);
+		criteriaQuery.where(predicates.toArray(new Predicate[0]));
+		criteriaQuery.orderBy(builder.asc(root.get("nome")), builder.asc(root.get("segueMe")));
+
+		TypedQuery<Seguidor> query = manager.createQuery(criteriaQuery);
+		return query.getResultList();
+	}
+
+	public List<Seguidor> filtradosPublic(SeguidorFilter filtro) {
+		CriteriaBuilder builder = manager.getCriteriaBuilder();
+		CriteriaQuery<Seguidor> criteriaQuery = builder.createQuery(Seguidor.class);
+		List<Predicate> predicates = new ArrayList<>();
+
+		Root<Seguidor> root = criteriaQuery.from(Seguidor.class);
+		From<?, ?> enderecoJoin = (From<?, ?>) root.fetch("endereco", JoinType.INNER);
+		From<?, ?> sexoJoin = (From<?, ?>) root.fetch("sexo", JoinType.INNER);
+		From<?, ?> paroquiaJoin = (From<?, ?>) root.fetch("paroquia", JoinType.LEFT);
+		From<?, ?> segueMeJoin = (From<?, ?>) root.fetch("segueMe", JoinType.INNER);
+		From<?, ?> numeroRomanoJoin = (From<?, ?>) segueMeJoin.fetch("numeroRomano", JoinType.INNER);
+		From<?, ?> circuloJoin = (From<?, ?>) root.fetch("circulo", JoinType.LEFT);
+		
+		predicates.add(builder.like(builder.lower(root.get("nome")), filtro.getNome().toLowerCase()));
+		predicates.add(builder.equal(root.get("dataNascimento"), filtro.getDtNascimento()));
 		criteriaQuery.select(root);
 		criteriaQuery.where(predicates.toArray(new Predicate[0]));
 		criteriaQuery.orderBy(builder.asc(root.get("nome")), builder.asc(root.get("segueMe")));
@@ -125,8 +148,22 @@ public class SeguidorRepository implements Serializable {
 		try {
 			return manager
 					.createQuery("select distinct(s) from Seguidor s " + "where (s.nome LIKE :nome "
-							+ "OR s.apelido LIKE :nome) AND  s.situacaoSeguidor = :situacao ", Seguidor.class)
-					.setParameter("nome", "%" + nome + "%").setParameter("situacao", SituacaoSeguidor.ATIVO)
+							+ "OR s.apelido LIKE :nome) AND  s.situacaoSeguidor = :situacao  AND s.segueMe != NULL ", Seguidor.class)
+					.setParameter("nome", "%" + nome + "%")
+					.setParameter("situacao", SituacaoSeguidor.ATIVO)
+					.setMaxResults(30).getResultList();
+		} catch (NoResultException nr) {
+			return null;
+		}
+	}
+	
+	public List<Seguidor> findByNomeFicha(String nome) {
+		try {
+			return manager
+					.createQuery("select distinct(s) from Seguidor s " + "where (s.nome LIKE :nome "
+							+ "OR s.apelido LIKE :nome) AND  (s.situacaoSeguidor = :situacao  OR s.situacaoSeguidor = NULL)", Seguidor.class)
+					.setParameter("nome", "%" + nome + "%")
+					.setParameter("situacao", SituacaoSeguidor.ATIVO)
 					.setMaxResults(30).getResultList();
 		} catch (NoResultException nr) {
 			return null;

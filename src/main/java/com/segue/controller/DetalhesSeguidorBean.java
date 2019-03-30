@@ -52,6 +52,14 @@ public class DetalhesSeguidorBean implements Serializable {
 				.redirect(Constants.CONTEXT + "/seguidor/cadastro-seguidor.xhtml?seguidor=" + seguidor.getId());
 	}
 	
+	public void editarPublic() throws IOException {
+		FacesContext.getCurrentInstance().getExternalContext().getFlash().setKeepMessages(true);
+
+		FacesContext.getCurrentInstance().getExternalContext()
+				.redirect(Constants.CONTEXT + "/seguidor-public/cadastro-seguidor.xhtml?seguidor=" + seguidor.getId());
+	}
+
+	
 	public Seguidor getSeguidor() {
 		return seguidor;
 	}

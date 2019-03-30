@@ -121,100 +121,42 @@
 							</div>
 							<div class="ui-g-12">
 								<!-- Seguidor -->
-								<p:fieldset legend="Seguidor">
-									<div class="ui-g-12"
-										jsf:rendered="#{cadastroFichaBean.evento.seguidor.segueMe.id != null}">
-										<h1 style="color:red; font-size:50px;">Já Fez o Segue-me</h1><br/>
-										<p:outputLabel style="color:red;" value="#{cadastroFichaBean.evento.seguidor.segueMe.titulo} -  #{cadastroFichaBean.evento.seguidor.segueMe.numeroRomano.numeroRomano}" />
-									</div>
-									<div class="ui-g-12">
-										<p:graphicImage
-											value="#{cadastroFichaBean.evento.seguidor.carregarImagem()}"
-											rendered="#{cadastroFichaBean.evento.seguidor.exibirImagem}"
-											width="150px" height="150px" id="fotoEvento"
-											onclick="PF('fotoDialogWidgetVar').show()" />
+								<p:fieldset legend="Dados Pessoais">
+									<div class="ui-g-8">
+										<p:outputLabel value="Nome" for="nome" />
 									</div>
 
-									<div class="ui-g-12">
-										<p:outputLabel value="Nome Seguidor" for="seguidor" />
-									</div>
-
-									<div class="ui-g-12 ui-md-12 ui-lg-12">
-										<div class="ui-inputgroup">
-											<p:autoComplete id="seguidor" required="true"
-												style="width: 90%;" styleClass="Fleft" autocomplete="off"
-												value="#{cadastroFichaBean.evento.seguidor}"
-												completeMethod="#{cadastroFichaBean.cadastroEventoSeguidorBean.buscaPessoasFicha}"
-												var="seguidor" itemLabel="#{seguidor.nome}"
-												itemValue="#{seguidor}" minQueryLength="3" maxResults="10"
-												forceSelection="true" emptyMessage="Nome não encontrado!"
-												disabled="#{not cadastroFichaBean.editando}"
-												rendered="#{not cadastroFichaBean.novoServidor}">
-												<p:ajax event="itemSelect" update="@form" />
-												<p:column>
-													<p:outputLabel value="#{seguidor.nome}" />
-												</p:column>
-
-												<p:column>
-													<p:outputLabel value="#{seguidor.apelido}" />
-												</p:column>
-
-											</p:autoComplete>
-											<p:inputText id="nome" required="true"
-												disabled="#{not cadastroFichaBean.editando}"
-												style="width: 90%;" styleClass="Fleft" autocomplete="off"
-												value="#{cadastroFichaBean.evento.seguidor.nome}"
-												rendered="#{cadastroFichaBean.novoServidor}" />
-
-
-											<p:commandButton icon="fa fa-plus"
-												action="#{cadastroFichaBean.novoServidorAcesso()}"
-												style="width: 10%; margin: 0;" id="novo-seguidor"
-												styleClass="white-button" process="@this"
-												disabled="#{not cadastroFichaBean.editando}"
-												rendered="#{not cadastroFichaBean.seguidorValido}"
-												update="@form" />
-											<p:commandButton icon="fa fa-search"
-												action="#{cadastroFichaBean.novoServidorAcesso()}"
-												style="width: 10%; margin: 0;" id="editar-seguidor"
-												styleClass="white-button" process="@this" update="@form"
-												disabled="#{not cadastroFichaBean.editando}"
-												rendered="#{cadastroFichaBean.seguidorValido}" />
-										</div>
-									</div>
-
-									<div class="ui-g-4"
-										jsf:rendered="#{cadastroFichaBean.seguidorValido}">
+									<div class="ui-g-4">
 										<p:outputLabel value="Apelido" for="apelido" />
 									</div>
-
-									<div class="ui-g-4"
-										jsf:rendered="#{cadastroFichaBean.seguidorValido}">
-										<p:outputLabel value="Data de Nascimento" for="nascimento" />
+									<div class="ui-g-8 ui-lg-8">
+										<p:inputText id="nome" required="true"
+											disabled="#{not cadastroFichaBean.editando}"
+											value="#{cadastroFichaBean.evento.seguidor.nome}" />
 									</div>
 
-									<div class="ui-g-4"
-										jsf:rendered="#{cadastroFichaBean.seguidorValido}">
-										<p:outputLabel value="Sexo" for="sexo" />
-									</div>
-
-									<div class="ui-g-4 ui-lg-4"
-										jsf:rendered="#{cadastroFichaBean.seguidorValido}">
+									<div class="ui-g-4 ui-lg-4">
 										<p:inputText id="apelido"
 											disabled="#{not cadastroFichaBean.editando}"
 											value="#{cadastroFichaBean.evento.seguidor.apelido}" />
 									</div>
 
-									<div class="ui-g-4  ui-lg-4"
-										jsf:rendered="#{cadastroFichaBean.seguidorValido}">
+									<div class="ui-g-6">
+										<p:outputLabel value="Data de Nascimento" for="nascimento" />
+									</div>
+
+									<div class="ui-g-6">
+										<p:outputLabel value="Sexo" for="sexo" />
+									</div>
+
+									<div class="ui-g-6  ui-lg-6">
 										<p:calendar id="nascimento" navigator="true" required="true"
 											disabled="#{not cadastroFichaBean.editando}"
 											value="#{cadastroFichaBean.evento.seguidor.dataNascimento}"
 											mask="true" pattern="dd/MM/yyyy" mode="popup" />
 									</div>
 
-									<div class="ui-g-4  ui-lg-4"
-										jsf:rendered="#{cadastroFichaBean.seguidorValido}">
+									<div class="ui-g-6  ui-lg-6">
 										<p:selectOneMenu id="sexo" label="Sexo" required="true"
 											disabled="#{not cadastroFichaBean.editando}"
 											converter="omnifaces.SelectItemsConverter"
@@ -225,18 +167,15 @@
 										</p:selectOneMenu>
 									</div>
 
-									<div class="ui-g-6"
-										jsf:rendered="#{cadastroFichaBean.seguidorValido}">
+									<div class="ui-g-6">
 										<p:outputLabel value="Telefone" for="celular" />
 									</div>
 
-									<div class="ui-g-6"
-										jsf:rendered="#{cadastroFichaBean.seguidorValido}">
+									<div class="ui-g-6">
 										<p:outputLabel value="Email" for="email" />
 									</div>
 
-									<div class="ui-g-6  ui-lg-6"
-										jsf:rendered="#{cadastroFichaBean.seguidorValido}">
+									<div class="ui-g-6  ui-lg-6">
 										<p:inputMask id="celular" placeholder="Telefone"
 											required="true"
 											requiredMessage="Telefone é campo obrigatório"
@@ -245,45 +184,37 @@
 											mask="(99)999999999" />
 									</div>
 
-									<div class="ui-g-6 ui-md-6 ui-lg-6"
-										jsf:rendered="#{cadastroFichaBean.seguidorValido}">
+									<div class="ui-g-6 ui-md-6 ui-lg-6">
 										<p:inputText placeholder="Email" id="email"
 											disabled="#{not cadastroFichaBean.editando}"
 											value="#{cadastroFichaBean.evento.seguidor.email}" />
 									</div>
-									<div class="ui-g-6"
-										jsf:rendered="#{cadastroFichaBean.seguidorValido}">
+									<div class="ui-g-6">
 										<p:outputLabel value="Naturalidade" for="naturalidade" />
 									</div>
-									<div class="ui-g-6"
-										jsf:rendered="#{cadastroFichaBean.seguidorValido}">
+									<div class="ui-g-6">
 										<p:outputLabel value="Nacionalidade" for="nacionalidade" />
 									</div>
-									<div class="ui-g-6"
-										jsf:rendered="#{cadastroFichaBean.seguidorValido}">
+									<div class="ui-g-6">
 										<p:inputText placeholder="Boa Vista - RR, Manaus - AM...."
 											id="naturalidade"
 											disabled="#{not cadastroFichaBean.editando}"
 											value="#{cadastroFichaBean.evento.seguidor.naturalidade}" />
 									</div>
 
-									<div class="ui-g-6"
-										jsf:rendered="#{cadastroFichaBean.seguidorValido}">
+									<div class="ui-g-6">
 										<p:inputText placeholder="Brasil, Venezuela...."
 											id="nacionalidade"
 											disabled="#{not cadastroFichaBean.editando}"
 											value="#{cadastroFichaBean.evento.seguidor.nacionalidade}" />
 									</div>
-									<div class="ui-g-8"
-										jsf:rendered="#{cadastroFichaBean.seguidorValido}">
+									<div class="ui-g-8">
 										<p:outputLabel value="Filiação Pai" for="pai" />
 									</div>
-									<div class="ui-g-4"
-										jsf:rendered="#{cadastroFichaBean.seguidorValido}">
+									<div class="ui-g-4">
 										<p:outputLabel value="Telefone Pai" for="celularPai" />
 									</div>
-									<div class="ui-g-8 ui-lg-8"
-										jsf:rendered="#{cadastroFichaBean.seguidorValido}">
+									<div class="ui-g-8 ui-lg-8">
 										<p:inputText id="pai"
 											disabled="#{not cadastroFichaBean.editando}"
 											placeholder="Nome Completo Pai"
@@ -291,56 +222,49 @@
 									</div>
 
 
-									<div class="ui-g-4  ui-lg-4"
-										jsf:rendered="#{cadastroFichaBean.seguidorValido}">
+									<div class="ui-g-4  ui-lg-4">
 										<p:inputMask id="celularPai" placeholder="Telefone pai"
 											disabled="#{not cadastroFichaBean.editando}"
 											value="#{cadastroFichaBean.evento.seguidor.telefonePai}"
 											mask="(99)999999999" />
 									</div>
 
-									<div class="ui-g-8"
-										jsf:rendered="#{cadastroFichaBean.seguidorValido}">
+									<div class="ui-g-8">
 										<p:outputLabel value="Filiação Mãe" for="mae" />
 									</div>
 
-									<div class="ui-g-4"
-										jsf:rendered="#{cadastroFichaBean.seguidorValido}">
+									<div class="ui-g-4">
 										<p:outputLabel value="Telefone Mãe" for="celularMae" />
 									</div>
 
-									<div class="ui-g-8 ui-lg-8"
-										jsf:rendered="#{cadastroFichaBean.seguidorValido}">
+									<div class="ui-g-8 ui-lg-8">
 										<p:inputText id="mae"
 											disabled="#{not cadastroFichaBean.editando}"
 											placeholder="Nome Completo Mãe"
 											value="#{cadastroFichaBean.evento.seguidor.filiacaoMae}" />
 									</div>
 
-									<div class="ui-g-4  ui-lg-4"
-										jsf:rendered="#{cadastroFichaBean.seguidorValido}">
+									<div class="ui-g-4  ui-lg-4">
 										<p:inputMask id="celularMae" placeholder="Telefone mãe"
 											disabled="#{not cadastroFichaBean.editando}"
 											value="#{cadastroFichaBean.evento.seguidor.telefoneMae}"
 											mask="(99)999999999" />
 									</div>
 
-									<div class="ui-g-12"
-										jsf:rendered="#{cadastroFichaBean.seguidorValido}">
+									<div class="ui-g-12">
 										<p:outputLabel value="Morar com os Pais" for="morar" />
 									</div>
-									<div class="ui-g-12 "
-										jsf:rendered="#{cadastroFichaBean.seguidorValido}">
+									<div class="ui-g-12 ">
 										<p:selectBooleanButton id="morar"
 											disabled="#{not cadastroFichaBean.editando}"
 											value="#{cadastroFichaBean.evento.inscricao.moraComPais}"
 											onLabel="Sim" offLabel="Não" onIcon="ui-icon-check"
 											offIcon="ui-icon-close" style="width:60px" />
 									</div>
+
 								</p:fieldset>
 							</div>
-							<div class="ui-g-12"
-								jsf:rendered="#{cadastroFichaBean.seguidorValido}">
+							<div class="ui-g-12">
 								<!-- SEGUE-ME -->
 								<p:fieldset legend="Endereço">
 									<div class="ui-g-12">
@@ -398,60 +322,56 @@
 									</div>
 								</p:fieldset>
 							</div>
-							<div class="ui-g-12"
-								jsf:rendered="#{cadastroFichaBean.seguidorValido}">
-								<!-- Escolaridade -->
+							<div class="ui-g-12">
+								<!-- SEGUE-ME -->
 								<p:fieldset legend="Escolaridade">
-									<div class="ui-g-6"
-										jsf:rendered="#{cadastroFichaBean.seguidorValido}">
+
+									<div class="ui-g-6">
 										<p:outputLabel value="Escolaridade" for="escolaridade" />
 									</div>
 
-									<div class="ui-g-6"
-										jsf:rendered="#{cadastroFichaBean.seguidorValido}">
+									<div class="ui-g-6">
 										<p:outputLabel value="Situação" for="situacaoEscola" />
 									</div>
 
-									<div class="ui-g-6 ui-lg-6"
-										jsf:rendered="#{cadastroFichaBean.seguidorValido}">
+									<div class="ui-g-6 ui-lg-6">
 										<p:inputText id="escolaridade"
 											placeholder="Superior, Ensino Medio..."
-											value="#{cadastroFichaBean.evento.seguidor.escolaridade}" />
+											disabled="#{not cadastroFichaBean.editando}"
+											value="#{cadastroFichaBean.evento.inscricao.escolaridade}" />
 									</div>
 
-									<div class="ui-g-6 ui-lg-6"
-										jsf:rendered="#{cadastroFichaBean.seguidorValido}">
+									<div class="ui-g-6 ui-lg-6">
 										<p:inputText id="situacaoEscola"
 											placeholder="Completo, Incompleto, cursando..."
+											disabled="#{not cadastroFichaBean.editando}"
 											value="#{cadastroFichaBean.evento.seguidor.situacaoEscolaridade}" />
 									</div>
 
-									<div class="ui-g-6"
-										jsf:rendered="#{cadastroFichaBean.seguidorValido}">
+									<div class="ui-g-6">
 										<p:outputLabel value="Curso" for="curso" />
 									</div>
 
-									<div class="ui-g-6"
-										jsf:rendered="#{cadastroFichaBean.seguidorValido}">
+									<div class="ui-g-6">
 										<p:outputLabel value="Instituição" for="instituicao" />
 									</div>
 
-									<div class="ui-g-6 ui-lg-6"
-										jsf:rendered="#{cadastroFichaBean.seguidorValido}">
+									<div class="ui-g-6 ui-lg-6">
 										<p:inputText id="curso" placeholder="Qual seu curso?"
-											value="#{cadastroFichaBean.evento.seguidor.curso}" />
+											disabled="#{not cadastroFichaBean.editando}"
+											value="#{cadastroFichaBean.evento.inscricao.curso}" />
 									</div>
 
-									<div class="ui-g-6 ui-lg-6"
-										jsf:rendered="#{cadastroFichaBean.seguidorValido}">
+									<div class="ui-g-6 ui-lg-6">
 										<p:inputText id="instituicao"
 											placeholder="Nome Escola, faculdade..."
+											disabled="#{not cadastroFichaBean.editando}"
 											value="#{cadastroFichaBean.evento.seguidor.instituicao}" />
 									</div>
+
 								</p:fieldset>
 							</div>
-							<div class="ui-g-12"
-								jsf:rendered="#{cadastroFichaBean.seguidorValido}">
+							<div class="ui-g-12">
 								<!-- SEGUE-ME -->
 								<p:fieldset legend="Participação">
 									<div class="ui-g-6">
@@ -505,8 +425,7 @@
 									</div>
 								</p:fieldset>
 							</div>
-							<div class="ui-g-12"
-								jsf:rendered="#{cadastroFichaBean.seguidorValido}">
+							<div class="ui-g-12">
 								<!-- SEGUE-ME -->
 								<p:fieldset
 									legend="Quem Convidou você para participar do encontro?">
@@ -535,8 +454,7 @@
 								</p:fieldset>
 
 							</div>
-							<div class="ui-g-12"
-								jsf:rendered="#{cadastroFichaBean.seguidorValido}">
+							<div class="ui-g-12">
 								<!-- SEGUE-ME -->
 								<p:fieldset legend="Rede Sociais">
 
@@ -571,18 +489,17 @@
 									</div>
 								</p:fieldset>
 							</div>
-							<div class="ui-g-12"
-								jsf:rendered="#{cadastroFichaBean.seguidorValido}">
+							<div class="ui-g-12">
 								<p:outputLabel value="Oberservação que jugar conviniente"
 									for="obs" />
 							</div>
 
-							<div class="ui-g-12 ui-lg-6"
-								jsf:rendered="#{cadastroFichaBean.seguidorValido}">
+							<div class="ui-g-12 ui-lg-6">
 								<p:inputTextarea rows="6" cols="33" id="obs"
 									disabled="#{not cadastroFichaBean.editando}"
 									value="#{cadastroFichaBean.evento.inscricao.informacaoExtras}" />
 							</div>
+
 							<div class="save ui-g-12">
 								<p:commandButton id="salvar" value="Salvar" style="width: auto;"
 									action="#{cadastroFichaBean.salvar()}" update="@form"

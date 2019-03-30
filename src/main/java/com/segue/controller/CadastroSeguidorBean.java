@@ -213,7 +213,7 @@ public class CadastroSeguidorBean implements Serializable {
 		FacesContext.getCurrentInstance().getExternalContext().getFlash().setKeepMessages(true);
 
 		FacesContext.getCurrentInstance().getExternalContext()
-				.redirect(Constants.CONTEXT + "/seguidor-public/cadastro-seguidor.xhtml");
+				.redirect(Constants.CONTEXT + "/seguidor-public/pesquisa-seguidor.xhtml");
 	}
 
 	public boolean isEditando() {

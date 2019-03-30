@@ -35,12 +35,21 @@ public class CirculoRepository implements Serializable {
 	private EntityManager manager;
 
 	public Circulo porId(Integer id) {
-		return manager.find(Circulo.class, id);
+//		return manager.find(Circulo.class, id);
+		return manager.createQuery("SELECT c from Circulo c "
+				+ "LEFT JOIN c.eventos e  "
+//				+ "JOIN FETCH e.seguidor s "
+//				+ "JOIN FETCH e.segueMe sm " 
+				+ "WHERE c.id = :id ", Circulo.class)
+				.setParameter("id", id)
+				.getSingleResult();
 	}
 
 	@Transactional
 	public List<Circulo> listaAll() {
-		return manager.createQuery("from Circulo Order by corCirculo desc", Circulo.class).getResultList();
+		return manager.createQuery("SELECT c from Circulo "
+				+ "LEFT JOIN c.eventos e  "
+				+ "Order by corCirculo desc", Circulo.class).getResultList();
 	}
 
 	public Circulo guardar(Circulo circulo) {
@@ -66,7 +75,9 @@ public class CirculoRepository implements Serializable {
 	 */
 	public List<Circulo> findByParoquia(Paroquia paroquia) {
 		return manager
-				.createQuery("SELECT c FROM Circulo c " + "JOIN FETCH c.segueMe s  "
+				.createQuery("SELECT c FROM Circulo c " 
+						+ "JOIN FETCH c.segueMe s  "
+						+ "LEFT JOIN c.eventos e  "
 						+ "WHERE c.segueMe.paroquia = :paroquia " + "ORDER BY c.segueMe", Circulo.class)
 				.setParameter("paroquia", paroquia).getResultList();
 	}
@@ -79,7 +90,9 @@ public class CirculoRepository implements Serializable {
 	 */
 	public List<Circulo> findBySegueMe(SegueMe segueMe) {
 		return manager
-				.createQuery("SELECT c FROM Circulo c WHERE c.segueMe = :segueMe " + "ORDER BY c.corCirculo",
+				.createQuery("SELECT c FROM Circulo c "
+						+ "LEFT JOIN c.eventos e  "
+						+ "WHERE c.segueMe = :segueMe " + "ORDER BY c.corCirculo",
 						Circulo.class)
 				.setParameter("segueMe", segueMe).getResultList();
 	}
@@ -93,7 +106,9 @@ public class CirculoRepository implements Serializable {
 	public Circulo findByCorSegueMe(SegueMe segueMe, CorCirculo cor) {
 		Circulo c = null;
 		try {
-			c = manager.createQuery("SELECT c FROM Circulo c " + "WHERE c.segueMe = :segueMe AND c.corCirculo = :cor ",
+			c = manager.createQuery("SELECT c FROM Circulo c "
+					+ "LEFT JOIN c.eventos e  "
+					+ "WHERE c.segueMe = :segueMe AND c.corCirculo = :cor ",
 					Circulo.class).setParameter("segueMe", segueMe).setParameter("cor", cor).getSingleResult();
 		} catch (NoResultException e) {
 

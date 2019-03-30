@@ -43,4 +43,13 @@ public class CadastroSeguidorService implements Serializable {
 	public List<Seguidor> findByNome(String nome) {
 		return repository.findByNome(nome);
 	}
+	
+	/**
+	 * Busca seguidor por nome para fichas
+	 * 
+	 * @return
+	 */
+	public List<Seguidor> findByNomeFicha(String nome) {
+		return repository.findByNomeFicha(nome);
+	}
 }

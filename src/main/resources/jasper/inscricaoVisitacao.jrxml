@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Created with Jaspersoft Studio version 6.5.1.final using JasperReports Library version 6.5.1  -->
+<!-- Created with Jaspersoft Studio version 6.6.0.final using JasperReports Library version 6.6.0  -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="inscricao" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="f4ab04ca-0240-4aa7-8313-3aef3d418309">
-	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="SEGUE-ME"/>
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="Segue-me"/>
 	<parameter name="status" class="java.lang.String"/>
 	<parameter name="segueMe" class="java.lang.Long"/>
 	<queryString>
 		<![CDATA[SELECT
 public.inscricao.id,
+public.inscricao.numero,
 public.segue_me.cidade,
 public.segue_me.data_fim,
 public.segue_me.data_inicio,
@@ -82,6 +83,9 @@ public.inscricao.id ASC]]>
 	<field name="id" class="java.lang.Long">
 		<property name="com.jaspersoft.studio.field.label" value="id"/>
 	</field>
+	<field name="numero" class="java.lang.Long">
+		<property name="com.jaspersoft.studio.field.label" value="numero"/>
+	</field>
 	<field name="cidade" class="java.lang.String">
 		<property name="com.jaspersoft.studio.field.label" value="cidade"/>
 	</field>
@@ -100,7 +104,7 @@ public.inscricao.id ASC]]>
 	<field name="titulo" class="java.lang.String">
 		<property name="com.jaspersoft.studio.field.label" value="titulo"/>
 	</field>
-	<field name="numero" class="java.lang.Integer">
+	<field name="COLUMN_9" class="java.lang.Integer">
 		<property name="com.jaspersoft.studio.field.label" value="numero"/>
 	</field>
 	<field name="numero_romano" class="java.lang.String">
@@ -316,7 +320,7 @@ public.inscricao.id ASC]]>
 				<textElement textAlignment="Left" verticalAlignment="Middle">
 					<font size="12" isBold="true"/>
 				</textElement>
-				<textFieldExpression><![CDATA["PROPOSTA Nº "+$F{id}]]></textFieldExpression>
+				<textFieldExpression><![CDATA["PROPOSTA Nº "+$F{numero}]]></textFieldExpression>
 			</textField>
 			<staticText>
 				<reportElement x="5" y="415" width="545" height="15" uuid="aafc2742-aa2a-4297-b611-41d19d2721ed"/>

@@ -6,6 +6,7 @@ import java.text.ParseException;
 import javax.inject.Inject;
 
 import com.segue.model.Evento;
+import com.segue.model.Paroquia;
 import com.segue.model.SituacaoSeguidor;
 import com.segue.model.StatusInscricao;
 import com.segue.repository.EventoRepository;
@@ -29,9 +30,7 @@ public class CadastroEventoService implements Serializable {
 		inscricao.getSeguidor().setSagramentoBatismo(inscricao.getInscricao().getSagramentoBatismo());
 		inscricao.getSeguidor().setSagramentoCrisma(inscricao.getInscricao().getSagramentoCrisma());
 		inscricao.getSeguidor().setSagramentoEucaristia(inscricao.getInscricao().getSagramentoEucaristia());
-		inscricao.getSeguidor().setParoquia(inscricao.getInscricao().getParoquia());
-		inscricao.getSeguidor().setSegueMe(inscricao.getInscricao().getSegueMe());
-		
+
 		inscricao.getInscricao().setInstituicao(inscricao.getSeguidor().getInstituicao());
 		inscricao.getInscricao().setSegueMe(inscricao.getSegueMe());
 		inscricao.getInscricao().setParoquia(inscricao.getSegueMe().getParoquia());
@@ -40,7 +39,9 @@ public class CadastroEventoService implements Serializable {
 		inscricao.getInscricao().setInstituicao(inscricao.getSeguidor().getInstituicao());
 		if (inscricao.getInscricao().getStatusInscricao().equals(StatusInscricao.APROVADO)) {
 			inscricao.getSeguidor().setSituacaoSeguidor(SituacaoSeguidor.ATIVO);
-		}
+			inscricao.getSeguidor().setParoquia(inscricao.getInscricao().getParoquia());
+			inscricao.getSeguidor().setSegueMe(inscricao.getInscricao().getSegueMe());
+		} 
 		try {
 			inscricao.setIdade(CalcularIdade.calculaIdadeSegueMe(inscricao.getSeguidor().getDataNascimento(),
 					inscricao.getSegueMe().getDtFim()));
@@ -55,8 +56,8 @@ public class CadastroEventoService implements Serializable {
 		repository.remover(inscricao);
 	}
 
-	public Evento carregarFicha(Long id) throws NegocioException {
-		return repository.findByIdInscrito(id);
+	public Evento carregarFicha(Integer id, Paroquia paroquia) throws NegocioException {
+		return repository.findByIdInscrito(id, paroquia);
 	}
 
 }
