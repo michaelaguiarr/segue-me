@@ -14,15 +14,20 @@ import javax.inject.Named;
 import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.poi.ss.formula.functions.Even;
 import org.hibernate.Session;
 
+import com.segue.filter.EventoFilter;
+import com.segue.model.Evento;
 import com.segue.model.Paroquia;
 import com.segue.model.SegueMe;
 import com.segue.model.StatusInscricao;
 import com.segue.model.Usuario;
+import com.segue.repository.EventoRepository;
 import com.segue.repository.ParoquiaRepository;
 import com.segue.repository.SegueMeRepository;
 import com.segue.security.Seguranca;
+import com.segue.service.NegocioException;
 import com.segue.util.jsf.FacesUtil;
 import com.segue.util.report.ExecutorRelatorio;
 
@@ -48,6 +53,9 @@ public class RelatorioInscritosFichas implements Serializable {
 
 	@Inject
 	private ParoquiaRepository paroquiaRepository;
+	
+	@Inject
+	private EventoRepository eventoRepository;
 
 	private StatusInscricao status = null;
 	private SegueMe segueMe;
@@ -75,6 +83,7 @@ public class RelatorioInscritosFichas implements Serializable {
 		segueMe = new SegueMe();
 		this.listaSegueMe = new ArrayList<>();
 		this.listaParoquia = new ArrayList<>();
+		status = StatusInscricao.PENDENTE;
 	}
 
 	public void carregarUsuarioLogado() {

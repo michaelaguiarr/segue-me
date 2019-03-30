@@ -35,6 +35,7 @@ import com.segue.model.Evento;
 import com.segue.model.Padre;
 import com.segue.model.Palestra;
 import com.segue.model.PalestranteConvidado;
+import com.segue.model.Paroquia;
 import com.segue.model.SegueMe;
 import com.segue.model.Seguidor;
 import com.segue.model.StatusInscricao;
@@ -52,7 +53,9 @@ public class EventoRepository implements Serializable {
 	}
 
 	public Evento guardar(Evento evento) {
-		return evento = manager.merge(evento);
+		Evento novo = manager.merge(evento);
+		manager.flush();
+		return novo;
 	}
 
 	public void remover(Evento evento) throws NegocioException {
@@ -110,7 +113,11 @@ public class EventoRepository implements Serializable {
 		}
 
 		if (filtro.getId() != null) {
-			predicates.add(builder.equal(inscricaoJoin.get("id"), filtro.getId()));
+			predicates.add(builder.equal(inscricaoJoin.get("numero"), filtro.getId()));
+		}
+		
+		if (filtro.getStatusInscricao() != null) {
+			predicates.add(builder.equal(inscricaoJoin.get("statusInscricao"), filtro.getStatusInscricao()));
 		}
 
 		criteriaQuery.select(root);
@@ -785,14 +792,16 @@ public class EventoRepository implements Serializable {
 		}
 	}
 
-	public Evento findByIdInscrito(Long id) throws NegocioException {
+	public Evento findByIdInscrito(Integer id, Paroquia paroquia) throws NegocioException {
 		try {
 			return manager.createQuery(
-					"SELECT distinct(e) FROM Evento e " + "JOIN FETCH e.seguidor s " + "LEFT JOIN e.casal c "
-							+ "LEFT JOIN e.padre p " + "LEFT JOIN e.palestranteConvidado pc "
-							+ "LEFT JOIN e.segueMe sm " + "LEFT JOIN e.equipe eq " + "LEFT JOIN e.funcao f "
-							+ "JOIN FETCH e.inscricao i " + "LEFT JOIN e.palestra p " + "WHERE i.id = :id ",
-					Evento.class).setParameter("id", id).getSingleResult();
+					"SELECT distinct(e) FROM Evento e " 
+							+ "LEFT JOIN e.seguidor s " 
+							+ "JOIN FETCH e.segueMe sm " 
+							+ "LEFT JOIN e.funcao f "
+							+ "JOIN FETCH e.inscricao i " 
+							+ "WHERE i.numero = :id AND sm.paroquia = :paroquia ",
+					Evento.class).setParameter("id", id).setParameter("paroquia", paroquia).getSingleResult();
 		} catch (NoResultException nr) {
 			throw new NegocioException("Ficha não pode ser encontrada.");
 		}
@@ -986,11 +995,55 @@ public class EventoRepository implements Serializable {
 					+ "JOIN FETCH e.inscricao i " 
 					+ "LEFT JOIN e.palestra pp "
 					+ "WHERE (lower(s.nome) LIKE lower(:nome) "
-					+ "	OR lower(s.apelido) LIKE lower(:nome)) AND e.segueMe = :segueme ",
+					+ "	OR lower(s.apelido) LIKE lower(:nome)) "
+					+ "AND e.inscricao != null "
+					+ "AND e.segueMe = :segueme ",
 					Evento.class)
 					.setParameter("nome", "%" + nome + "%")
 					.setParameter("segueme", segueMe)
 					.setMaxResults(30).getResultList();
+		} catch (NoResultException nr) {
+			return null;
+		}
+	}
+	
+	public List<Evento> findBySeguimistaNomeSituacao(String nome, SegueMe segueMe, StatusInscricao statusInscricao) {
+		try {
+			return manager.createQuery("SELECT distinct(e) FROM Evento e " 
+					+ "JOIN FETCH e.seguidor s "
+					+ "LEFT JOIN e.casal c " 
+					+ "LEFT JOIN e.padre p " 
+					+ "LEFT JOIN e.palestranteConvidado pc "
+					+ "JOIN FETCH e.segueMe sm " 
+					+ "LEFT JOIN e.equipe eq " 
+					+ "LEFT JOIN e.funcao f "
+					+ "JOIN FETCH e.inscricao i " 
+					+ "LEFT JOIN e.palestra pp "
+					+ "WHERE (lower(s.nome) LIKE lower(:nome) "
+					+ "	OR lower(s.apelido) LIKE lower(:nome)) "
+					+ "AND e.inscricao != null "
+					+ "AND i.statusInscricao = :statusInscricao "
+					+ "AND e.segueMe = :segueme ",
+					Evento.class)
+					.setParameter("nome", "%" + nome + "%")
+					.setParameter("statusInscricao", statusInscricao)
+					.setParameter("segueme", segueMe)
+					.setMaxResults(30).getResultList();
+		} catch (NoResultException nr) {
+			return null;
+		}
+	}
+	
+	
+	public List<Evento> findByNumeroDeInscricao(Paroquia paroquia) {
+		try {
+			return manager.createQuery("SELECT e FROM Evento e " 
+					+ "JOIN FETCH e.segueMe sm " 
+					+ "JOIN FETCH e.inscricao i " 
+					+ "WHERE sm.paroquia = :paroquia "
+					+ "AND e.inscricao != null "
+					+ "ORDER BY e.id desc", Evento.class).setParameter("paroquia", paroquia)
+					.setMaxResults(1).getResultList();
 		} catch (NoResultException nr) {
 			return null;
 		}

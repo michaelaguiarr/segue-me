@@ -43,7 +43,11 @@
 									icon="fa fa-child"
 									outcome="/evento-seguidor/pesquisa-seguimista"
 									rendered="#{seguranca.gerenciarEvento}" />
-
+									
+								<p:menuitem id="pm_circulo" value="Circulo"
+									icon="fa fa-circle-thin" outcome="/circulo/pesquisa-circulo"
+									rendered="#{seguranca.gerenciarEvento}" />
+								
 								<p:menuitem id="pm_padre_evento" value="Padre/Bispo"
 									icon="fa fa-user-o" outcome="/evento-padre/pesquisa-padre"
 									rendered="#{seguranca.gerenciarEvento}" />
@@ -80,7 +84,7 @@
 
 									<p:menuitem id="pm_seguidor_public" value="Seguidor Público"
 										icon="fa fa-users"
-										outcome="/seguidor-public/cadastro-seguidor"
+										outcome="/seguidor-public/pesquisa-seguidor"
 										rendered="#{seguranca.gerenciarEvento}" />
 
 									<p:menuitem id="pm_convidado_public"
@@ -207,9 +211,6 @@
 							<p:submenu id="pm_settings" label="Gerenciamento"
 								icon="fa fa-cogs" rendered="#{seguranca.settings}">
 
-								<p:menuitem id="pm_circulo" value="Circulo"
-									icon="fa fa-circle-thin" outcome="/circulo/pesquisa-circulo"
-									rendered="#{seguranca.gerenciarCirculo}" />
 								<p:menuitem id="pm_ecc" value="ECC" icon="fa fa-stack-overflow"
 									rendered="#{seguranca.gerenciarEcc}"
 									outcome="/ecc/pesquisa-ecc" />

@@ -206,6 +206,19 @@ public class CadastroEventoSeguidorBean implements Serializable {
 		List<Seguidor> seguidores = cadastroSeguidorService.findByNome(NomeComInicialMaiscula.iniciaisMaiuscula(nome));
 		return seguidores;
 	}
+	
+	
+	/**
+	 * AutoComplete Seguidor
+	 */
+	public List<Seguidor> buscaPessoasFicha(String nome) {
+		return this.getSeguidorPorNomeFicha(nome);
+	}
+
+	private List<Seguidor> getSeguidorPorNomeFicha(String nome) {
+		List<Seguidor> seguidores = cadastroSeguidorService.findByNomeFicha(NomeComInicialMaiscula.iniciaisMaiuscula(nome));
+		return seguidores;
+	}
 
 	public boolean isEditando() {
 		return this.evento.getId() != null;

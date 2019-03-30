@@ -2,11 +2,14 @@ package com.segue.service;
 
 import java.io.Serializable;
 import java.text.ParseException;
+import java.util.List;
 
 import javax.inject.Inject;
 
 import com.segue.model.Evento;
+import com.segue.model.SegueMe;
 import com.segue.model.StatusConvite;
+import com.segue.model.StatusInscricao;
 import com.segue.repository.EventoRepository;
 import com.segue.util.CalcularIdade;
 import com.segue.util.jpa.Transactional;
@@ -45,6 +48,15 @@ public class CadastroEventoSeguidorService implements Serializable {
 	@Transactional
 	public void remover(Evento equipe) throws NegocioException {
 		repository.remover(equipe);
+	}
+	
+	/**
+	 * Busca seguidor por nome
+	 * 
+	 * @return
+	 */
+	public List<Evento> findByNome(String nome, SegueMe segueMe) {
+		return repository.findBySeguimistaNomeSituacao(nome, segueMe, StatusInscricao.APROVADO);
 	}
 
 }

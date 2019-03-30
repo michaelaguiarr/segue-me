@@ -83,7 +83,7 @@
 									listener="#{pesquisaInscricaoBean.selecionar()}" />
 
 								<p:column headerText="Proposta" sortBy="#{inscritos.id}" width="8%">
-									<h:outputText value="#{inscritos.inscricao.id}" />
+									<h:outputText value="#{inscritos.inscricao.numero}" />
 								</p:column>
 
 								<p:column headerText="Nome" sortBy="#{inscritos.seguidor.nome}">

@@ -14,6 +14,7 @@ import org.primefaces.model.UploadedFile;
 
 import com.segue.model.Circulo;
 import com.segue.model.CorCirculo;
+import com.segue.model.Evento;
 import com.segue.model.Paroquia;
 import com.segue.model.SegueMe;
 import com.segue.model.Usuario;
@@ -21,8 +22,10 @@ import com.segue.repository.ParoquiaRepository;
 import com.segue.repository.SegueMeRepository;
 import com.segue.security.Seguranca;
 import com.segue.service.CadastroCirculoService;
+import com.segue.service.CadastroEventoSeguidorService;
 import com.segue.service.FotoService;
 import com.segue.service.NegocioException;
+import com.segue.util.NomeComInicialMaiscula;
 import com.segue.util.jsf.FacesUtil;
 
 @Named
@@ -33,6 +36,9 @@ public class CadastroCirculoBean implements Serializable {
 
 	@Inject
 	private CadastroCirculoService service;
+
+	@Inject
+	private CadastroEventoSeguidorService cadastroEventoSeguidorService;
 
 	@Inject
 	private SegueMeRepository segueMeRepository;
@@ -48,6 +54,7 @@ public class CadastroCirculoBean implements Serializable {
 	private Circulo circulo;
 	private Paroquia paroquia;
 	private String imagem;
+	private Evento evento;
 
 	private List<Paroquia> listaParaquia;
 	private List<SegueMe> listaSegueMe;
@@ -75,10 +82,12 @@ public class CadastroCirculoBean implements Serializable {
 		this.listaParaquia = new ArrayList<>();
 		this.listaSegueMe = new ArrayList<>();
 		this.circulo = new Circulo();
+		this.circulo.setEventos(new ArrayList<>());
 		this.seguranca = new Seguranca();
 		this.usuarioLogado = new Usuario();
 		this.paroquia = new Paroquia();
 		this.imagem = null;
+		this.evento = new Evento();
 	}
 
 	public void salvar() {
@@ -126,6 +135,19 @@ public class CadastroCirculoBean implements Serializable {
 	}
 
 	/**
+	 * AutoComplete Seguidor
+	 */
+	public List<Evento> buscaPessoas(String nome) {
+		return this.getSeguidorPorNome(nome);
+	}
+
+	private List<Evento> getSeguidorPorNome(String nome) {
+		List<Evento> seguidores = cadastroEventoSeguidorService
+				.findByNome(NomeComInicialMaiscula.iniciaisMaiuscula(nome), circulo.getSegueMe());
+		return seguidores;
+	}
+
+	/**
 	 * Carregar Segue-me;
 	 */
 	public void onSegueMeChange() {
@@ -133,6 +155,33 @@ public class CadastroCirculoBean implements Serializable {
 			listaSegueMe = segueMeRepository.findByParoquia(paroquia);
 			this.circulo.setSegueMe(null);
 		}
+	}
+
+	/**
+	 * Adiciona exame na lista
+	 *
+	 */
+	public void addSeguidor() {
+		evento.setCirculo(this.circulo);
+		this.circulo.getEventos().add(evento);
+		evento = new Evento();
+		FacesUtil.addInfoMessage("Seguimista Adicionado");
+	}
+
+	/**
+	 * Remove o exame da lista
+	 *
+	 */
+	public void removeSeguidor() {
+		try {
+			this.circulo.getEventos().remove(evento);
+			service.removerSeguimista(evento);
+			evento = new Evento();
+			FacesUtil.addInfoMessage("Seguimista Removido do circulos");
+		} catch (NegocioException e) {
+			FacesUtil.addErrorMessage(e.getMessage());
+		}
+
 	}
 
 	public boolean isEditando() {
@@ -181,6 +230,14 @@ public class CadastroCirculoBean implements Serializable {
 
 	public void setImagem(String imagem) {
 		this.imagem = imagem;
+	}
+
+	public Evento getEvento() {
+		return evento;
+	}
+
+	public void setEvento(Evento evento) {
+		this.evento = evento;
 	}
 
 }

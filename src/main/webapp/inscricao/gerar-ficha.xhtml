@@ -8,8 +8,10 @@
 	<ui:define name="title">Gerar Ficha de Incrições -  Segue-me</ui:define>
 
 	<ui:define name="toolbar">
-		<p:button outcome="/segueMe/pesquisa-segue-me" value="Pesquisar"
+		<p:button outcome="/inscricao/pesquisa-inscricao" value="Pesquisar"
 			icon="fa fa-search" />
+		<p:button outcome="/inscricao/relatorio-ficha.xhtml" value="Imprimir Ficha"
+			icon="fa fa-print" />
 	</ui:define>
 
 	<f:metadata>
@@ -44,11 +46,11 @@
 							</div>
 
 							<div class="ui-g-12">
-								<p:outputLabel value="Número de fichas" for="numero" />
+								<p:outputLabel value="Número de fichas (Quantidade de ficha que você quer gerar)" for="numero" />
 							</div>
 							<div class="ui-g-12 ui-lg-6">
 								<p:inputText id="numero"
-									value="#{gerarFichaBean.numero}" />
+									value="#{gerarFichaBean.numero}" placeholder="Se você digitar 10 será gerado 10 (Dez) fichas" />
 							</div>
 
 

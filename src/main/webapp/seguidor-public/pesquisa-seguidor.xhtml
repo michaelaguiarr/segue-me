@@ -1,0 +1,136 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:jsf="http://xmlns.jcp.org/jsf" xmlns:p="http://primefaces.org/ui"
+	xmlns:o="http://omnifaces.org/ui"
+	template="/WEB-INF/template/template-public.xhtml">
+
+	<ui:define name="title">Pesquisa Seguidor</ui:define>
+
+	<f:metadata>
+		<f:viewAction action="#{pesquisaSeguidorBean.inicializar()}" />
+	</f:metadata>
+
+	<ui:define name="search">
+		<div class="ui-fluid">
+			<div class="ui-g-12">
+				<div class="card card-w-title">
+					<h1>Pesquisa Seguidor</h1>
+					<div class="ui-g">
+						<div class="ui-g-12 ui-lg-12">
+							<p:outputLabel value="Nome Completo" for="nome" />
+						</div>
+						<div class="ui-g-12 ui-lg-12">
+							<p:inputText id="nome" placeholder="Nome do Seguidor"
+								autocomplete="off" value="#{pesquisaSeguidorBean.filter.nome}"
+								required="true" />
+						</div>
+						<div class="ui-g-12 ui-lg-12">
+							<p:outputLabel value="Data de Nascimento" for="nascimento" />
+						</div>
+						<div class="ui-g-12 ui-lg-12">
+							<p:calendar id="nascimento" required="true"
+								value="#{pesquisaSeguidorBean.filter.dtNascimento}" mask="true"
+								pattern="dd/MM/yyyy" mode="popup" showButtonPanel="true"
+								showOn="button" />
+						</div>
+						<div class="ui-g-12">
+							<p:commandButton id="pesquisar" value="Pesquisar"
+								style="width: auto;"
+								action="#{pesquisaSeguidorBean.pesquisarPublic()}"
+								update="@form" process="@form" icon="fa fa-search"
+								styleClass="green-btn" />
+							<p:defaultCommand target="pesquisar" />
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</ui:define>
+
+	<ui:define name="content">
+
+		<h:form id="form">
+			<ui:include
+				src="/WEB-INF/facelets/seguidor-public/seguidor-toolbar.xhtml" />
+			<div class="ui-fluid">
+				<div class="ui-g-12">
+					<div class="card card-w-title">
+						<h1>Lista de Seguidor</h1>
+						<ui:include src="/WEB-INF/facelets/mensagem/messages.xhtml" />
+
+						<div class="ui-g">
+
+							<p:dataTable var="seguidor" id="datatable-seguidor"
+								value="#{pesquisaSeguidorBean.listaSeguidor}" reflow="true"
+								selectionMode="single"
+								selection="#{pesquisaSeguidorBean.seguidor}"
+								rowKey="#{seguidor}" emptyMessage="Seguidor não encontrado!"
+								paginator="true" sortBy="#{seguidor.nome}"
+								paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+								currentPageReportTemplate=" Exibindo de {startRecord} a {endRecord} no total de {totalRecords} - Página: {currentPage}/{totalPages} "
+								rows="25" rowsPerPageTemplate="25,50,100,150,200">
+
+								<p:ajax event="rowSelect"
+									listener="#{pesquisaSeguidorBean.selecionarPublic()}" />
+
+								<p:column headerText="Foto" width="50">
+									<p:commandButton update=":form:fotoDialog"
+										style="width: auto; margin-left: 15px;"
+										oncomplete="PF('fotoDialogWidgetVar').show()"
+										icon="fa fa-picture-o">
+										<f:setPropertyActionListener
+											target="#{pesquisaSeguidorBean.seguidor}" value="#{seguidor}" />
+									</p:commandButton>
+								</p:column>
+								<p:column headerText="Data Cadastro"
+									sortBy="#{seguidor.timestamp.time}" width="100">
+									<h:outputText value="#{seguidor.timestamp.time}">
+										<f:convertDateTime pattern="dd/MM/yyyy" />
+									</h:outputText>
+								</p:column>
+								<p:column headerText="Nome" sortBy="#{seguidor.nome}"
+									width="200">
+									<h:outputText value="#{seguidor.nome} - (#{seguidor.apelido})" />
+									<i class="#{seguidor.iconeParaSexo} Fright MarRight10" />
+								</p:column>
+
+								<p:column headerText="Telefone" sortBy="#{seguidor.telefoneUm}"
+									width="100">
+									<h:outputText value="#{seguidor.telefoneUm}" />
+								</p:column>
+
+								<p:column headerText="Paroquia"
+									sortBy="#{seguidor.segueMe.paroquia.descricao}" width="200">
+									<h:outputText value="#{seguidor.segueMe.paroquia.descricao}" />
+								</p:column>
+
+								<p:column headerText="Segue-me"
+									sortBy="#{seguidor.segueMe.numeroRomano.numeroRomano}"
+									width="30">
+									<h:outputText
+										value="#{seguidor.segueMe.numeroRomano.numeroRomano}" />
+								</p:column>
+
+								<p:column headerText="Círculo"
+									sortBy="#{seguidor.circulo.corCirculo.descricao}" width="30">
+									<span
+										class="situacao #{seguidor.circulo.corCirculo.coresParaStyle}">#{seguidor.circulo.corCirculo.descricao}</span>
+								</p:column>
+							</p:dataTable>
+							<p:dialog header="#{pesquisaSeguidorBean.seguidor.nome}"
+								id="fotoDialog" widgetVar="fotoDialogWidgetVar">
+								<p:graphicImage
+									value="#{pesquisaSeguidorBean.seguidor.carregarImagem()}"
+									style="max-width: 300px" id="produtoFoto" />
+							</p:dialog>
+						</div>
+					</div>
+				</div>
+			</div>
+		</h:form>
+
+	</ui:define>
+
+</ui:composition>

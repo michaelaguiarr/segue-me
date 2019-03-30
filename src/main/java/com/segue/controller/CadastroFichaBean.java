@@ -56,6 +56,10 @@ public class CadastroFichaBean implements Serializable {
 
 	@Inject
 	private FotoService fotoService;
+
+	@Inject
+	private transient CadastroEventoSeguidorBean cadastroEventoSeguidorBean;
+
 	private String imagem;
 
 	private Evento evento;
@@ -67,6 +71,8 @@ public class CadastroFichaBean implements Serializable {
 	private List<SegueMe> listaSegueMe;
 	private List<Sexo> listaSexo = new ArrayList<>();
 	private List<Circulo> listaCirculo = new ArrayList<>();
+
+	private boolean novoServidor = false;
 
 	public CadastroFichaBean() {
 		limpar();
@@ -135,7 +141,7 @@ public class CadastroFichaBean implements Serializable {
 	public void excluir() {
 		try {
 			service.remover(this.evento);
-			FacesUtil.addInfoMessage("Ficha " + this.evento.getId() + " excluído com sucesso.");
+			FacesUtil.addInfoMessage("Ficha " + this.evento.getInscricao().getNumero() + " excluído com sucesso.");
 			limpar();
 		} catch (NegocioException ne) {
 			FacesUtil.addErrorMessage(ne.getMessage());
@@ -191,9 +197,10 @@ public class CadastroFichaBean implements Serializable {
 	 * Carregar Ficha;
 	 */
 	public void carregarFicha() {
-		if (this.evento.getInscricao().getId() != null) {
+		if (this.evento.getInscricao().getNumero() != null) {
 			try {
-				this.evento = service.carregarFicha(evento.getInscricao().getId());
+				this.evento = service.carregarFicha(evento.getInscricao().getNumero(),
+						evento.getSegueMe().getParoquia());
 				if (this.evento.getSeguidor() == null) {
 					this.evento.setSeguidor(new Seguidor());
 					this.evento.getInscricao().setStatusInscricao(StatusInscricao.INSCRITO);
@@ -207,12 +214,29 @@ public class CadastroFichaBean implements Serializable {
 		}
 	}
 
+	public void novoServidorAcesso() {
+		if (novoServidor) {
+			novoServidor = false;
+			this.evento.setSeguidor(new Seguidor());
+		} else {
+			novoServidor = true;
+		}
+	}
+
 	public boolean isEditando() {
 		return this.evento.getId() != null;
 	}
 
+	public boolean isExcluir() {
+		return this.evento.getId() != null && this.evento.getSeguidor().getId() == null;
+	}
+
 	public boolean isInsrito() {
 		return !this.evento.getInscricao().getStatusInscricao().equals(StatusInscricao.PENDENTE);
+	}
+
+	public boolean isSeguidorValido() {
+		return this.evento.getSeguidor().getId() != null || novoServidor;
 	}
 
 	public StatusInscricao[] getStatusInscricao() {
@@ -269,6 +293,18 @@ public class CadastroFichaBean implements Serializable {
 
 	public void setImagem(String imagem) {
 		this.imagem = imagem;
+	}
+
+	public CadastroEventoSeguidorBean getCadastroEventoSeguidorBean() {
+		return cadastroEventoSeguidorBean;
+	}
+
+	public boolean isNovoServidor() {
+		return novoServidor;
+	}
+
+	public void setNovoServidor(boolean novoServidor) {
+		this.novoServidor = novoServidor;
 	}
 
 }

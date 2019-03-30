@@ -65,4 +65,6 @@ public class SeguidorFilter implements Serializable {
 	public void setSituacao(String situacao) {
 		this.situacao = situacao;
 	}
+	
+	
 }

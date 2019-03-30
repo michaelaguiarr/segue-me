@@ -12,10 +12,10 @@
 		<f:viewAction action="#{detalhesSeguidorBean.inicializar()}" />
 	</f:metadata>
 	<ui:define name="toolbar">
-		<p:button outcome="/seguidor/pesquisa-seguidor" value="Pesquisar"
-			icon="fa fa-search" />
+		<p:button outcome="/seguidor-public/pesquisa-seguidor"
+			value="Pesquisar" icon="fa fa-search" />
 		<p:commandButton value="Editar" icon="fa fa-pencil-square-o"
-			action="#{detalhesSeguidorBean.editar()}" process="@this" />
+			action="#{detalhesSeguidorBean.editarPublic()}" process="@this" />
 	</ui:define>
 	<ui:define name="cancelar">
 		<p:button value="Cancelar" style="width: auto; margin-left: 15px;"
@@ -37,6 +37,7 @@
 
 							<ui:include
 								src="/WEB-INF/facelets/seguidor/datatable-evento.xhtml" />
+
 						</div>
 					</div>
 				</div>

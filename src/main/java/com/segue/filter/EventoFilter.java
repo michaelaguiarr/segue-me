@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import com.segue.model.Paroquia;
 import com.segue.model.SegueMe;
+import com.segue.model.StatusInscricao;
 
 public class EventoFilter implements Serializable {
 
@@ -13,6 +14,7 @@ public class EventoFilter implements Serializable {
 	private Paroquia paroquia;
 	private String nome;
 	private Long id;
+	private StatusInscricao statusInscricao;
 
 	public SegueMe getSegueMe() {
 		return segueMe;
@@ -44,6 +46,14 @@ public class EventoFilter implements Serializable {
 
 	public void setId(Long id) {
 		this.id = id;
+	}
+
+	public StatusInscricao getStatusInscricao() {
+		return statusInscricao;
+	}
+
+	public void setStatusInscricao(StatusInscricao statusInscricao) {
+		this.statusInscricao = statusInscricao;
 	}
 
 }

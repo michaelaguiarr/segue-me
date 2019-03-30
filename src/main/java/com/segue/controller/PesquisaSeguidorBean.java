@@ -65,13 +65,16 @@ public class PesquisaSeguidorBean implements Serializable {
 
 	public void inicializar() {
 		this.seguranca = new Seguranca();
-		this.usuarioLogado = this.seguranca.usuarioLogado();
-		this.listaParoquia = paroquiaRepository.listaParoquias();
-		filter.setParoquia(this.usuarioLogado.getSegueMe().getParoquia());
-		this.listaSegueMe = segueMeRepository.findByParoquia(filter.getParoquia());
-		filter.setSegueMe(this.usuarioLogado.getSegueMe());
-		listaCirculo = circuloRepository.findBySegueMe(filter.getSegueMe());
-		this.listaSeguidor = repository.filtrados(filter);
+		if (this.seguranca.usuarioLogado() != null) {
+			this.usuarioLogado = this.seguranca.usuarioLogado();
+			this.listaParoquia = paroquiaRepository.listaParoquias();
+			filter.setParoquia(this.usuarioLogado.getSegueMe().getParoquia());
+			this.listaSegueMe = segueMeRepository.findByParoquia(filter.getParoquia());
+			filter.setSegueMe(this.usuarioLogado.getSegueMe());
+			listaCirculo = circuloRepository.findBySegueMe(filter.getSegueMe());
+			this.listaSeguidor = repository.filtrados(filter);
+		}
+
 	}
 
 	/**
@@ -79,6 +82,13 @@ public class PesquisaSeguidorBean implements Serializable {
 	 */
 	public void pesquisar() {
 		listaSeguidor = repository.filtrados(this.filter);
+		if (listaSeguidor.isEmpty()) {
+			FacesUtil.addErrorMessage("Nenhum Resultado Encontrado!");
+		}
+	}
+	
+	public void pesquisarPublic() {
+		listaSeguidor = repository.filtradosPublic(this.filter);
 		if (listaSeguidor.isEmpty()) {
 			FacesUtil.addErrorMessage("Nenhum Resultado Encontrado!");
 		}
@@ -118,6 +128,13 @@ public class PesquisaSeguidorBean implements Serializable {
 
 		FacesContext.getCurrentInstance().getExternalContext()
 				.redirect(Constants.CONTEXT + "/seguidor/detalhe-seguidor.xhtml?seguidor=" + seguidor.getId());
+	}
+	
+	public void selecionarPublic() throws IOException {
+		FacesContext.getCurrentInstance().getExternalContext().getFlash().setKeepMessages(true);
+
+		FacesContext.getCurrentInstance().getExternalContext()
+				.redirect(Constants.CONTEXT + "/seguidor-public/detalhe-seguidor.xhtml?seguidor=" + seguidor.getId());
 	}
 
 	public List<Paroquia> getListaParoquia() {

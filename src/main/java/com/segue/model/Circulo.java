@@ -1,7 +1,9 @@
 package com.segue.model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -13,6 +15,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -46,6 +49,9 @@ public class Circulo implements Serializable {
 	private CorCirculo corCirculo;
 
 	private byte[] imagem;
+
+	@OneToMany(mappedBy = "circulo")
+	private List<Evento> eventos = new ArrayList<>();
 
 	public Integer getId() {
 		return id;
@@ -113,6 +119,14 @@ public class Circulo implements Serializable {
 
 	public void setImagem(byte[] imagem) {
 		this.imagem = imagem;
+	}
+
+	public List<Evento> getEventos() {
+		return eventos;
+	}
+
+	public void setEventos(List<Evento> eventos) {
+		this.eventos = eventos;
 	}
 
 	@Override
