@@ -14,20 +14,15 @@ import javax.inject.Named;
 import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.poi.ss.formula.functions.Even;
 import org.hibernate.Session;
 
-import com.segue.filter.EventoFilter;
-import com.segue.model.Evento;
 import com.segue.model.Paroquia;
 import com.segue.model.SegueMe;
 import com.segue.model.StatusInscricao;
 import com.segue.model.Usuario;
-import com.segue.repository.EventoRepository;
 import com.segue.repository.ParoquiaRepository;
 import com.segue.repository.SegueMeRepository;
 import com.segue.security.Seguranca;
-import com.segue.service.NegocioException;
 import com.segue.util.jsf.FacesUtil;
 import com.segue.util.report.ExecutorRelatorio;
 
@@ -53,9 +48,6 @@ public class RelatorioInscritosFichas implements Serializable {
 
 	@Inject
 	private ParoquiaRepository paroquiaRepository;
-	
-	@Inject
-	private EventoRepository eventoRepository;
 
 	private StatusInscricao status = null;
 	private SegueMe segueMe;
@@ -63,6 +55,10 @@ public class RelatorioInscritosFichas implements Serializable {
 	private Seguranca seguranca;
 	private Usuario usarioLogado;
 	private Paroquia paroquia;
+
+	private String contato1;
+	private String contato2;
+	private String contato3;
 
 	private List<Paroquia> listaParoquia;
 	private List<SegueMe> listaSegueMe;
@@ -84,6 +80,9 @@ public class RelatorioInscritosFichas implements Serializable {
 		this.listaSegueMe = new ArrayList<>();
 		this.listaParoquia = new ArrayList<>();
 		status = StatusInscricao.PENDENTE;
+		contato1 = "";
+		contato2 = "";
+		contato3 = "";
 	}
 
 	public void carregarUsuarioLogado() {
@@ -131,6 +130,30 @@ public class RelatorioInscritosFichas implements Serializable {
 			System.out.println(this.status);
 			ExecutorRelatorio executor = new ExecutorRelatorio("/jasper/inscricao.jasper", this.response, parametros,
 					"RelacaoInscrtios" + status + ".pdf");
+			Session session = manager.unwrap(Session.class);
+			session.doWork(executor);
+
+			if (executor.isRelatorioGerado()) {
+				facesContext.responseComplete();
+				inicializar();
+			}
+
+		} catch (Exception e) {
+			FacesUtil.addErrorMessage("A execução do relatório não retornou dados.");
+		}
+	}
+
+	public void emitirCanhoto() {
+		try {
+			Map<String, Object> parametros = new HashMap<>();
+			parametros.put(JRParameter.REPORT_LOCALE, new Locale("pt", "BR"));
+			parametros.put("segueMe", this.segueMe.getId());
+			parametros.put("contato1", this.contato1);
+			parametros.put("contato2", this.contato2);
+			parametros.put("contato3", this.contato3);
+			System.out.println(this.status);
+			ExecutorRelatorio executor = new ExecutorRelatorio("/jasper/canhotoPadre.jasper", this.response, parametros,
+					"CanhotoFicha" + this.segueMe.getNumeroRomano().getNumero() + ".pdf");
 			Session session = manager.unwrap(Session.class);
 			session.doWork(executor);
 
@@ -196,6 +219,30 @@ public class RelatorioInscritosFichas implements Serializable {
 
 	public void setListaSegueMe(List<SegueMe> listaSegueMe) {
 		this.listaSegueMe = listaSegueMe;
+	}
+
+	public String getContato1() {
+		return contato1;
+	}
+
+	public void setContato1(String contato1) {
+		this.contato1 = contato1;
+	}
+
+	public String getContato2() {
+		return contato2;
+	}
+
+	public void setContato2(String contato2) {
+		this.contato2 = contato2;
+	}
+
+	public String getContato3() {
+		return contato3;
+	}
+
+	public void setContato3(String contato3) {
+		this.contato3 = contato3;
 	}
 
 }

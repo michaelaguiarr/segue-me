@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.6.0.final using JasperReports Library version 6.6.0  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="canhotoPadre" columnCount="3" pageWidth="595" pageHeight="842" columnWidth="185" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="9ab55168-2c0a-4493-80b0-5defeb38dec5">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="Segue-me"/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<parameter name="contato1" class="java.lang.String"/>
+	<parameter name="contato2" class="java.lang.String"/>
+	<parameter name="contato3" class="java.lang.String"/>
+	<parameter name="segueMe" class="java.lang.Long"/>
+	<queryString>
+		<![CDATA[SELECT
+inscricao.numero,
+"numero_romano"."numero_romano"
+FROM
+"evento_segue_me"
+JOIN inscricao
+ON "evento_segue_me"."fk_inscricao_id" = inscricao."id" 
+JOIN "segue_me"
+ON "evento_segue_me"."fk_segue_me_id" = "segue_me"."id" 
+JOIN "numero_romano"
+ON "segue_me"."fk_numero_cod" = "numero_romano"."id"
+WHERE
+inscricao.statusinscricao = 'PENDENTE' AND
+inscricao.ficha_do_padre = TRUE AND
+evento_segue_me.fk_segue_me_id =  $P{segueMe} 
+ORDER BY
+inscricao.numero ASC]]>
+	</queryString>
+	<field name="numero" class="java.lang.Long">
+		<property name="com.jaspersoft.studio.field.label" value="numero"/>
+	</field>
+	<field name="numero_romano" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="numero_romano"/>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<detail>
+		<band height="125" splitType="Stretch">
+			<rectangle>
+				<reportElement x="4" y="0" width="170" height="125" uuid="539fb0f7-8eb8-4b06-936d-50c9d1336098"/>
+			</rectangle>
+			<textField>
+				<reportElement x="4" y="0" width="170" height="20" uuid="5743e9b9-d7a0-4651-be2c-2ef05ac644b4"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="13" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["SEGUE-ME "+$F{numero_romano}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="19" y="43" width="140" height="10" uuid="875d0de4-b713-453e-a238-8cc05719d147"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[Contato:]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="19" y="53" width="140" height="10" uuid="e4b53996-fd19-4b18-8a4b-548c423660f9"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{contato1}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="19" y="65" width="140" height="10" uuid="85093861-97c0-4cdf-a9e3-9cfb216b50d7"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{contato2}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="19" y="75" width="140" height="10" uuid="bd5f46d0-b3e6-4e1f-8463-8cac4e32e687"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{contato3}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="10" y="90" width="160" height="30" uuid="a22bf70f-2c0b-41c7-93e8-b7148684e98a"/>
+				<textElement textAlignment="Justified">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Inscrição somente será realizada com apresentação deste comprovante. Prazo: 20 dias antes do encontro.]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="4" y="20" width="170" height="20" uuid="cea08d34-b4f3-4c86-839b-b633d77807e9"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="11" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["PROPOSTA:"+$F{numero}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

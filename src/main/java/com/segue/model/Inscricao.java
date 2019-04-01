@@ -44,7 +44,7 @@ public class Inscricao implements Serializable {
 
 	@Temporal(TemporalType.DATE)
 	@Column(name = "dt_inscricao", columnDefinition = "timestamp with time zone")
-	private Date dataInsccricao;
+	private Date dataInsccricao = new Date();
 
 	@Temporal(TemporalType.DATE)
 	@Column(name = "dt_gerar_doc", columnDefinition = "timestamp with time zone default now()")
@@ -102,6 +102,9 @@ public class Inscricao implements Serializable {
 	private SegueMe segueMe;
 
 	private Integer numero;
+
+	@Column(columnDefinition = "BOOLEAN DEFAULT false", name = "ficha_do_padre")
+	private Boolean fichaDoPadre;
 
 	public Long getId() {
 		return id;
@@ -309,6 +312,14 @@ public class Inscricao implements Serializable {
 
 	public void setNumero(Integer numero) {
 		this.numero = numero;
+	}
+
+	public Boolean getFichaDoPadre() {
+		return fichaDoPadre;
+	}
+
+	public void setFichaDoPadre(Boolean fichaDoPadre) {
+		this.fichaDoPadre = fichaDoPadre;
 	}
 
 	@Override
