@@ -10,8 +10,6 @@
 	<ui:define name="toolbar">
 		<p:button outcome="pesquisa-inscricao" value="Pesquisar"
 			icon="fa fa-search" />
-		<p:button outcome="canhoto-ficha" value="Canhoto Ficha"
-			icon="fa fa-print" />
 	</ui:define>
 
 	<f:metadata>
@@ -33,8 +31,8 @@
 
 							<div class="ui-g-12 ui-lg-6">
 								<p:selectOneMenu id="paroquia"
-									value="#{relatorioInscritosFichas.paroquia}"
-									required="true" disabled="#{not seguranca.administradorGeral}">
+									value="#{relatorioInscritosFichas.paroquia}" required="true"
+									disabled="#{not seguranca.administradorGeral}">
 									<f:selectItem itemLabel="Selecione a Paroquia" />
 									<f:selectItems
 										value="#{relatorioInscritosFichas.listaParoquia}"
@@ -54,31 +52,39 @@
 								<p:selectOneMenu id="segueMe" label="Segue-me" required="true"
 									value="#{relatorioInscritosFichas.segueMe}">
 									<f:selectItem itemLabel="Selecione o Segue-Me" />
-									<f:selectItems
-										value="#{relatorioInscritosFichas.listaSegueMe}"
+									<f:selectItems value="#{relatorioInscritosFichas.listaSegueMe}"
 										var="segueMe" itemValue="#{segueMe}"
 										itemLabel="#{segueMe.titulo} - #{segueMe.numeroRomano.numeroRomano}" />
 								</p:selectOneMenu>
 							</div>
 
 							<div class="ui-g-12">
-								<p:outputLabel value="Situação" for="status" />
+								<p:outputLabel value="Contatos" />
 							</div>
 
 							<div class="ui-g-12 ui-lg-6">
-								<p:selectOneMenu id="status" label="Status" required="true"
-									value="#{relatorioInscritosFichas.status}">
-									<f:selectItem itemLabel="Selecione o Status" />
-									<f:selectItems
-										value="#{relatorioInscritosFichas.statusInscricao}"
-										var="status" itemValue="#{status}" itemLabel="#{status.nome}" />
-								</p:selectOneMenu>
+								<p:inputText id="contato1"
+									value="#{relatorioInscritosFichas.contato1}" />
+							</div>
+							<div class="ui-g-12">
+								<p:outputLabel  />
+							</div>
+							<div class="ui-g-12 ui-lg-6">
+								<p:inputText id="contato2"
+									value="#{relatorioInscritosFichas.contato2}" />
+							</div>
+							<div class="ui-g-12">
+								<p:outputLabel  />
+							</div>
+							<div class="ui-g-12 ui-lg-6">
+								<p:inputText id="contato3"
+									value="#{relatorioInscritosFichas.contato3}" />
 							</div>
 							<div class="save ui-g-12">
 								<p:commandButton value="Gerar" style="width: auto;"
-									action="#{relatorioInscritosFichas.emitir()}"
-									update="@form" process="@form" icon="fa fa-save"
-									styleClass="green-btn topo" ajax="false" />
+									action="#{relatorioInscritosFichas.emitirCanhoto()}" update="@form"
+									process="@form" icon="fa fa-save" styleClass="green-btn topo"
+									ajax="false" />
 							</div>
 
 						</div>

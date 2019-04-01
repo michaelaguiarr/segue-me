@@ -82,14 +82,25 @@
 								<p:ajax event="rowSelect"
 									listener="#{pesquisaInscricaoBean.selecionar()}" />
 
-								<p:column headerText="Proposta" sortBy="#{inscritos.id}" width="8%">
+								<p:column headerText="Proposta" sortBy="#{inscritos.id}"
+									width="8%">
 									<h:outputText value="#{inscritos.inscricao.numero}" />
 								</p:column>
 
 								<p:column headerText="Nome" sortBy="#{inscritos.seguidor.nome}">
 									<h:outputText value="#{inscritos.seguidor.nome}" />
-									<span class="borda"><h:outputText styleClass="idade" value="#{inscritos.idade}" /></span>
-									<i class="#{inscritos.seguidor.iconeParaSexo} Fright MarRight10"/>
+									<span class="borda"><h:outputText styleClass="idade"
+											value="#{inscritos.idade}" /></span>
+									<i
+										class="#{inscritos.seguidor.iconeParaSexo} Fright MarRight10" />
+
+									<p:commandLink name="alert" id="alert"
+										title="Amostra com exame de urgência"
+										styleClass="Fright MarRight5 Red"
+										rendered="#{inscritos.inscricao.fichaDoPadre}">
+										<i class="fa fa-bell" aria-hidden="true"> </i>
+										<p:effect type="pulsate" event="load" delay="100" speed="5500" />
+									</p:commandLink>
 								</p:column>
 
 								<p:column headerText="Telefone"

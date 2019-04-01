@@ -117,6 +117,16 @@
 											mask="true" pattern="dd/MM/yyyy HH:mm" mode="popup"
 											disabled="true" />
 									</div>
+
+									<div class="ui-g-12">
+										<p:outputLabel value="Ficha para o Padre" for="fpadre" />
+									</div>
+									<div class="ui-g-12 ui-lg-6">
+										<p:selectBooleanButton id="fpadre"
+											value="#{cadastroFichaBean.evento.inscricao.fichaDoPadre}"
+											onLabel="Sim" offLabel="Não" onIcon="ui-icon-check"
+											offIcon="ui-icon-close" style="width:60px" />
+									</div>
 								</p:fieldset>
 							</div>
 							<div class="ui-g-12">
@@ -124,8 +134,11 @@
 								<p:fieldset legend="Seguidor">
 									<div class="ui-g-12"
 										jsf:rendered="#{cadastroFichaBean.evento.seguidor.segueMe.id != null}">
-										<h1 style="color:red; font-size:50px;">Já Fez o Segue-me</h1><br/>
-										<p:outputLabel style="color:red;" value="#{cadastroFichaBean.evento.seguidor.segueMe.titulo} -  #{cadastroFichaBean.evento.seguidor.segueMe.numeroRomano.numeroRomano}" />
+										<h1 style="color: red; font-size: 50px;">Já Fez o
+											Segue-me</h1>
+										<br />
+										<p:outputLabel style="color:red;"
+											value="#{cadastroFichaBean.evento.seguidor.segueMe.titulo} -  #{cadastroFichaBean.evento.seguidor.segueMe.numeroRomano.numeroRomano}" />
 									</div>
 									<div class="ui-g-12">
 										<p:graphicImage
@@ -141,8 +154,8 @@
 
 									<div class="ui-g-12 ui-md-12 ui-lg-12">
 										<div class="ui-inputgroup">
-											<p:autoComplete id="seguidor" required="true"
-												style="width: 90%;" styleClass="Fleft" autocomplete="off"
+											<p:autoComplete id="seguidor" style="width: 90%;"
+												styleClass="Fleft" autocomplete="off"
 												value="#{cadastroFichaBean.evento.seguidor}"
 												completeMethod="#{cadastroFichaBean.cadastroEventoSeguidorBean.buscaPessoasFicha}"
 												var="seguidor" itemLabel="#{seguidor.nome}"
