@@ -11,12 +11,17 @@
 	<f:metadata>
 		<f:viewAction action="#{pesquisaSeguidorBean.inicializar()}" />
 	</f:metadata>
+	
+	<ui:define name="toolbar">
+		<p:button outcome="/seguidor-public/pesquisa-seguidor" value="Pesquisar"
+			icon="fa fa-search" />
+	</ui:define>
 
 	<ui:define name="search">
 		<div class="ui-fluid">
 			<div class="ui-g-12">
 				<div class="card card-w-title">
-					<h1>Pesquisa Seguidor</h1>
+					<h1>Pesquisa Seguidor (Realize a pesquisa para atualizar os dados)</h1>
 					<div class="ui-g">
 						<div class="ui-g-12 ui-lg-12">
 							<p:outputLabel value="Nome Completo" for="nome" />
@@ -57,7 +62,6 @@
 			<div class="ui-fluid">
 				<div class="ui-g-12">
 					<div class="card card-w-title">
-						<h1>Lista de Seguidor</h1>
 						<ui:include src="/WEB-INF/facelets/mensagem/messages.xhtml" />
 
 						<div class="ui-g">
@@ -70,7 +74,7 @@
 								paginator="true" sortBy="#{seguidor.nome}"
 								paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
 								currentPageReportTemplate=" Exibindo de {startRecord} a {endRecord} no total de {totalRecords} - Página: {currentPage}/{totalPages} "
-								rows="25" rowsPerPageTemplate="25,50,100,150,200">
+								rows="25" rowsPerPageTemplate="25,50,100,150,200" rendered="#{pesquisaSeguidorBean.listaSeguidor.size() > 0}">
 
 								<p:ajax event="rowSelect"
 									listener="#{pesquisaSeguidorBean.selecionarPublic()}" />

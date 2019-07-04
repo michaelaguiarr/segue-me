@@ -43,7 +43,7 @@
 						<div class="ui-g-12 ui-lg-6">
 							<p:selectOneMenu id="circulo"
 								value="#{pesquisaSeguidorBean.filter.circulo}">
-								<f:selectItem itemLabel="Todos as Equipes" />
+								<f:selectItem itemLabel="Todos os Circulos" />
 								<f:selectItems value="#{pesquisaSeguidorBean.listaCirculo}"
 									var="circulo" itemValue="#{circulo}"
 									itemLabel="#{circulo.corCirculo}" />
@@ -65,6 +65,10 @@
 								style="width: auto;"
 								action="#{pesquisaSeguidorBean.pesquisar()}" update="@form"
 								process="@form" icon="fa fa-search" styleClass="green-btn" />
+							<p:commandButton id="atulizar" value="Atulizar"
+								style="width: auto;"
+								action="#{pesquisaSeguidorBean.atulizarNome()}" update="@form"
+								process="@form"  rendered="#{seguranca.developer}"/>
 							<p:defaultCommand target="pesquisar" />
 						</div>
 					</div>

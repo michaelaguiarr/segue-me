@@ -107,8 +107,10 @@ public class RelatorioInscritosPorIdade implements Serializable {
 					facesContext.responseComplete();
 					inicializar();
 				}
-			} else {
+			} else if (this.grupo.equals(GrupoIdade.GRUPO2)) {
 				emitirFicha();
+			} else {
+				emitirFichaTudo();
 			}
 		} catch (Exception e) {
 			FacesUtil.addErrorMessage("A execução do relatório não retornou dados.");
@@ -121,8 +123,31 @@ public class RelatorioInscritosPorIdade implements Serializable {
 			parametros.put(JRParameter.REPORT_LOCALE, new Locale("pt", "BR"));
 			parametros.put("status", this.status);
 			parametros.put("segueMe", this.segueMe.getId());
-			ExecutorRelatorio executor = new ExecutorRelatorio("/jasper/relacaoInscritosFaixa2023.jasper", this.response, parametros,
-					"RelacaoInscrtios" + status + ".pdf");
+			ExecutorRelatorio executor = new ExecutorRelatorio("/jasper/relacaoInscritosFaixa2023.jasper",
+					this.response, parametros, "RelacaoInscrtios" + status + ".pdf");
+			Session session = manager.unwrap(Session.class);
+			session.doWork(executor);
+
+			if (executor.isRelatorioGerado()) {
+				facesContext.responseComplete();
+				inicializar();
+			}
+
+		} catch (Exception e) {
+			FacesUtil.addErrorMessage("A execução do relatório não retornou dados.");
+		}
+	}
+	
+	public void emitirFichaTudo() {
+		try {
+			System.out.println(this.status);
+			System.out.println( this.segueMe.getId());
+			Map<String, Object> parametros = new HashMap<>();
+			parametros.put(JRParameter.REPORT_LOCALE, new Locale("pt", "BR"));
+			parametros.put("status", this.status);
+			parametros.put("segueMe", this.segueMe.getId());
+			ExecutorRelatorio executor = new ExecutorRelatorio("/jasper/relacaoInscritosFaixa.jasper",
+					this.response, parametros, "RelacaoInscrtios" + status + ".pdf");
 			Session session = manager.unwrap(Session.class);
 			session.doWork(executor);
 

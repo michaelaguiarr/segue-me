@@ -29,6 +29,7 @@ import javax.validation.constraints.NotBlank;
 
 import com.segue.util.Icons;
 import com.segue.util.NomeComInicialMaiscula;
+import com.segue.util.StringExtended;
 import com.segue.util.jsf.FacesUtil;
 
 @Entity
@@ -47,6 +48,9 @@ public class Seguidor implements Serializable {
 
 	@NotBlank
 	private String nome;
+	
+	@Column(name = "nome_sem_acento")
+	private String nomeSemAcento;
 	private String apelido;
 
 	@Column(name = "telefone_um")
@@ -65,7 +69,7 @@ public class Seguidor implements Serializable {
 	private String email;
 
 	@Temporal(TemporalType.DATE)
-	@Column(name = "dt_nascimento", columnDefinition = "timestamp with time zone")
+	@Column(name = "dt_nascimento")
 	private Date dataNascimento;
 
 	private String naturalidade;
@@ -211,6 +215,7 @@ public class Seguidor implements Serializable {
 	public void setNome(String nome) {
 		if (nome != null) {
 			this.nome = NomeComInicialMaiscula.iniciaisMaiuscula(nome);
+			this.nomeSemAcento = StringExtended.toASCII(nome.toUpperCase());
 		} else {
 			this.nome = nome;
 		}
@@ -555,6 +560,14 @@ public class Seguidor implements Serializable {
 		} else {
 			this.igrejaFrequenta = igrejaFrequenta;
 		}
+	}
+	
+	public String getNomeSemAcento() {
+		return nomeSemAcento;
+	}
+
+	public void setNomeSemAcento(String nomeSemAcento) {
+		this.nomeSemAcento = StringExtended.toASCII(nomeSemAcento.toUpperCase());
 	}
 
 	@Override

@@ -5,6 +5,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -31,6 +32,7 @@ import com.segue.security.Seguranca;
 import com.segue.service.CadastroEventoService;
 import com.segue.service.FotoService;
 import com.segue.service.NegocioException;
+import com.segue.util.Constants;
 import com.segue.util.jsf.FacesUtil;
 
 @Named
@@ -87,6 +89,8 @@ public class CadastroFichaBean implements Serializable {
 			if (this.evento.getSeguidor() == null) {
 				this.evento.setSeguidor(new Seguidor());
 				this.evento.getSeguidor().setEndereco(new Endereco());
+			}else {
+				this.novoServidor = true;
 			}
 			imagem = fotoService.recuperarViaByte(this.evento.getSeguidor().getImagem(), "seguidor",
 					this.evento.getSeguidor().getId());
@@ -133,6 +137,9 @@ public class CadastroFichaBean implements Serializable {
 			listaSexo = sexoRepository.findAll();
 			carregarUsuarioLogado();
 			FacesUtil.addInfoMessage("Ficha salva com sucesso!");
+			FacesContext.getCurrentInstance().getExternalContext().getFlash().setKeepMessages(true);
+			FacesContext.getCurrentInstance().getExternalContext()
+					.redirect(Constants.CONTEXT + "/inscricao/pesquisa-inscricao.xhtml");
 		} catch (NegocioException ne) {
 			FacesUtil.addErrorMessage(ne.getMessage());
 		}

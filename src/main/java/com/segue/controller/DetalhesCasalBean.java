@@ -51,6 +51,13 @@ public class DetalhesCasalBean implements Serializable {
 		FacesContext.getCurrentInstance().getExternalContext()
 				.redirect(Constants.CONTEXT + "/casal/cadastro-casal.xhtml?casal=" + casal.getId());
 	}
+	
+	public void editarPublic() throws IOException {
+		FacesContext.getCurrentInstance().getExternalContext().getFlash().setKeepMessages(true);
+
+		FacesContext.getCurrentInstance().getExternalContext()
+				.redirect(Constants.CONTEXT + "/casal-public/cadastro-casal.xhtml?casal=" + casal.getId());
+	}
 
 	public Casal getCasal() {
 		return casal;

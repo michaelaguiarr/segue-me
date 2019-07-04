@@ -11,15 +11,32 @@
 			<p:fieldset legend="Historico">
 				<p:dataTable var="seguidor" id="datatable-seguidor"
 					value="#{detalhesSeguidorBean.listaEvento}" reflow="true"
-					emptyMessage="Nenhuma partipação  encontrada!">
+					emptyMessage="Nenhuma partipação  encontrada!"  sortBy="#{seguidor.segueMe.dtInicio}">
 
-					<p:column headerText="Equipe" sortBy="#{seguidor.equipe.titulo}"
-						width="100">
+					<p:column headerText="Data do Encontro" width="100">
+						<h:outputText value="#{seguidor.segueMe.dtInicio}">
+							<f:convertDateTime pattern="dd/MM/yyyy" />
+						</h:outputText>
+						á 
+						<h:outputText value="#{seguidor.segueMe.dtFim}">
+							<f:convertDateTime pattern="dd/MM/yyyy" />
+						</h:outputText>
+					</p:column>
+
+					<p:column headerText="Equipe/Circulo"
+						sortBy="#{seguidor.equipe.titulo}" width="100">
 						<h:outputText value="#{seguidor.equipe.titulo}" />
+						<div jsf:rendered="#{seguidor.inscricao != null}">
+							<span
+								class="situacao #{seguidor.circulo.corCirculo.coresParaStyle}">#{seguidor.circulo.corCirculo}</span>
+						</div>
 					</p:column>
 					<p:column headerText="Função" sortBy="#{seguidor.funcao.descricao}"
 						width="100">
-						<h:outputText value="#{seguidor.funcao.descricao}" />
+						<h:outputText value="#{seguidor.funcao.descricao}"
+							rendered="#{seguidor.inscricao == null}" />
+						<h:outputText value="Seguimista"
+							rendered="#{seguidor.inscricao != null}" />
 					</p:column>
 					<p:column headerText="Paroquia"
 						sortBy="#{seguidor.segueMe.paroquia.descricao}" width="200">
@@ -32,14 +49,16 @@
 							value="#{seguidor.segueMe.titulo} - #{seguidor.segueMe.numeroRomano.numeroRomano}" />
 					</p:column>
 
-					<p:column headerText="Situação" width="50"
+					<p:column headerText="Situação" width="80"
 						sortBy="#{seguidor.statusConvite.nome}">
-						<span class="situacao #{seguidor.statusConvite.coresParaStyle}">#{seguidor.statusConvite.nome}</span>
-					</p:column>
+						<div jsf:rendered="#{seguidor.inscricao == null}">
+							<span class="situacao #{seguidor.statusConvite.coresParaStyle}">#{seguidor.statusConvite.nome}</span>
+						</div>
+						<div jsf:rendered="#{seguidor.inscricao != null}">
+							<span
+								class="situacao #{seguidor.inscricao.statusInscricao.coresParaStyle}">#{seguidor.inscricao.statusInscricao.nome}</span>
+						</div>
 
-					<p:column headerText="Obs" sortBy="#{seguidor.motivoRecusa}"
-						width="200">
-						<h:outputText value="#{seguidor.motivoRecusa}" />
 					</p:column>
 				</p:dataTable>
 			</p:fieldset>

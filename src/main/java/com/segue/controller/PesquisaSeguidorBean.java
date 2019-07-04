@@ -21,6 +21,7 @@ import com.segue.repository.ParoquiaRepository;
 import com.segue.repository.SegueMeRepository;
 import com.segue.repository.SeguidorRepository;
 import com.segue.security.Seguranca;
+import com.segue.service.CadastroSeguidorService;
 import com.segue.util.Constants;
 import com.segue.util.jsf.FacesUtil;
 
@@ -42,6 +43,9 @@ public class PesquisaSeguidorBean implements Serializable {
 	@Inject
 	private CirculoRepository circuloRepository;
 
+	@Inject
+	private CadastroSeguidorService service;
+
 	private Seguranca seguranca;
 	private Usuario usuarioLogado;
 	private Seguidor seguidor;
@@ -53,6 +57,8 @@ public class PesquisaSeguidorBean implements Serializable {
 	private List<SegueMe> listaSegueMe;
 	private List<Circulo> listaCirculo;
 
+	private boolean novoSeguidor = false;
+
 	public PesquisaSeguidorBean() {
 		seguidor = new Seguidor();
 		filter = new SeguidorFilter();
@@ -60,6 +66,7 @@ public class PesquisaSeguidorBean implements Serializable {
 		this.listaSeguidor = new ArrayList<>();
 		this.listaParoquia = new ArrayList<>();
 		this.listaCirculo = new ArrayList<>();
+		this.novoSeguidor = false;
 
 	}
 
@@ -73,6 +80,7 @@ public class PesquisaSeguidorBean implements Serializable {
 			filter.setSegueMe(this.usuarioLogado.getSegueMe());
 			listaCirculo = circuloRepository.findBySegueMe(filter.getSegueMe());
 			this.listaSeguidor = repository.filtrados(filter);
+			this.novoSeguidor = false;
 		}
 
 	}
@@ -86,11 +94,24 @@ public class PesquisaSeguidorBean implements Serializable {
 			FacesUtil.addErrorMessage("Nenhum Resultado Encontrado!");
 		}
 	}
-	
+
 	public void pesquisarPublic() {
 		listaSeguidor = repository.filtradosPublic(this.filter);
 		if (listaSeguidor.isEmpty()) {
+			this.novoSeguidor = true;
 			FacesUtil.addErrorMessage("Nenhum Resultado Encontrado!");
+		}
+	}
+
+	public void atulizarNome() {
+		try {
+			for (Seguidor s : this.listaSeguidor) {
+				service.salvar(s);
+			}
+			FacesUtil.addInfoMessage("Deu Certo.Atulizado com sucesso!");
+		} catch (Exception e) {
+			e.printStackTrace();
+			FacesUtil.addErrorMessage("Deu merda!");
 		}
 	}
 
@@ -129,7 +150,7 @@ public class PesquisaSeguidorBean implements Serializable {
 		FacesContext.getCurrentInstance().getExternalContext()
 				.redirect(Constants.CONTEXT + "/seguidor/detalhe-seguidor.xhtml?seguidor=" + seguidor.getId());
 	}
-	
+
 	public void selecionarPublic() throws IOException {
 		FacesContext.getCurrentInstance().getExternalContext().getFlash().setKeepMessages(true);
 
@@ -183,6 +204,14 @@ public class PesquisaSeguidorBean implements Serializable {
 
 	public void setListaCirculo(List<Circulo> listaCirculo) {
 		this.listaCirculo = listaCirculo;
+	}
+
+	public boolean isNovoSeguidor() {
+		return novoSeguidor;
+	}
+
+	public void setNovoSeguidor(boolean novoSeguidor) {
+		this.novoSeguidor = novoSeguidor;
 	}
 
 }

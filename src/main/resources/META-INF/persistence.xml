@@ -8,10 +8,9 @@
 
 		<properties>
 			<property name="javax.persistence.jdbc.driver" value="org.postgresql.Driver" />
-			<property name="javax.persistence.jdbc.url" value="jdbc:postgresql://127.0.0.1:5433/segue_me" />
+			<property name="javax.persistence.jdbc.url" value="jdbc:postgresql://127.0.0.1:5432/segue_me" />
 			<property name="javax.persistence.jdbc.user" value="segue-me" />
-			<property name="javax.persistence.jdbc.password" value="segue-me@@" />
-<!-- 			<property name="javax.persistence.jdbc.password" value="@@cti@@dev" /> -->
+			<property name="javax.persistence.jdbc.password" value="@@cti@@dev" />
 
 			<property name="hibernate.hbm2ddl.auto" value="update" />
 			<property name="hibernate.show_sql" value="false" />

@@ -25,6 +25,7 @@ import javax.persistence.TemporalType;
 import javax.validation.constraints.Email;
 
 import com.segue.util.NomeComInicialMaiscula;
+import com.segue.util.StringExtended;
 import com.segue.util.jsf.FacesUtil;
 
 @Entity
@@ -46,6 +47,9 @@ public class Casal implements Serializable {
 
 	@Column(name = "nome_ele")
 	private String nomeEle;
+	
+	@Column(name = "nome_ele_sem_acento")
+	private String nomeEleSemAcento;
 
 	@Column(name = "apelido_ele")
 	private String apelidoEle;
@@ -75,6 +79,9 @@ public class Casal implements Serializable {
 
 	@Column(name = "nome_ela")
 	private String nomeEla;
+	
+	@Column(name = "nome_ela_sem_acento")
+	private String nomeElaSemAcento;
 
 	@Column(name = "apelido_ela")
 	private String apelidoEla;
@@ -218,6 +225,7 @@ public class Casal implements Serializable {
 	public void setNomeEle(String nomeEle) {
 		if (nomeEle != null) {
 			this.nomeEle = NomeComInicialMaiscula.iniciaisMaiuscula(nomeEle);
+			setNomeEleSemAcento(nomeEle);
 		} else {
 			this.nomeEle = nomeEle;
 		}
@@ -286,9 +294,27 @@ public class Casal implements Serializable {
 	public void setNomeEla(String nomeEla) {
 		if (nomeEla != null) {
 			this.nomeEla = NomeComInicialMaiscula.iniciaisMaiuscula(nomeEla);
+			setNomeElaSemAcento(this.nomeEla);
 		} else {
 			this.nomeEla = nomeEla;
 		}
+	}
+
+	public String getNomeEleSemAcento() {
+		return nomeEleSemAcento;
+	}
+
+	
+	public String getNomeElaSemAcento() {
+		return nomeElaSemAcento;
+	}
+
+	public void setNomeElaSemAcento(String nomeElaSemAcento) {
+		this.nomeElaSemAcento = StringExtended.toASCII(nomeElaSemAcento.toUpperCase());
+	}
+
+	public void setNomeEleSemAcento(String nomeEleSemAcento) {
+		this.nomeEleSemAcento = StringExtended.toASCII(nomeEleSemAcento.toUpperCase());
 	}
 
 	public String getApelidoEla() {

@@ -24,6 +24,8 @@ import com.segue.filter.SeguidorFilter;
 import com.segue.model.Seguidor;
 import com.segue.model.SituacaoSeguidor;
 import com.segue.service.NegocioException;
+import com.segue.util.NomeComInicialMaiscula;
+import com.segue.util.StringExtended;
 
 public class SeguidorRepository implements Serializable {
 
@@ -86,7 +88,7 @@ public class SeguidorRepository implements Serializable {
 
 		if (StringUtils.isNotBlank(filtro.getNome())) {
 			predicates.add(builder.or(
-					builder.like(builder.lower(root.get("nome")), "%" + filtro.getNome().toLowerCase() + "%"),
+					builder.like(builder.lower(root.get("nomeSemAcento")), "%" + StringExtended.toASCII(filtro.getNome().toLowerCase()) + "%"),
 					builder.like(builder.lower(root.get("apelido")), "%" + filtro.getNome().toLowerCase() + "%")));
 		}
 
@@ -113,15 +115,15 @@ public class SeguidorRepository implements Serializable {
 		From<?, ?> enderecoJoin = (From<?, ?>) root.fetch("endereco", JoinType.INNER);
 		From<?, ?> sexoJoin = (From<?, ?>) root.fetch("sexo", JoinType.INNER);
 		From<?, ?> paroquiaJoin = (From<?, ?>) root.fetch("paroquia", JoinType.LEFT);
-		From<?, ?> segueMeJoin = (From<?, ?>) root.fetch("segueMe", JoinType.INNER);
-		From<?, ?> numeroRomanoJoin = (From<?, ?>) segueMeJoin.fetch("numeroRomano", JoinType.INNER);
+		From<?, ?> segueMeJoin = (From<?, ?>) root.fetch("segueMe", JoinType.LEFT);
+		From<?, ?> numeroRomanoJoin = (From<?, ?>) segueMeJoin.fetch("numeroRomano", JoinType.LEFT);
 		From<?, ?> circuloJoin = (From<?, ?>) root.fetch("circulo", JoinType.LEFT);
 		
-		predicates.add(builder.like(builder.lower(root.get("nome")), filtro.getNome().toLowerCase()));
+		predicates.add(builder.equal(root.get("nomeSemAcento"), StringExtended.toASCII(filtro.getNome().toUpperCase())));
 		predicates.add(builder.equal(root.get("dataNascimento"), filtro.getDtNascimento()));
 		criteriaQuery.select(root);
 		criteriaQuery.where(predicates.toArray(new Predicate[0]));
-		criteriaQuery.orderBy(builder.asc(root.get("nome")), builder.asc(root.get("segueMe")));
+		criteriaQuery.orderBy(builder.asc(root.get("nome")));
 
 		TypedQuery<Seguidor> query = manager.createQuery(criteriaQuery);
 		return query.getResultList();
@@ -136,9 +138,9 @@ public class SeguidorRepository implements Serializable {
 	public Seguidor findByNomeDtNascimento(String nome, Date dtnascimento) {
 		try {
 			return manager
-					.createQuery("SELECT distinct(s) FROM Seguidor s " + "WHERE s.nome like :nome "
+					.createQuery("SELECT distinct(s) FROM Seguidor s " + "WHERE s.nomeSemAcento like :nome "
 							+ "AND s.dataNascimento = :dtnascimento", Seguidor.class)
-					.setParameter("dtnascimento", dtnascimento).setParameter("nome", nome).getSingleResult();
+					.setParameter("dtnascimento", dtnascimento).setParameter("nome", StringExtended.toASCII(nome.toUpperCase())).getSingleResult();
 		} catch (NoResultException nr) {
 			return null;
 		}
@@ -147,9 +149,9 @@ public class SeguidorRepository implements Serializable {
 	public List<Seguidor> findByNome(String nome) {
 		try {
 			return manager
-					.createQuery("select distinct(s) from Seguidor s " + "where (s.nome LIKE :nome "
+					.createQuery("select distinct(s) from Seguidor s " + "where (s.nomeSemAcento LIKE :nome "
 							+ "OR s.apelido LIKE :nome) AND  s.situacaoSeguidor = :situacao  AND s.segueMe != NULL ", Seguidor.class)
-					.setParameter("nome", "%" + nome + "%")
+					.setParameter("nome", "%" + StringExtended.toASCII(nome.toUpperCase()) + "%")
 					.setParameter("situacao", SituacaoSeguidor.ATIVO)
 					.setMaxResults(30).getResultList();
 		} catch (NoResultException nr) {
@@ -160,9 +162,9 @@ public class SeguidorRepository implements Serializable {
 	public List<Seguidor> findByNomeFicha(String nome) {
 		try {
 			return manager
-					.createQuery("select distinct(s) from Seguidor s " + "where (s.nome LIKE :nome "
+					.createQuery("select distinct(s) from Seguidor s " + "where (s.nomeSemAcento LIKE :nome "
 							+ "OR s.apelido LIKE :nome) AND  (s.situacaoSeguidor = :situacao  OR s.situacaoSeguidor = NULL)", Seguidor.class)
-					.setParameter("nome", "%" + nome + "%")
+					.setParameter("nome", "%" + StringExtended.toASCII(nome.toUpperCase()) + "%")
 					.setParameter("situacao", SituacaoSeguidor.ATIVO)
 					.setMaxResults(30).getResultList();
 		} catch (NoResultException nr) {

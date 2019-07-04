@@ -23,6 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 import com.segue.filter.CasalFilter;
 import com.segue.model.Casal;
 import com.segue.service.NegocioException;
+import com.segue.util.StringExtended;
 
 public class CasalRepository implements Serializable {
 
@@ -100,7 +101,7 @@ public class CasalRepository implements Serializable {
 		}
 		if (StringUtils.isNotBlank(filtro.getNomeEle())) {
 			predicates.add(
-					builder.like(builder.lower(root.get("nomeEle")), "%" + filtro.getNomeEle().toLowerCase() + "%"));
+					builder.like(builder.lower(root.get("nomeEleSemAcento")), "%" + StringExtended.toASCII(filtro.getNomeEle().toLowerCase()) + "%"));
 		}
 
 		if (StringUtils.isNotBlank(filtro.getApelidoEle())) {
@@ -110,7 +111,7 @@ public class CasalRepository implements Serializable {
 
 		if (StringUtils.isNotBlank(filtro.getNomeEla())) {
 			predicates.add(
-					builder.like(builder.lower(root.get("nomeEla")), "%" + filtro.getNomeEla().toLowerCase() + "%"));
+					builder.like(builder.lower(root.get("nomeElaSemAcento")), "%" + StringExtended.toASCII(filtro.getNomeEla().toLowerCase()) + "%"));
 		}
 
 		if (StringUtils.isNotBlank(filtro.getApelidoEla())) {
@@ -124,6 +125,34 @@ public class CasalRepository implements Serializable {
 		TypedQuery<Casal> query = manager.createQuery(criteriaQuery);
 		return query.getResultList();
 	}
+	
+	public List<Casal> filtradosPublic(CasalFilter filtro) {
+		CriteriaBuilder builder = manager.getCriteriaBuilder();
+		CriteriaQuery<Casal> criteriaQuery = builder.createQuery(Casal.class);
+		List<Predicate> predicates = new ArrayList<>();
+
+		Root<Casal> root = criteriaQuery.from(Casal.class);
+		From<?, ?> enderecoJoin = (From<?, ?>) root.fetch("endereco", JoinType.LEFT);
+		From<?, ?> paroquiaJoin = (From<?, ?>) root.fetch("paroquia", JoinType.LEFT);
+		From<?, ?> eccJoin = (From<?, ?>) root.fetch("ecc", JoinType.LEFT);
+		From<?, ?> numeroRomanoJoin = (From<?, ?>) eccJoin.fetch("numeroRomano", JoinType.INNER);
+
+		Predicate orClause = 
+			    builder.or(
+			    		builder.like(
+			    				builder.lower(root.get("nomeElaSemAcento")), StringExtended.toASCII(filtro.getNomeEle().toLowerCase())),
+			    		builder.like(
+			    				builder.lower(root.get("nomeEleSemAcento")), StringExtended.toASCII(filtro.getNomeEle().toLowerCase())));
+		predicates.add(orClause);	
+		
+		criteriaQuery.select(root);
+		criteriaQuery.where(predicates.toArray(new Predicate[0]));
+		criteriaQuery.orderBy(builder.asc(root.get("nomeEle")), builder.asc(root.get("paroquia")));
+
+		TypedQuery<Casal> query = manager.createQuery(criteriaQuery);
+		return query.getResultList();
+	}
+
 
 	/**
 	 * Procura nome e data nascimento
@@ -135,8 +164,8 @@ public class CasalRepository implements Serializable {
 		Casal casal = null;
 		try {
 			return manager.createQuery("SELECT c FROM Casal c "
-					+ "WHERE lower(c.nomeEle) LIKE lower(:nomeEle)  AND c.dataNascimentoEle = :dataNascimentoEle",
-					Casal.class).setParameter("nomeEle", nomeEle).setParameter("dataNascimentoEle", dataNascimentoEle)
+					+ "WHERE lower(c.nomeEleSemAcento) LIKE lower(:nomeEle)  AND c.dataNascimentoEle = :dataNascimentoEle",
+					Casal.class).setParameter("nomeEle", StringExtended.toASCII(nomeEle.toUpperCase())).setParameter("dataNascimentoEle", dataNascimentoEle)
 					.getSingleResult();
 		} catch (NoResultException e) {
 			// Nenhum Equipe encontrado
@@ -148,8 +177,8 @@ public class CasalRepository implements Serializable {
 		Casal casal = null;
 		try {
 			return manager.createQuery("SELECT c FROM Casal c "
-					+ "WHERE lower(c.nomeEla) LIKE lower(:nomeEla)  AND c.dataNascimentoEla = :dataNascimentoEla",
-					Casal.class).setParameter("nomeEla", nomeEla).setParameter("dataNascimentoEla", dataNascimentoEla)
+					+ "WHERE lower(c.nomeEleSemAcento) LIKE lower(:nomeEla)  AND c.dataNascimentoEla = :dataNascimentoEla",
+					Casal.class).setParameter("nomeEla", StringExtended.toASCII(nomeEla.toUpperCase())).setParameter("dataNascimentoEla", dataNascimentoEla)
 					.getSingleResult();
 		} catch (NoResultException e) {
 			// Nenhum Equipe encontrado
@@ -160,14 +189,14 @@ public class CasalRepository implements Serializable {
 	public List<Casal> findByNome(String searchValue) {
 		try {
 			return manager
-					.createQuery("select distinct(c) from Casal c " + "where lower(c.nomeEle) LIKE lower(:nomeEle) "
+					.createQuery("select distinct(c) from Casal c " + "where lower(c.nomeEleSemAcento) LIKE lower(:nomeEle) "
 							+ "OR lower(c.apelidoEle) LIKE lower(:apelidoEle) "
-							+ "OR lower(c.nomeEla) LIKE lower(:nomeEla) "
+							+ "OR lower(c.nomeEleSemAcento) LIKE lower(:nomeEla) "
 							+ "OR lower(c.apelidoEla) LIKE lower(:apelidoEla) ", Casal.class)
-					.setParameter("nomeEle", "%" + searchValue + "%")
-					.setParameter("apelidoEle", "%" + searchValue + "%")
-					.setParameter("nomeEla", "%" + searchValue + "%")
-					.setParameter("apelidoEla", "%" + searchValue + "%").setMaxResults(30).getResultList();
+					.setParameter("nomeEle", "%" + StringExtended.toASCII(searchValue.toUpperCase()) + "%")
+					.setParameter("apelidoEle", "%" + searchValue.toUpperCase() + "%")
+					.setParameter("nomeEla", "%" + StringExtended.toASCII(searchValue.toUpperCase()) + "%")
+					.setParameter("apelidoEla", "%" + searchValue.toUpperCase() + "%").setMaxResults(30).getResultList();
 		} catch (NoResultException nr) {
 			return null;
 		}

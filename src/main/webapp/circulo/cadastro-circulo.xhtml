@@ -122,7 +122,8 @@
 									</div>
 								</p:fieldset>
 							</div>
-							<div class="ui-g-12" jsf:rendered="#{cadastroCirculoBean.editando}">>
+							<div class="ui-g-12"
+								jsf:rendered="#{cadastroCirculoBean.editando}">
 								<!-- Seguidor -->
 								<p:fieldset legend="Seguimista">
 									<div class="ui-g-12">
@@ -161,7 +162,8 @@
 									</div>
 								</p:fieldset>
 							</div>
-							<div class="ui-g-12" jsf:rendered="#{cadastroCirculoBean.editando}">>
+							<div class="ui-g-12"
+								jsf:rendered="#{cadastroCirculoBean.editando}">
 								<p:messages id="messagesSeguidor" closable="true" />
 								<!-- Seguidor -->
 								<p:fieldset legend="Lista Seguimista">
@@ -172,21 +174,27 @@
 											selection="#{cadastroCirculoBean.evento}"
 											rowKey="#{seguidor}"
 											emptyMessage="Seguimista não encontrado!" paginator="true"
-											sortBy="#{seguidor.seguidor.circulo.corCirculo}"
+											sortBy="#{seguidor.funcao.descricao}, #{seguidor.seguidor.nome}"
 											paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
 											currentPageReportTemplate=" Exibindo de {startRecord} a {endRecord} no total de {totalRecords} - Página: {currentPage}/{totalPages} "
-											rows="15" rowsPerPageTemplate="15, 30, 60">
-
-											<p:ajax event="rowSelect"
-												listener="#{cadastroCirculoBean.removeSeguidor()}" />
+											rows="20" rowsPerPageTemplate="15, 30, 60">
 
 											<p:column headerText="Nome"
 												sortBy="#{seguidor.seguidor.nome}" width="200">
-												<h:outputText value="#{seguidor.seguidor.nome}" />
-												<span class="borda"><h:outputText styleClass="idade"
+												<div jsf:rendered="#{seguidor.seguidor != null}">
+													<h:outputText value="#{seguidor.seguidor.nome} - #{seguidor.seguidor.apelido}" />
+													<span class="borda"><h:outputText styleClass="idade"
 														value="#{seguidor.idade}" /></span>
 												<i
 													class="#{seguidor.seguidor.iconeParaSexo} Fright MarRight10" />
+												</div>
+												<div jsf:rendered="#{seguidor.casal != null}">
+													<h:outputText
+														value="#{seguidor.casal.apelidoEle} e #{seguidor.casal.apelidoEla}" />
+												</div>
+												<div jsf:rendered="#{seguidor.funcao != null}">
+													<span class="situacao ">Padrinhos</span>
+												</div>
 											</p:column>
 
 											<p:column headerText="Data Nascimento"
@@ -199,6 +207,10 @@
 											<p:column headerText="Telefone"
 												sortBy="#{seguidor.seguidor.telefoneUm}" width="100">
 												<h:outputText value="#{seguidor.seguidor.telefoneUm}" />
+												<div jsf:rendered="#{seguidor.casal != null}">
+													<h:outputText
+														value="#{seguidor.casal.telefoneEleUm} / #{seguidor.casal.telefoneElaUm}" />
+												</div>
 											</p:column>
 											<p:column width="10">
 												<p:commandLink

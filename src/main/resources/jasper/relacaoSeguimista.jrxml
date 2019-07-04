@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Created with Jaspersoft Studio version 6.5.1.final using JasperReports Library version 6.5.1  -->
+<!-- Created with Jaspersoft Studio version 6.6.0.final using JasperReports Library version 6.6.0  -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="quadranteSeguidor" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" isSummaryWithPageHeaderAndFooter="true" uuid="a71ed9bd-1d82-4eaa-901f-34a0ff606867">
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
-	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="SEGUE-ME"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="Segue-me"/>
 	<parameter name="segueMe" class="java.lang.Long"/>
 	<queryString language="SQL">
 		<![CDATA[SELECT
@@ -33,7 +33,8 @@ public.circulo.corcirculo,
 public.circulo.nome AS nome_0,
 "public".seguidor."rede_social_instagram",
 "public".seguidor."rede_social_facebook",
-"public".seguidor."rede_social_twitter"
+"public".seguidor."rede_social_twitter",
+public.seguidor.apelido
 FROM
 public.segue_me
 JOIN public.evento_segue_me
@@ -104,7 +105,7 @@ public.endereco.bairro ASC]]>
 	<field name="idade" class="java.math.BigDecimal">
 		<property name="com.jaspersoft.studio.field.label" value="idade"/>
 	</field>
-	<field name="dt_nascimento" class="java.sql.Timestamp">
+	<field name="dt_nascimento" class="java.sql.Date">
 		<property name="com.jaspersoft.studio.field.label" value="dt_nascimento"/>
 	</field>
 	<field name="seguidor_telefone" class="java.lang.String">
@@ -142,6 +143,9 @@ public.endereco.bairro ASC]]>
 	</field>
 	<field name="rede_social_twitter" class="java.lang.String">
 		<property name="com.jaspersoft.studio.field.label" value="rede_social_twitter"/>
+	</field>
+	<field name="apelido" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="apelido"/>
 	</field>
 	<variable name="id1" class="java.lang.Integer" resetType="Group" resetGroup="Group1" calculation="Count">
 		<variableExpression><![CDATA[$F{id}]]></variableExpression>
@@ -245,13 +249,13 @@ public.endereco.bairro ASC]]>
 		</band>
 	</columnHeader>
 	<detail>
-		<band height="42">
+		<band height="45">
 			<textField>
 				<reportElement x="0" y="0" width="553" height="20" uuid="2269184c-d920-4584-8e94-8a2f00c49c2f"/>
 				<textElement verticalAlignment="Middle">
 					<font fontName="ComicSan"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{nome}+"("+$F{idade}+ ")"+" "+$F{sexo}+" / "+$F{seguidor_telefone}+" / "+$F{bairro}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{nome}+"("+$F{apelido}+ ")"+"("+$F{idade}+ ")"+" "+$F{sexo}+" / "+$F{seguidor_telefone}+" / "+$F{bairro}]]></textFieldExpression>
 			</textField>
 			<textField>
 				<reportElement x="0" y="21" width="553" height="20" uuid="f0cf7169-464b-429e-a11a-719395f045f7"/>
@@ -260,6 +264,12 @@ public.endereco.bairro ASC]]>
 				</textElement>
 				<textFieldExpression><![CDATA["Facebook( "+$F{rede_social_facebook}+ " )"+" Instagram( "+$F{rede_social_instagram}+ " ) Twitter ( "+$F{rede_social_twitter}+" )"]]></textFieldExpression>
 			</textField>
+			<line>
+				<reportElement x="0" y="44" width="553" height="1" uuid="20f72b0e-4cea-4b2d-903f-37776a08d195"/>
+				<graphicElement>
+					<pen lineStyle="Solid"/>
+				</graphicElement>
+			</line>
 		</band>
 	</detail>
 	<pageFooter>

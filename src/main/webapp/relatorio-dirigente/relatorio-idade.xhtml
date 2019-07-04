@@ -30,8 +30,8 @@
 
 							<div class="ui-g-12 ui-lg-6">
 								<p:selectOneMenu id="paroquia"
-									value="#{relatorioInscritosPorIdade.paroquia}"
-									required="true" disabled="#{not seguranca.administradorGeral}">
+									value="#{relatorioInscritosPorIdade.paroquia}" required="true"
+									disabled="#{not seguranca.administradorGeral}">
 									<f:selectItem itemLabel="Selecione a Paroquia" />
 									<f:selectItems
 										value="#{relatorioInscritosPorIdade.listaParoquia}"
@@ -76,19 +76,23 @@
 							</div>
 
 							<div class="ui-g-12 ui-lg-6">
-								<p:selectOneMenu id="grupo" label="Grupo" required="true"
+								<p:selectOneMenu id="grupo" label="Grupo"
 									value="#{relatorioInscritosPorIdade.grupo}">
 									<f:selectItem itemLabel="Selecione o Grupo" />
-									<f:selectItems
-										value="#{relatorioInscritosPorIdade.grupoIdade}"
-										var="grupo" itemValue="#{grupo}" itemLabel="#{grupo.descricao}" />
+									<f:selectItems value="#{relatorioInscritosPorIdade.grupoIdade}"
+										var="grupo" itemValue="#{grupo}"
+										itemLabel="#{grupo.descricao}" />
 								</p:selectOneMenu>
 							</div>
 							<div class="save ui-g-12">
 								<p:commandButton value="Gerar" style="width: auto;"
-									action="#{relatorioInscritosPorIdade.emitir()}"
-									update="@form" process="@form" icon="fa fa-save"
-									styleClass="green-btn topo" ajax="false" />
+									action="#{relatorioInscritosPorIdade.emitir()}" update="@form"
+									process="@form" icon="fa fa-save" styleClass="green-btn topo"
+									ajax="false" />
+								<p:commandButton value="Gerar Completa" style="width: auto;"
+									action="#{relatorioInscritosPorIdade.emitirFichaTudo()}" update="@form"
+									process="@form" icon="fa fa-save" styleClass="green-btn topo"
+									ajax="false" />
 							</div>
 
 						</div>

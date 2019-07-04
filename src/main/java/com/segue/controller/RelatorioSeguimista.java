@@ -109,7 +109,6 @@ public class RelatorioSeguimista implements Serializable {
 				parametros.put("circulo", this.circulo.getId());
 			} else {
 				nomeArquivo = "relacaoSeguimista";
-				System.out.println(nomeArquivo);
 			}
 			parametros.put(JRParameter.REPORT_LOCALE, new Locale("pt", "BR"));
 			parametros.put("segueMe", this.segueMe.getId());

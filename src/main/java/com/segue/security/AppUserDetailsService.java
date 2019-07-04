@@ -29,7 +29,7 @@ public class AppUserDetailsService implements UserDetailsService {
 		if (usuario != null && usuario.getStatus() == Status.AUTORIZADO) {
 			user = new UsuarioSistema(usuario, getGrupos(usuario));
 			usuario.setUltimoAcesso(Calendar.getInstance());
-			//usuario = repository.save(usuario);
+			usuario = repository.save(usuario);
 		} else {
 			throw new UsernameNotFoundException("Usuário não encontrado.");
 		}

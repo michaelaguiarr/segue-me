@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Created with Jaspersoft Studio version 6.5.1.final using JasperReports Library version 6.5.1  -->
+<!-- Created with Jaspersoft Studio version 6.6.0.final using JasperReports Library version 6.6.0  -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Blank_A4" pageWidth="595" pageHeight="842" columnWidth="541" columnSpacing="14" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="ae4098e2-6e47-4e98-a411-cbf7fea0e5fa">
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 	<property name="com.jaspersoft.studio.unit." value="pixel"/>
 	<property name="com.jaspersoft.studio.unit.columnWidth" value="cm"/>
 	<property name="com.jaspersoft.studio.unit.columnSpacing" value="mm"/>
-	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="SEGUE-ME"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="Segue-me"/>
 	<parameter name="segueMe" class="java.lang.Long"/>
 	<parameter name="equipe" class="java.lang.Integer"/>
 	<queryString>
@@ -15,6 +15,7 @@ public.evento_segue_me.cracha,
 public.evento_segue_me.fk_segue_me_id,
 public.segue_me.data_fim,
 public.segue_me.data_inicio,
+public.segue_me.data_inicio + 1 AS data_meio,
 public.paroquias.descricao,
 public.paroquias.cidade,
 public.paroquias.estado,
@@ -53,6 +54,9 @@ public.evento_segue_me.cracha = true]]>
 	</field>
 	<field name="data_inicio" class="java.sql.Date">
 		<property name="com.jaspersoft.studio.field.label" value="data_inicio"/>
+	</field>
+	<field name="data_meio" class="java.sql.Date">
+		<property name="com.jaspersoft.studio.field.label" value="data_meio"/>
 	</field>
 	<field name="descricao" class="java.lang.String">
 		<property name="com.jaspersoft.studio.field.label" value="descricao"/>
@@ -111,7 +115,7 @@ public.evento_segue_me.cracha = true]]>
 				<textElement textAlignment="Center">
 					<font fontName="ComicSan" size="8"/>
 				</textElement>
-				<textFieldExpression><![CDATA[new java.text.SimpleDateFormat("dd").format($F{data_inicio})+ ", " + ($F{data_inicio}.getDate() + 1 ) + " e "+new java.text.SimpleDateFormat("dd 'de' MMMM 'de' yyyy").format($F{data_fim})]]></textFieldExpression>
+				<textFieldExpression><![CDATA[new java.text.SimpleDateFormat("dd").format($F{data_inicio})+ ", "+new java.text.SimpleDateFormat("dd").format($F{data_meio})+ " e "+new java.text.SimpleDateFormat("dd 'de' MMMM 'de' yyyy").format($F{data_fim})]]></textFieldExpression>
 			</textField>
 			<textField isStretchWithOverflow="true">
 				<reportElement x="79" y="30" width="118" height="10" uuid="b6e008a4-4dbf-4a80-baca-3d436c5fdba0"/>
@@ -132,7 +136,7 @@ public.evento_segue_me.cracha = true]]>
 				<textElement textAlignment="Center">
 					<font fontName="ComicSan" size="8"/>
 				</textElement>
-				<textFieldExpression><![CDATA[new java.text.SimpleDateFormat("dd").format($F{data_inicio})+ ", " + ($F{data_inicio}.getDate() + 1 ) + " e "+new java.text.SimpleDateFormat("dd 'de' MMMM 'de' yyyy").format($F{data_fim})]]></textFieldExpression>
+				<textFieldExpression><![CDATA[new java.text.SimpleDateFormat("dd").format($F{data_inicio})+ ", "+new java.text.SimpleDateFormat("dd").format($F{data_meio})+ " e "+new java.text.SimpleDateFormat("dd 'de' MMMM 'de' yyyy").format($F{data_fim})]]></textFieldExpression>
 			</textField>
 			<textField isStretchWithOverflow="true">
 				<reportElement x="358" y="30" width="118" height="10" uuid="22cca06d-97db-4f83-ba49-d34e886f0834"/>

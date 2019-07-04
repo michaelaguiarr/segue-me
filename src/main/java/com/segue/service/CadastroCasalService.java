@@ -26,9 +26,11 @@ public class CadastroCasalService implements Serializable {
 		if (casalElaExiste != null && !casalElaExiste.equals(casal)) {
 			throw new NegocioException("Casal já cadastrado no sistema!(ela)");
 		}
-		if (casal.getImagemELE() == null) {
-			throw new NegocioException("Informe a foto do Casal.");
-		}
+//		if (casal.getImagemELE() == null) {
+//			throw new NegocioException("Informe a foto do Casal.");
+//		}
+		casal.setNomeElaSemAcento(casal.getNomeEla());
+		casal.setNomeEleSemAcento(casal.getNomeEle());
 		return repository.guardar(casal);
 	}
 

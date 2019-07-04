@@ -15,6 +15,12 @@
 		<p:commandButton value="Cancelar" style="width: auto; margin-left: 15px;"
 			action="#{cadastroCasalBean.limparTela()}" process="@this" update="@form" icon="fa fa-remove" />
 	</ui:define>
+	
+	<ui:define name="toolbar">
+		<p:button outcome="/casal-public/pesquisa-casal" value="Pesquisar"
+			icon="fa fa-search" />
+	</ui:define>
+	
 	<ui:define name="content">
 		<h:form id="form-cadastro" enctype="multipart/form-data">
 			<ui:include

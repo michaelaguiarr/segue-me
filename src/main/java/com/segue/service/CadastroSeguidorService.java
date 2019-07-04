@@ -23,9 +23,10 @@ public class CadastroSeguidorService implements Serializable {
 		if (seguidorExiste != null && !seguidorExiste.equals(seguidor)) {
 			throw new NegocioException("Seguidor já cadastrado no sistema!Por favor faça uma pesquisa");
 		}
-		if (seguidor.getImagem() == null) {
-			throw new NegocioException("Informe a foto!");
-		}
+//		if (seguidor.getImagem() == null) {
+//			throw new NegocioException("Informe a foto!");
+//		}
+		seguidor.setNomeSemAcento(seguidor.getNome());
 		return repository.guardar(seguidor);
 	}
 

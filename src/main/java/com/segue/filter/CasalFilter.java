@@ -1,6 +1,7 @@
 package com.segue.filter;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import com.segue.model.Paroquia;
 import com.segue.model.SegueMe;
@@ -15,6 +16,8 @@ public class CasalFilter implements Serializable {
 	private String apelidoEla;
 	private SegueMe segueMe;
 	private Paroquia paroquia;
+
+	private Date dtNascimento;
 
 	public String getNomeEle() {
 		return nomeEle;
@@ -62,6 +65,14 @@ public class CasalFilter implements Serializable {
 
 	public void setApelidoEla(String apelidoEla) {
 		this.apelidoEla = apelidoEla;
+	}
+
+	public Date getDtNascimento() {
+		return dtNascimento;
+	}
+
+	public void setDtNascimento(Date dtNascimento) {
+		this.dtNascimento = dtNascimento;
 	}
 
 }

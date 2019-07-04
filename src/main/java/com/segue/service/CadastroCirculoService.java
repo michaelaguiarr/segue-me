@@ -19,6 +19,9 @@ public class CadastroCirculoService implements Serializable {
 
 	@Inject
 	private EventoRepository eventoRepository;
+	
+	@Inject
+	private CadastroSeguidorService cadastroSeguidorService;
 
 	@Transactional
 	public Circulo salvar(Circulo circulo) throws NegocioException {
@@ -28,9 +31,14 @@ public class CadastroCirculoService implements Serializable {
 		}
 		circulo = repository.guardar(circulo);
 		for (Evento e : circulo.getEventos()) {
-			e.setCirculo(circulo);
-			e.getSeguidor().setCirculo(circulo);
-			eventoRepository.guardar(e);
+			if (e.getCasal() == null) {
+				e.setCirculo(circulo);
+				if (e.getFuncao() != null) {
+					e.getSeguidor().setCirculo(circulo);
+					cadastroSeguidorService.salvar(e.getSeguidor());
+				}
+				eventoRepository.guardar(e);
+			}
 		}
 		return circulo;
 	}
@@ -38,18 +46,22 @@ public class CadastroCirculoService implements Serializable {
 	@Transactional
 	public void remover(Circulo circulo) throws NegocioException {
 		for (Evento e : circulo.getEventos()) {
-			e.setCirculo(null);
-			e.getSeguidor().setCirculo(null);
-			eventoRepository.guardar(e);
+			if (e.getCasal() == null || e.getFuncao() == null) {
+				e.setCirculo(null);
+				e.getSeguidor().setCirculo(null);
+				eventoRepository.guardar(e);
+			}
 		}
 		repository.remover(circulo);
 	}
 
 	@Transactional
 	public void removerSeguimista(Evento e) throws NegocioException {
-		e.setCirculo(null);
-		e.getSeguidor().setCirculo(null);
-		eventoRepository.guardar(e);
+		if (e.getCasal() == null || e.getFuncao() == null) {
+			e.setCirculo(null);
+			e.getSeguidor().setCirculo(null);
+			eventoRepository.guardar(e);
+		}
 	}
 
 }

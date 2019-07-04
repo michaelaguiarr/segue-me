@@ -14,11 +14,13 @@ import com.segue.filter.CasalFilter;
 import com.segue.model.Casal;
 import com.segue.model.Paroquia;
 import com.segue.model.SegueMe;
+import com.segue.model.Seguidor;
 import com.segue.model.Usuario;
 import com.segue.repository.CasalRepository;
 import com.segue.repository.ParoquiaRepository;
 import com.segue.repository.SegueMeRepository;
 import com.segue.security.Seguranca;
+import com.segue.service.CadastroCasalService;
 import com.segue.util.Constants;
 import com.segue.util.jsf.FacesUtil;
 
@@ -36,6 +38,9 @@ public class PesquisaCasalBean implements Serializable {
 
 	@Inject
 	private ParoquiaRepository paroquiaRepository;
+	
+	@Inject
+	private CadastroCasalService service;
 
 	private Seguranca seguranca;
 	private Usuario usuarioLogado;
@@ -58,12 +63,14 @@ public class PesquisaCasalBean implements Serializable {
 
 	public void inicializar() {
 		this.seguranca = new Seguranca();
-		this.usuarioLogado = this.seguranca.usuarioLogado();
-		this.listaParoquia = paroquiaRepository.listaParoquias();
-		filter.setParoquia(this.usuarioLogado.getSegueMe().getParoquia());
-		this.listaSegueMe = segueMeRepository.findByParoquia(filter.getParoquia());
-		filter.setSegueMe(this.usuarioLogado.getSegueMe());
-		this.lista = repository.filtrados(filter);
+		if (this.seguranca.usuarioLogado() != null) {
+			this.usuarioLogado = this.seguranca.usuarioLogado();
+			this.listaParoquia = paroquiaRepository.listaParoquias();
+			filter.setParoquia(this.usuarioLogado.getSegueMe().getParoquia());
+			this.listaSegueMe = segueMeRepository.findByParoquia(filter.getParoquia());
+			filter.setSegueMe(this.usuarioLogado.getSegueMe());
+			this.lista = repository.filtrados(filter);
+		}
 	}
 
 	/**
@@ -73,6 +80,25 @@ public class PesquisaCasalBean implements Serializable {
 		lista = repository.filtrados(this.filter);
 		if (lista.isEmpty()) {
 			FacesUtil.addErrorMessage("Nenhum Resultado Encontrado!");
+		}
+	}
+
+	public void pesquisarPublic() {
+		lista = repository.filtradosPublic(this.filter);
+		if (lista.isEmpty()) {
+			FacesUtil.addErrorMessage("Nenhum Resultado Encontrado!");
+		}
+	}
+	
+	public void atulizarNome() {
+		try {
+			for (Casal casal : lista) {
+				service.salvar(casal);
+			}
+			FacesUtil.addInfoMessage("Deu Certo.Atulizado com sucesso!");
+		} catch (Exception e) {
+			e.printStackTrace();
+			FacesUtil.addErrorMessage("Deu merda!");
 		}
 	}
 
@@ -97,6 +123,13 @@ public class PesquisaCasalBean implements Serializable {
 
 		FacesContext.getCurrentInstance().getExternalContext()
 				.redirect(Constants.CONTEXT + "/casal/detalhe-casal.xhtml?casal=" + casal.getId());
+	}
+
+	public void selecionarPublic() throws IOException {
+		FacesContext.getCurrentInstance().getExternalContext().getFlash().setKeepMessages(true);
+
+		FacesContext.getCurrentInstance().getExternalContext()
+				.redirect(Constants.CONTEXT + "/casal-public/detalhe-casal.xhtml?casal=" + casal.getId());
 	}
 
 	public List<Paroquia> getListaParoquia() {

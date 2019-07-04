@@ -122,7 +122,7 @@ public class EventoRepository implements Serializable {
 
 		criteriaQuery.select(root);
 		criteriaQuery.where(predicates.toArray(new Predicate[0]));
-		criteriaQuery.orderBy(builder.asc(seguidorJoin.get("nome")), builder.asc(root.get("segueMe")));
+		criteriaQuery.orderBy(builder.asc(inscricaoJoin.get("numero")), builder.asc(root.get("segueMe")));
 
 		TypedQuery<Evento> query = manager.createQuery(criteriaQuery);
 		return query.getResultList();

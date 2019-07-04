@@ -10,6 +10,7 @@ public.inscricao.numero,
 public.segue_me.cidade,
 public.segue_me.data_fim,
 public.segue_me.data_inicio,
+public.segue_me.data_inicio+1 as data_meio,
 public.segue_me.estado,
 public.segue_me.padroeiro,
 public.segue_me.titulo,
@@ -92,6 +93,9 @@ public.inscricao.id ASC]]>
 	<field name="data_inicio" class="java.sql.Date">
 		<property name="com.jaspersoft.studio.field.label" value="data_inicio"/>
 	</field>
+	<field name="data_meio" class="java.sql.Date">
+		<property name="com.jaspersoft.studio.field.label" value="data_meio"/>
+	</field>
 	<field name="estado" class="java.lang.String">
 		<property name="com.jaspersoft.studio.field.label" value="estado"/>
 	</field>
@@ -101,7 +105,7 @@ public.inscricao.id ASC]]>
 	<field name="titulo" class="java.lang.String">
 		<property name="com.jaspersoft.studio.field.label" value="titulo"/>
 	</field>
-	<field name="COLUMN_9" class="java.lang.Integer">
+	<field name="COLUMN_10" class="java.lang.Integer">
 		<property name="com.jaspersoft.studio.field.label" value="numero"/>
 	</field>
 	<field name="numero_romano" class="java.lang.String">
@@ -783,7 +787,7 @@ public.inscricao.id ASC]]>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font size="12" isBold="true"/>
 				</textElement>
-				<textFieldExpression><![CDATA["Data do Encontro: "+new java.text.SimpleDateFormat("dd").format($F{data_inicio})+ ", " + ($F{data_inicio}.getDate() + 1 ) + " e "+new java.text.SimpleDateFormat("dd 'de' MMMM 'de' yyyy").format($F{data_fim})]]></textFieldExpression>
+				<textFieldExpression><![CDATA["Data do Encontro: "+new java.text.SimpleDateFormat("dd").format($F{data_inicio})+ ", "+new java.text.SimpleDateFormat("dd").format($F{data_meio})+ " e "+new java.text.SimpleDateFormat("dd 'de' MMMM 'de' yyyy").format($F{data_fim})]]></textFieldExpression>
 			</textField>
 			<textField>
 				<reportElement x="80" y="50" width="473" height="25" uuid="c9334e5f-442f-4692-aa4a-5226d4032a81"/>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Created with Jaspersoft Studio version 6.5.1.final using JasperReports Library version 6.5.1  -->
+<!-- Created with Jaspersoft Studio version 6.6.0.final using JasperReports Library version 6.6.0  -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Blank_A4" columnCount="2" printOrder="Horizontal" pageWidth="595" pageHeight="842" columnWidth="270" columnSpacing="14" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="ae4098e2-6e47-4e98-a411-cbf7fea0e5fa">
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 	<property name="com.jaspersoft.studio.unit." value="pixel"/>
@@ -11,7 +11,7 @@
 	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
 	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
 	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
-	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="SEGUE-ME"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="Segue-me"/>
 	<parameter name="segueMe" class="java.lang.Long"/>
 	<queryString>
 		<![CDATA[SELECT
@@ -21,6 +21,7 @@ public.seguidor.apelido,
 public.evento_segue_me.fk_segue_me_id,
 public.segue_me.data_fim,
 public.segue_me.data_inicio,
+public.segue_me.data_inicio+1 as data_meio,
 public.paroquias.descricao,
 public.paroquias.cidade,
 public.paroquias.estado,
@@ -29,7 +30,8 @@ public.numero_romano.numero_romano,
 public.seguidor.id AS seguidor_id,
 public.evento_segue_me.fk_circulo_id,
 public.circulo.corcirculo,
-public.circulo.nome
+public.circulo.nome,
+public.circulo.id as circulo_id
 FROM
 public.evento_segue_me
 JOIN public.seguidor
@@ -65,6 +67,9 @@ public.evento_segue_me.cracha = true]]>
 	<field name="data_inicio" class="java.sql.Date">
 		<property name="com.jaspersoft.studio.field.label" value="data_inicio"/>
 	</field>
+	<field name="data_meio" class="java.sql.Date">
+		<property name="com.jaspersoft.studio.field.label" value="data_meio"/>
+	</field>
 	<field name="descricao" class="java.lang.String">
 		<property name="com.jaspersoft.studio.field.label" value="descricao"/>
 	</field>
@@ -91,6 +96,9 @@ public.evento_segue_me.cracha = true]]>
 	</field>
 	<field name="nome" class="java.lang.String">
 		<property name="com.jaspersoft.studio.field.label" value="nome"/>
+	</field>
+	<field name="circulo_id" class="java.lang.Long">
+		<property name="com.jaspersoft.studio.field.label" value="circulo_id"/>
 	</field>
 	<title>
 		<band/>
@@ -138,12 +146,12 @@ public.evento_segue_me.cracha = true]]>
 				<textElement textAlignment="Center">
 					<font fontName="Comic Sans MS" size="8"/>
 				</textElement>
-				<textFieldExpression><![CDATA[new java.text.SimpleDateFormat("dd").format($F{data_inicio})+ ", " + ($F{data_inicio}.getDate() + 1 ) + " e "+new java.text.SimpleDateFormat("dd 'de' MMMM 'de' yyyy").format($F{data_fim})]]></textFieldExpression>
+				<textFieldExpression><![CDATA[new java.text.SimpleDateFormat("dd").format($F{data_inicio})+ ", "+new java.text.SimpleDateFormat("dd").format($F{data_meio})+ " e "+new java.text.SimpleDateFormat("dd 'de' MMMM 'de' yyyy").format($F{data_fim})]]></textFieldExpression>
 			</textField>
 			<image hAlign="Center" vAlign="Middle" onErrorType="Blank">
 				<reportElement x="197" y="15" width="63" height="40" uuid="27e18a07-1c08-4c6a-ac74-83f90fccd6a2"/>
 				<graphicElement fill="Solid"/>
-				<imageExpression><![CDATA["../../resources/temp/circulo/"+$F{corcirculo}+"-"+$F{fk_segue_me_id}+".png"]]></imageExpression>
+				<imageExpression><![CDATA["../../resources/temp/circulo/"+$F{circulo_id}+".jpg"]]></imageExpression>
 			</image>
 			<image hAlign="Center" vAlign="Middle" onErrorType="Blank">
 				<reportElement x="16" y="15" width="63" height="40" uuid="936911fa-379c-4888-be26-9636e39fceb3"/>

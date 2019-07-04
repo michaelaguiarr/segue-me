@@ -104,6 +104,7 @@ public class RelatorioInscritosFichas implements Serializable {
 				parametros.put(JRParameter.REPORT_LOCALE, new Locale("pt", "BR"));
 				parametros.put("status", this.status);
 				parametros.put("segueMe", this.segueMe.getId());
+				parametros.put(JRParameter.REPORT_LOCALE, new Locale("pt", "BR"));
 				ExecutorRelatorio executor = new ExecutorRelatorio("/jasper/inscricaoVisitacao.jasper", this.response,
 						parametros, "Fichas" + status + ".pdf");
 				Session session = manager.unwrap(Session.class);

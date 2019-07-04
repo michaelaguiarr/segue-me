@@ -23,7 +23,6 @@ public class CadastroEventoService implements Serializable {
 	@Transactional
 	public Evento salvar(Evento inscricao) throws NegocioException {
 		if (!inscricao.getInscricao().getStatusInscricao().equals(StatusInscricao.PENDENTE)) {
-
 			inscricao.getSeguidor().setCurso(inscricao.getInscricao().getCurso());
 			inscricao.getSeguidor().setMovimentos(inscricao.getInscricao().getMovimentos());
 			inscricao.getSeguidor().setEscolaridade(inscricao.getInscricao().getEscolaridade());

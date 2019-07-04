@@ -77,7 +77,6 @@ public class CirculoRepository implements Serializable {
 		return manager
 				.createQuery("SELECT c FROM Circulo c " 
 						+ "JOIN FETCH c.segueMe s  "
-						+ "LEFT JOIN c.eventos e  "
 						+ "WHERE c.segueMe.paroquia = :paroquia " + "ORDER BY c.segueMe", Circulo.class)
 				.setParameter("paroquia", paroquia).getResultList();
 	}
@@ -91,7 +90,6 @@ public class CirculoRepository implements Serializable {
 	public List<Circulo> findBySegueMe(SegueMe segueMe) {
 		return manager
 				.createQuery("SELECT c FROM Circulo c "
-						+ "LEFT JOIN c.eventos e  "
 						+ "WHERE c.segueMe = :segueMe " + "ORDER BY c.corCirculo",
 						Circulo.class)
 				.setParameter("segueMe", segueMe).getResultList();

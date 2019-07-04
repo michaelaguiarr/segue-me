@@ -1,16 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Created with Jaspersoft Studio version 6.5.1.final using JasperReports Library version 6.5.1  -->
+<!-- Created with Jaspersoft Studio version 6.6.0.final using JasperReports Library version 6.6.0  -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="inscricao" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="f4ab04ca-0240-4aa7-8313-3aef3d418309">
-	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="SEGUE-ME"/>
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="Segue-me"/>
 	<parameter name="status" class="java.lang.String"/>
 	<parameter name="segueMe" class="java.lang.Long"/>
 	<queryString>
 		<![CDATA[SELECT
 public.inscricao.id,
+public.inscricao.numero,
 public.segue_me.cidade,
 public.segue_me.data_fim,
 public.segue_me.data_inicio,
+public.segue_me.data_inicio+1 as data_meio,
 public.segue_me.estado,
 public.segue_me.padroeiro,
 public.segue_me.titulo,
@@ -26,7 +28,9 @@ public.sexo.nome AS sexo,
 public.inscricao.statusinscricao,
 public.endereco.bairro,
 public.endereco.cidade AS cidade_0,
-public.seguidor.nome
+public.seguidor.nome,
+EXTRACT(YEAR FROM public.seguidor.dt_nascimento) as ano
+
 FROM
 public.segue_me
 JOIN public.evento_segue_me
@@ -48,10 +52,15 @@ public.inscricao.statusinscricao = $P{status}  AND
 public.evento_segue_me.idade_no_evento > 19
 AND public.segue_me.id = $P{segueMe} 
 ORDER BY
-public.endereco.bairro]]>
+ano,
+public.endereco.bairro ASC,
+sexo]]>
 	</queryString>
 	<field name="id" class="java.lang.Long">
 		<property name="com.jaspersoft.studio.field.label" value="id"/>
+	</field>
+	<field name="numero" class="java.lang.Long">
+		<property name="com.jaspersoft.studio.field.label" value="numero"/>
 	</field>
 	<field name="cidade" class="java.lang.String">
 		<property name="com.jaspersoft.studio.field.label" value="cidade"/>
@@ -62,6 +71,9 @@ public.endereco.bairro]]>
 	<field name="data_inicio" class="java.sql.Date">
 		<property name="com.jaspersoft.studio.field.label" value="data_inicio"/>
 	</field>
+	<field name="data_meio" class="java.sql.Date">
+		<property name="com.jaspersoft.studio.field.label" value="data_meio"/>
+	</field>
 	<field name="estado" class="java.lang.String">
 		<property name="com.jaspersoft.studio.field.label" value="estado"/>
 	</field>
@@ -71,7 +83,7 @@ public.endereco.bairro]]>
 	<field name="titulo" class="java.lang.String">
 		<property name="com.jaspersoft.studio.field.label" value="titulo"/>
 	</field>
-	<field name="numero" class="java.lang.Integer">
+	<field name="COLUMN_10" class="java.lang.Integer">
 		<property name="com.jaspersoft.studio.field.label" value="numero"/>
 	</field>
 	<field name="numero_romano" class="java.lang.String">
@@ -89,7 +101,7 @@ public.endereco.bairro]]>
 	<field name="idade" class="java.math.BigDecimal">
 		<property name="com.jaspersoft.studio.field.label" value="idade"/>
 	</field>
-	<field name="dt_nascimento" class="java.sql.Timestamp">
+	<field name="dt_nascimento" class="java.sql.Date">
 		<property name="com.jaspersoft.studio.field.label" value="dt_nascimento"/>
 	</field>
 	<field name="seguidor_telefone" class="java.lang.String">
@@ -109,6 +121,9 @@ public.endereco.bairro]]>
 	</field>
 	<field name="nome" class="java.lang.String">
 		<property name="com.jaspersoft.studio.field.label" value="nome"/>
+	</field>
+	<field name="ano" class="java.lang.Double">
+		<property name="com.jaspersoft.studio.field.label" value="ano"/>
 	</field>
 	<variable name="id1" class="java.lang.Integer" calculation="Count">
 		<variableExpression><![CDATA[$F{id}]]></variableExpression>
@@ -144,7 +159,7 @@ public.endereco.bairro]]>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font size="12" isBold="true"/>
 				</textElement>
-				<textFieldExpression><![CDATA["Data do Encontro: "+new java.text.SimpleDateFormat("dd").format($F{data_inicio})+ ", " + ($F{data_inicio}.getDate() + 1 ) + " e "+new java.text.SimpleDateFormat("dd 'de' MMMM 'de' yyyy").format($F{data_fim})]]></textFieldExpression>
+				<textFieldExpression><![CDATA["Data do Encontro: "+new java.text.SimpleDateFormat("dd").format($F{data_inicio})+ ", "+new java.text.SimpleDateFormat("dd").format($F{data_meio})+ " e "+new java.text.SimpleDateFormat("dd 'de' MMMM 'de' yyyy").format($F{data_fim})]]></textFieldExpression>
 			</textField>
 			<textField>
 				<reportElement x="0" y="77" width="553" height="30" uuid="775ad0d0-da16-4153-bfcd-0f454b94fd5b"/>
@@ -166,16 +181,16 @@ public.endereco.bairro]]>
 				<textElement verticalAlignment="Middle">
 					<font isBold="true"/>
 				</textElement>
-				<text><![CDATA[Proposta - Nome (Idade) - Sexo / Telefone / Bairro]]></text>
+				<text><![CDATA[Proposta - Nome (Idade) - Sexo / Telefone / Bairro /Data Nascimento]]></text>
 			</staticText>
 		</band>
 	</columnHeader>
 	<detail>
 		<band height="20">
 			<textField>
-				<reportElement x="0" y="0" width="553" height="20" uuid="a6fc4749-cbb9-4d52-af7c-7d29c56db497"/>
+				<reportElement x="0" y="0" width="553" height="20" uuid="f5e9f3b3-ff5d-40ac-82a1-ade04f46b492"/>
 				<textElement verticalAlignment="Middle"/>
-				<textFieldExpression><![CDATA[$F{id}+"- "+$F{nome}+"("+$F{idade}+ ")"+" "+$F{sexo}+" / "+$F{seguidor_telefone}+" / "+$F{bairro}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{numero}+"- "+$F{nome}+"("+$F{idade}+ ")"+" "+$F{sexo}+" / "+$F{seguidor_telefone}+" / "+$F{bairro}+" / "+new java.text.SimpleDateFormat("dd/MM/yyyy").format($F{dt_nascimento})]]></textFieldExpression>
 			</textField>
 		</band>
 	</detail>

@@ -2,57 +2,50 @@
 	xmlns:h="http://java.sun.com/jsf/html"
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
-	xmlns:p="http://primefaces.org/ui" xmlns:o="http://omnifaces.org/ui"
-	template="/WEB-INF/template.xhtml">
+	xmlns:jsf="http://xmlns.jcp.org/jsf" xmlns:p="http://primefaces.org/ui"
+	xmlns:o="http://omnifaces.org/ui"
+	template="/WEB-INF/template/template-public.xhtml">
 
 	<ui:define name="title">Pesquisa Casal</ui:define>
 
 	<f:metadata>
 		<f:viewAction action="#{pesquisaCasalBean.inicializar()}" />
 	</f:metadata>
+	
+	<ui:define name="toolbar">
+		<p:button outcome="/casal-public/pesquisa-casal" value="Pesquisar"
+			icon="fa fa-search" />
+	</ui:define>
 
 	<ui:define name="search">
 		<div class="ui-fluid">
 			<div class="ui-g-12">
 				<div class="card card-w-title">
-					<h1>Pesquisa Casal</h1>
+					<h1>Pesquisa Casal (Realize a pesquisa para atualizar os dados)</h1>
 					<div class="ui-g">
 						<div class="ui-g-12 ui-lg-12">
-							<p:selectOneMenu id="Paroquia"
-								value="#{pesquisaCasalBean.filter.paroquia}">
-								<f:selectItem itemLabel="Todos as Paroquias" />
-								<f:selectItems value="#{pesquisaCasalBean.listaParoquia}"
-									var="paroquia" itemValue="#{paroquia}"
-									itemLabel="#{paroquia.descricao}" />
-							</p:selectOneMenu>
+							<p:outputLabel value="Nome Completo dele ou dela" for="nome" />
 						</div>
-						<div class="ui-g-12 ui-lg-6">
-							<p:inputText id="nomeEle" placeholder="Nome Ele"
-								autocomplete="off" value="#{pesquisaCasalBean.filter.nomeEle}" />
+						<div class="ui-g-12 ui-lg-12">
+							<p:inputText id="nome" placeholder="Nome Completo dele ou dela (Com acentos)"
+								autocomplete="off" value="#{pesquisaCasalBean.filter.nomeEle}"
+								required="true" />
 						</div>
-						<div class="ui-g-12 ui-lg-6">
-							<p:inputText id="apelidoEle" placeholder="Apelido Ele"
-								autocomplete="off"
-								value="#{pesquisaCasalBean.filter.apelidoEle}" />
+						<div class="ui-g-12 ui-lg-12">
+							<p:outputLabel value="Data de Nascimento" for="nascimento" />
 						</div>
-						<div class="ui-g-12 ui-lg-6">
-							<p:inputText id="nomeEla" placeholder="Nome Ela"
-								autocomplete="off" value="#{pesquisaCasalBean.filter.nomeEla}" />
-						</div>
-						<div class="ui-g-12 ui-lg-6">
-							<p:inputText id="apelidoElq" placeholder="Apelido Ela"
-								autocomplete="off"
-								value="#{pesquisaCasalBean.filter.apelidoEla}" />
+						<div class="ui-g-12 ui-lg-12">
+							<p:calendar id="nascimento" required="true" 
+								value="#{pesquisaCasalBean.filter.dtNascimento}" mask="true"
+								pattern="dd/MM/yyyy" mode="popup" showButtonPanel="true"
+								showOn="button" />
 						</div>
 						<div class="ui-g-12">
 							<p:commandButton id="pesquisar" value="Pesquisar"
-								style="width: auto;" action="#{pesquisaCasalBean.pesquisar()}"
+								style="width: auto;"
+								action="#{pesquisaCasalBean.pesquisarPublic()}"
 								update="@form" process="@form" icon="fa fa-search"
 								styleClass="green-btn" />
-							<p:commandButton id="atulizar" value="Atulizar"
-								style="width: auto;"
-								action="#{pesquisaCasalBean.atulizarNome()}" update="@form"
-								process="@form"   rendered="#{seguranca.developer}" />
 							<p:defaultCommand target="pesquisar" />
 						</div>
 					</div>
@@ -64,11 +57,11 @@
 	<ui:define name="content">
 
 		<h:form id="form">
-			<ui:include src="/WEB-INF/facelets/casal/casal-toolbar.xhtml" />
+			<ui:include
+				src="/WEB-INF/facelets/casal-public/casal-toolbar.xhtml" />
 			<div class="ui-fluid">
 				<div class="ui-g-12">
 					<div class="card card-w-title">
-						<h1>Lista de Casais</h1>
 						<ui:include src="/WEB-INF/facelets/mensagem/messages.xhtml" />
 
 						<div class="ui-g">
@@ -80,10 +73,10 @@
 								paginator="true"
 								paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
 								currentPageReportTemplate=" Exibindo de {startRecord} a {endRecord} no total de {totalRecords} - Página: {currentPage}/{totalPages} "
-								rows="25">
+								rows="25" rendered="#{pesquisaCasalBean.lista.size() > 0}">
 
 								<p:ajax event="rowSelect"
-									listener="#{pesquisaCasalBean.selecionar()}" />
+									listener="#{pesquisaCasalBean.selecionarPublic()}" />
 
 								<p:column width="50">
 									<p:commandButton update=":form:fotoDialogEle"

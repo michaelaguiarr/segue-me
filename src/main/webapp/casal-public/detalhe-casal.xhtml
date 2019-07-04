@@ -3,41 +3,38 @@
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:jsf="http://xmlns.jcp.org/jsf" xmlns:p="http://primefaces.org/ui"
-	xmlns:o="http://omnifaces.org/ui" template="/WEB-INF/template.xhtml">
+	xmlns:o="http://omnifaces.org/ui" template="/WEB-INF/template/template-public.xhtml">
 
-	<ui:define name="title">Detalhes Seguidor</ui:define>
+	<ui:define name="title">Detalhes Casal</ui:define>
 
 	<f:metadata>
-		<o:viewParam name="seguidor" value="#{detalhesSeguidorBean.seguidor}" />
-		<f:viewAction action="#{detalhesSeguidorBean.inicializar()}" />
+		<o:viewParam name="casal" value="#{detalhesCasalBean.casal}" />
+		<f:viewAction action="#{detalhesCasalBean.inicializar()}" />
 	</f:metadata>
 	<ui:define name="toolbar">
-		<p:button outcome="/seguidor/pesquisa-seguidor"
-			value="Pesquisar" icon="fa fa-search" />
+		<p:button outcome="/casal-public/pesquisa-casal" value="Pesquisar"
+			icon="fa fa-search" />
 		<p:commandButton value="Editar" icon="fa fa-pencil-square-o"
-			action="#{detalhesSeguidorBean.editarPublic()}" process="@this" />
+			action="#{detalhesCasalBean.editarPublic()}" process="@this" />
 	</ui:define>
 	<ui:define name="cancelar">
 		<p:button value="Cancelar" style="width: auto; margin-left: 15px;"
-			outcome="pesquisa-seguidor" icon="fa fa-remove" />
+			outcome="pesquisa-casal" icon="fa fa-remove" />
 	</ui:define>
 	<ui:define name="content">
 		<h:form id="form-cadastro" enctype="multipart/form-data">
 			<ui:include
-				src="/WEB-INF/facelets/seguidor/seguidor-detalhes-toolbar.xhtml" />
+				src="/WEB-INF/facelets/casal-public/casal-detalhes-toolbar.xhtml" />
 			<div class="ui-fluid">
 				<div class="ui-g-12">
 					<div class="card card-w-title">
-						<h1>Ficha do Seguidor #{detalhesSeguidorBean.seguidor.nome}</h1>
+						<h1>Ficha do Casal #{detalhesCasalBean.casal.nomeEle} e #{detalhesCasalBean.casal.nomeEla}</h1>
 						<ui:include src="/WEB-INF/facelets/mensagem/messages.xhtml" />
 						<p:growl />
 						<div class="ui-g">
-							<p:focus for="nome" />
-							<ui:include src="/WEB-INF/facelets/seguidor/ficha-seguidor.xhtml" />
-
+							<ui:include src="/WEB-INF/facelets/casal/ficha-casal.xhtml" />
 							<ui:include
-								src="/WEB-INF/facelets/seguidor/datatable-evento.xhtml" />
-
+								src="/WEB-INF/facelets/casal/datatable-evento.xhtml" />
 						</div>
 					</div>
 				</div>
