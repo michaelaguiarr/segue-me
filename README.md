@@ -234,6 +234,29 @@ segue-me/
 
 ---
 
+## Dependências locais
+
+Três bibliotecas não estão disponíveis nos repositórios Maven públicos e precisam ser
+instaladas manualmente no `~/.m2` antes do primeiro build. Os JARs estão na pasta `libs/`.
+
+### Instalar (execute uma vez por ambiente)
+
+```bash
+./scripts/install-local-deps.sh
+```
+
+O `deploy.sh` já chama esse script automaticamente se as dependências não estiverem instaladas.
+
+### Bibliotecas incluídas
+
+| Arquivo | GroupId | ArtifactId | Versão |
+|---|---|---|---|
+| `paradise-1.0.1.jar` | `org.primefaces.themes` | `paradise` | `1.0.1` |
+| `simple-email-0.2.5-SNAPSHOT.jar` | `com.outjected` | `simple-email` | `0.2.5-SNAPSHOT` |
+| `ComicSans-1.0.0.jar` | `net.sf.jasperreports` | `ComicSans` | `1.0.0` |
+
+---
+
 ## Solução de problemas conhecidos
 
 ### Imagem sem suporte ARM64 (Apple Silicon)

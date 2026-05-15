@@ -39,20 +39,39 @@ for var in DB_USER DB_PASSWORD DB_NAME; do
 done
 
 # ---------------------------------------------------------------------------
-# 3. Gera o WAR com Maven
+# 3. Instala dependências locais se ausentes do ~/.m2
+# ---------------------------------------------------------------------------
+needs_install=false
+for dep_path in \
+  "$HOME/.m2/repository/org/primefaces/themes/paradise/1.0.1/paradise-1.0.1.jar" \
+  "$HOME/.m2/repository/com/outjected/simple-email/0.2.5-SNAPSHOT/simple-email-0.2.5-SNAPSHOT.jar" \
+  "$HOME/.m2/repository/net/sf/jasperreports/ComicSans/1.0.0/ComicSans-1.0.0.jar"; do
+  if [ ! -f "$dep_path" ]; then
+    needs_install=true
+    break
+  fi
+done
+
+if [ "$needs_install" = true ]; then
+  echo "==> Dependências locais não encontradas — instalando..."
+  "$ROOT_DIR/scripts/install-local-deps.sh"
+fi
+
+# ---------------------------------------------------------------------------
+# 4. Gera o WAR com Maven
 # ---------------------------------------------------------------------------
 echo "==> Compilando o projeto..."
 mvn clean package -DskipTests
 
 # ---------------------------------------------------------------------------
-# 4. Copia o WAR para a pasta monitorada pelo Tomcat
+# 5. Copia o WAR para a pasta monitorada pelo Tomcat
 # ---------------------------------------------------------------------------
 echo "==> Publicando o WAR em deployments/..."
 mkdir -p deployments
 cp target/segue-me.war deployments/
 
 # ---------------------------------------------------------------------------
-# 5. Inicia apenas o PostgreSQL para verificação e eventual restore
+# 6. Inicia apenas o PostgreSQL para verificação e eventual restore
 # ---------------------------------------------------------------------------
 echo "==> Iniciando PostgreSQL..."
 docker compose -f "$COMPOSE_FILE" --env-file .env up -d postgres
@@ -65,7 +84,7 @@ done
 echo "    PostgreSQL pronto."
 
 # ---------------------------------------------------------------------------
-# 6. Restaura backup se existir arquivo em backup/ e banco estiver vazio
+# 7. Restaura backup se existir arquivo em backup/ e banco estiver vazio
 # ---------------------------------------------------------------------------
 backup_file=$(find backup/ -maxdepth 1 \
   \( -name "*.sql" -o -name "*.dump" -o -name "*.backup" -o -name "*.tar" \) \
@@ -118,7 +137,7 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# 7. Sobe todos os serviços (o postgres já está rodando, o Tomcat vai subir)
+# 8. Sobe todos os serviços (o postgres já está rodando, o Tomcat vai subir)
 # ---------------------------------------------------------------------------
 echo "==> Subindo todos os serviços..."
 docker compose -f "$COMPOSE_FILE" --env-file .env up -d --build
