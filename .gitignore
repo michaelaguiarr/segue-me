@@ -6,3 +6,16 @@
 \.project
 
 \.settings/org\.eclipse\.jpt\.core\.prefs
+
+.factorypath
+
+.settings/
+
+.tern-project
+
+# Variáveis de ambiente (credenciais de produção — nunca commitar)
+.env
+
+# WARs gerados localmente
+deployments/*.war
+deployments/*.war.unpacked/
