@@ -1,0 +1,3 @@
+# Ignorar WARs e diretórios de unpacking do TomEE
+*.war
+*.war.unpacked/

@@ -29,6 +29,12 @@ public class CadastroSeguidorService implements Serializable {
 		seguidor.setNomeSemAcento(seguidor.getNome());
 		return repository.guardar(seguidor);
 	}
+	
+	@Transactional
+	public Seguidor atualizarNome(Seguidor seguidor) throws NegocioException {
+		seguidor.setNomeSemAcento(seguidor.getNome());
+		return repository.guardar(seguidor);
+	}
 
 	@Transactional
 	public void remover(Seguidor seguidor) throws NegocioException {

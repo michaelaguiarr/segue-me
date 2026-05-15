@@ -28,8 +28,8 @@ public class SegueMeRepository implements Serializable {
 		return manager.createQuery("SELECT s FROM SegueMe s " 
 				+ "JOIN FETCH s.paroquia p "
 				+ "JOIN FETCH s.numeroRomano n  "
-				+ "WHERE " 
-				+ "s.ativo = true "
+//				+ "WHERE "
+//				+ "s.ativo = true "
 				+ "ORDER BY p.descricao, n.numero DESC", SegueMe.class).getResultList();
 		
 	}
@@ -84,7 +84,7 @@ public class SegueMeRepository implements Serializable {
 						+ "JOIN FETCH s.paroquia p "
 						+ "JOIN FETCH s.numeroRomano n  " 
 						+ "WHERE s.paroquia = :paroquia "
-						+ "AND s.ativo = true "
+//						+ "AND s.ativo = true "
 						+ "ORDER BY s.titulo DESC, n.numero DESC", SegueMe.class)
 				.setParameter("paroquia", paroquia)
 				.getResultList();

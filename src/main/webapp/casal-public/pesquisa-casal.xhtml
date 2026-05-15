@@ -11,41 +11,37 @@
 	<f:metadata>
 		<f:viewAction action="#{pesquisaCasalBean.inicializar()}" />
 	</f:metadata>
-	
+
 	<ui:define name="toolbar">
 		<p:button outcome="/casal-public/pesquisa-casal" value="Pesquisar"
 			icon="fa fa-search" />
+		<p:button value="Novo" outcome="/casal-public/cadastro-casal"
+				  icon="fa fa-plus" rendered="#{pesquisaCasalBean.novoCasal}"/>
 	</ui:define>
 
 	<ui:define name="search">
 		<div class="ui-fluid">
 			<div class="ui-g-12">
 				<div class="card card-w-title">
-					<h1>Pesquisa Casal (Realize a pesquisa para atualizar os dados)</h1>
+					<h1>Pesquisa Casal (Realize a pesquisa para atualizar os
+						dados)</h1>
+					<h2>Atenção: Caso a pesquisa não encontre seu cadastro, verifique se o número de telefone foi alterado recentemente ou se pode ter sido cadastrado errado no último quadrante.
+						Tente pesquisar usando esse número antigo antes de criar um novo cadastro.</h2>
 					<div class="ui-g">
 						<div class="ui-g-12 ui-lg-12">
-							<p:outputLabel value="Nome Completo dele ou dela" for="nome" />
+							<p:outputLabel value="Telefone" for="telefone" />
 						</div>
 						<div class="ui-g-12 ui-lg-12">
-							<p:inputText id="nome" placeholder="Nome Completo dele ou dela (Com acentos)"
-								autocomplete="off" value="#{pesquisaCasalBean.filter.nomeEle}"
-								required="true" />
-						</div>
-						<div class="ui-g-12 ui-lg-12">
-							<p:outputLabel value="Data de Nascimento" for="nascimento" />
-						</div>
-						<div class="ui-g-12 ui-lg-12">
-							<p:calendar id="nascimento" required="true" 
-								value="#{pesquisaCasalBean.filter.dtNascimento}" mask="true"
-								pattern="dd/MM/yyyy" mode="popup" showButtonPanel="true"
-								showOn="button" />
+							<p:inputMask id="telefone" placeholder="Telefone"
+										 required="true" value="#{pesquisaCasalBean.filter.telefone}"
+										 mask="(99)999999999">
+							</p:inputMask>
 						</div>
 						<div class="ui-g-12">
 							<p:commandButton id="pesquisar" value="Pesquisar"
 								style="width: auto;"
-								action="#{pesquisaCasalBean.pesquisarPublic()}"
-								update="@form" process="@form" icon="fa fa-search"
-								styleClass="green-btn" />
+								action="#{pesquisaCasalBean.pesquisarPublic()}" update="@form"
+								process="@form" icon="fa fa-search" styleClass="green-btn" />
 							<p:defaultCommand target="pesquisar" />
 						</div>
 					</div>
@@ -57,8 +53,7 @@
 	<ui:define name="content">
 
 		<h:form id="form">
-			<ui:include
-				src="/WEB-INF/facelets/casal-public/casal-toolbar.xhtml" />
+			<ui:include src="/WEB-INF/facelets/casal-public/casal-toolbar.xhtml" />
 			<div class="ui-fluid">
 				<div class="ui-g-12">
 					<div class="card card-w-title">
@@ -77,22 +72,6 @@
 
 								<p:ajax event="rowSelect"
 									listener="#{pesquisaCasalBean.selecionarPublic()}" />
-
-								<p:column width="50">
-									<p:commandButton update=":form:fotoDialogEle"
-										style="width: auto;"
-										oncomplete="PF('fotoDialogWidgetVarEle').show()"
-										icon="fa fa-picture-o">
-										<f:setPropertyActionListener
-											target="#{pesquisaCasalBean.casal}" value="#{casal}" />
-									</p:commandButton>
-								</p:column>
-								<p:column headerText="Data Cadastro"
-									sortBy="#{casal.timestamp.time}" width="100">
-									<h:outputText value="#{casal.timestamp.time}">
-										<f:convertDateTime pattern="dd/MM/yyyy" />
-									</h:outputText>
-								</p:column>
 								<p:column headerText="Nome Ele" sortBy="#{casal.nomeEle}"
 									width="200">
 									<h:outputText value="#{casal.nomeEle} - (#{casal.apelidoEle})" />

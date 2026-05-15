@@ -33,6 +33,13 @@ public class CadastroCasalService implements Serializable {
 		casal.setNomeEleSemAcento(casal.getNomeEle());
 		return repository.guardar(casal);
 	}
+	
+	@Transactional
+	public Casal atualizarNome(Casal casal) throws NegocioException {
+		casal.setNomeElaSemAcento(casal.getNomeEla());
+		casal.setNomeEleSemAcento(casal.getNomeEle());
+		return repository.guardar(casal);
+	}
 
 	@Transactional
 	public void remover(Casal casal) throws NegocioException {

@@ -1,0 +1,18 @@
+# tomcat:9.0-jre11 — multi-arch (linux/amd64 + linux/arm64/v8)
+# O WAR embute Weld (CDI), Hibernate e Mojarra (JSF) — Tomcat não tem CDI próprio,
+# por isso não conflita com as implementações bundled no WAR.
+FROM tomcat:9.0-jre11
+
+# PostgreSQL JDBC 42.x (compatível com Java 11 e PostgreSQL 15)
+RUN curl -fsSL \
+    "https://repo1.maven.org/maven2/org/postgresql/postgresql/42.7.3/postgresql-42.7.3.jar" \
+    -o /usr/local/tomcat/lib/postgresql-42.7.3.jar
+
+# Descriptor de contexto por-app: DataSource JNDI + BeanManager (Weld)
+# Montado externamente, sobrescreve META-INF/context.xml do WAR
+RUN mkdir -p /usr/local/tomcat/conf/Catalina/localhost
+COPY config/tomcat-context.xml /usr/local/tomcat/conf/Catalina/localhost/segue-me.xml
+
+# webapps/ é sobrescrito pelo volume em docker-compose.yml
+# Tomcat monitora essa pasta e faz hot-deploy automático de WARs
+EXPOSE 8080

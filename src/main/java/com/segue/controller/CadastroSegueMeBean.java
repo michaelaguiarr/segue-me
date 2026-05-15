@@ -8,9 +8,6 @@ import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.primefaces.event.FileUploadEvent;
-import org.primefaces.model.UploadedFile;
-
 import com.segue.model.NumeroRomano;
 import com.segue.model.Paroquia;
 import com.segue.model.SegueMe;
@@ -21,6 +18,9 @@ import com.segue.service.CadastroEjcService;
 import com.segue.service.FotoService;
 import com.segue.service.NegocioException;
 import com.segue.util.jsf.FacesUtil;
+
+import org.primefaces.event.FileUploadEvent;
+import org.primefaces.model.UploadedFile;
 
 @Named
 @ViewScoped
@@ -44,7 +44,7 @@ public class CadastroSegueMeBean implements Serializable {
 	private String imagem;
 	private String imagemFundo;
 	private String imagemRoda;
-
+	
 	private List<Paroquia> paroquiasFiltro;
 
 	private List<NumeroRomano> numeroRomanosFiltro;
@@ -53,7 +53,7 @@ public class CadastroSegueMeBean implements Serializable {
 		limpar();
 	}
 
-	public void inicializar() {
+	public void inicializar() throws Exception {
 		if (this.segueMe == null) {
 			limpar();
 		} else {
@@ -106,7 +106,7 @@ public class CadastroSegueMeBean implements Serializable {
 			FacesUtil.addErrorMessage(e.getMessage());
 		}
 	}
-
+	
 	public void removerFoto() {
 		try {
 			Integer id = Integer.valueOf(this.segueMe.getId().toString());

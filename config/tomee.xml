@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tomee>
+
+  <!--
+    DataSource local para desenvolvimento com Docker.
+    JtaManaged=false preserva o gerenciamento RESOURCE_LOCAL
+    do interceptor customizado em util/jpa/@Transactional.
+
+    Hostname "postgres" é o nome do serviço no docker-compose.yml.
+  -->
+  <Resource id="seguemeDS" type="DataSource">
+    JdbcDriver      = org.postgresql.Driver
+    JdbcUrl         = jdbc:postgresql://postgres:5432/segueme
+    UserName        = segueme
+    Password        = segueme123
+    JtaManaged      = false
+
+    InitialSize     = 2
+    MaxActive       = 10
+    MaxIdle         = 5
+    MinIdle         = 2
+    MaxWait         = 30000
+    ValidationQuery = SELECT 1
+    TestOnBorrow    = true
+  </Resource>
+
+</tomee>

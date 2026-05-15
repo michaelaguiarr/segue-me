@@ -1,0 +1,51 @@
+services:
+
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: segueme
+      POSTGRES_PASSWORD: segueme123
+      POSTGRES_DB: segueme
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./sql:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U segueme -d segueme"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  tomcat:
+    build:
+      context: .
+      dockerfile: Dockerfile.tomee
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./deployments:/usr/local/tomcat/webapps
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      JAVA_OPTS: >-
+        -Xms256m -Xmx768m
+        -Dfile.encoding=UTF-8
+        -Duser.language=pt
+        -Duser.country=BR
+        -Duser.timezone=America/Sao_Paulo
+        -Djavax.faces.PROJECT_STAGE=Development
+
+  adminer:
+    image: adminer:4
+    ports:
+      - "8081:8080"
+    depends_on:
+      - postgres
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+      ADMINER_DESIGN: pepa-linha
+
+volumes:
+  postgres_data:

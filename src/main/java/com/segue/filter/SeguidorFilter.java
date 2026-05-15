@@ -13,6 +13,7 @@ public class SeguidorFilter implements Serializable {
 
 	private String nome;
 	private Date dtNascimento;
+	private String telefone;
 	private SegueMe segueMe;
 	private Paroquia paroquia;
 	private Circulo circulo;
@@ -65,6 +66,12 @@ public class SeguidorFilter implements Serializable {
 	public void setSituacao(String situacao) {
 		this.situacao = situacao;
 	}
-	
-	
+
+	public String getTelefone() {
+		return telefone;
+	}
+
+	public void setTelefone(String telefone) {
+		this.telefone = telefone;
+	}
 }

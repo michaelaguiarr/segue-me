@@ -10,48 +10,6 @@
 			<!-- Casal -->
 			<p:fieldset legend="Casal">
 				<div class="ui-g-12">
-					<p:outputLabel value="Foto Casal" />
-				</div>
-				<div class="ui-g-12 ui-lg-6">
-					<h:panelGrid id="fotoPanelGroupUploadEle">
-						<p:fileUpload fileUploadListener="#{cadastroCasalBean.uploadEle}"
-							allowTypes="/(\.|\/)(jpe?g)$/"
-							invalidFileMessage="São permitidas somente imagens (jpg)"
-							auto="true" label="Foto"
-							update="fotoPanelGroupEle fotoPanelGroupUploadEle"
-							rendered="#{cadastroCasalBean.imagemEle == null}" />
-					</h:panelGrid>
-				</div>
-				<div class="ui-g-12 ui-lg-6">
-					<h:panelGrid id="fotoPanelGroupEle">
-						<p:graphicImage value="#{cadastroCasalBean.imagemEle}"
-							rendered="#{cadastroCasalBean.imagemEle ne null}" width="100px"
-							height="200px" id="fotoEle"
-							onclick="PF('fotoDialogWidgetVarEle').show()" cache="false" />
-
-						<p:commandButton value="Remover Foto"
-							style="width: auto; margin-left: 15px;"
-							actionListener="#{cadastroCasalBean.removerFotoEle()}"
-							rendered="#{cadastroCasalBean.imagemEle ne null}" process="@this"
-							update="fotoPanelGroupEle, fotoPanelGroupUploadEle" />
-					</h:panelGrid>
-				</div>
-
-				<div class="ui-g-12 ui-lg-6">
-					<h:panelGrid id="fotoPanelGroupEla">
-						<p:graphicImage value="#{cadastroCasalBean.imagemEle}"
-							rendered="#{cadastroCasalBean.imagemEle ne null}" width="100px"
-							height="200px" id="fotoEla"
-							onclick="PF('fotoDialogWidgetVarEla').show()" cache="false" />
-
-						<p:commandButton value="Remover Foto"
-							style="width: auto; margin-left: 15px;"
-							actionListener="#{cadastroCasalBean.removerFotoEle()}"
-							rendered="#{cadastroCasalBean.imagemEle ne null}" process="@this"
-							update="fotoPanelGroupEle, fotoPanelGroupUploadEle" />
-					</h:panelGrid>
-				</div>
-				<div class="ui-g-12">
 					<p:outputLabel value="Nome Ele" for="nomeEle" />
 				</div>
 

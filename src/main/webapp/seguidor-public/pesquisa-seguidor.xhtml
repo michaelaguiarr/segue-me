@@ -11,35 +11,36 @@
 	<f:metadata>
 		<f:viewAction action="#{pesquisaSeguidorBean.inicializar()}" />
 	</f:metadata>
-	
+
 	<ui:define name="toolbar">
 		<p:button outcome="/seguidor-public/pesquisa-seguidor" value="Pesquisar"
 			icon="fa fa-search" />
+		<p:button value="Novo"
+				  outcome="/seguidor-public/cadastro-seguidor" icon="fa fa-plus"
+				  rendered="#{pesquisaSeguidorBean.novoSeguidor}"/>
 	</ui:define>
 
 	<ui:define name="search">
 		<div class="ui-fluid">
 			<div class="ui-g-12">
 				<div class="card card-w-title">
-					<h1>Pesquisa Seguidor (Realize a pesquisa para atualizar os dados)</h1>
+					<h1>Pesquisa Seguidor (Realize a pesquisa para atualizar os
+						dados)</h1>
+					<h2>Atenção: Caso a pesquisa não encontre seu cadastro, verifique se o número de telefone foi alterado recentemente ou se pode ter sido cadastrado errado no último quadrante.
+						Tente pesquisar usando esse número antigo antes de criar um novo cadastro.</h2>
 					<div class="ui-g">
 						<div class="ui-g-12 ui-lg-12">
-							<p:outputLabel value="Nome Completo" for="nome" />
+							<p:outputLabel value="Telefone" for="telefoneUm" />
 						</div>
-						<div class="ui-g-12 ui-lg-12">
-							<p:inputText id="nome" placeholder="Nome do Seguidor"
-								autocomplete="off" value="#{pesquisaSeguidorBean.filter.nome}"
-								required="true" />
+
+						<div class="ui-g-12 ui-lg-6">
+							<p:inputMask id="telefoneUm" placeholder="Telefone"
+										 required="true"
+										 value="#{pesquisaSeguidorBean.filter.telefone}"
+										 mask="(99)999999999">
+							</p:inputMask>
 						</div>
-						<div class="ui-g-12 ui-lg-12">
-							<p:outputLabel value="Data de Nascimento" for="nascimento" />
-						</div>
-						<div class="ui-g-12 ui-lg-12">
-							<p:calendar id="nascimento" required="true"
-								value="#{pesquisaSeguidorBean.filter.dtNascimento}" mask="true"
-								pattern="dd/MM/yyyy" mode="popup" showButtonPanel="true"
-								showOn="button" />
-						</div>
+
 						<div class="ui-g-12">
 							<p:commandButton id="pesquisar" value="Pesquisar"
 								style="width: auto;"
@@ -74,26 +75,12 @@
 								paginator="true" sortBy="#{seguidor.nome}"
 								paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
 								currentPageReportTemplate=" Exibindo de {startRecord} a {endRecord} no total de {totalRecords} - Página: {currentPage}/{totalPages} "
-								rows="25" rowsPerPageTemplate="25,50,100,150,200" rendered="#{pesquisaSeguidorBean.listaSeguidor.size() > 0}">
+								rows="25" rowsPerPageTemplate="25,50,100,150,200"
+								rendered="#{pesquisaSeguidorBean.listaSeguidor.size() > 0}">
 
 								<p:ajax event="rowSelect"
 									listener="#{pesquisaSeguidorBean.selecionarPublic()}" />
 
-								<p:column headerText="Foto" width="50">
-									<p:commandButton update=":form:fotoDialog"
-										style="width: auto; margin-left: 15px;"
-										oncomplete="PF('fotoDialogWidgetVar').show()"
-										icon="fa fa-picture-o">
-										<f:setPropertyActionListener
-											target="#{pesquisaSeguidorBean.seguidor}" value="#{seguidor}" />
-									</p:commandButton>
-								</p:column>
-								<p:column headerText="Data Cadastro"
-									sortBy="#{seguidor.timestamp.time}" width="100">
-									<h:outputText value="#{seguidor.timestamp.time}">
-										<f:convertDateTime pattern="dd/MM/yyyy" />
-									</h:outputText>
-								</p:column>
 								<p:column headerText="Nome" sortBy="#{seguidor.nome}"
 									width="200">
 									<h:outputText value="#{seguidor.nome} - (#{seguidor.apelido})" />

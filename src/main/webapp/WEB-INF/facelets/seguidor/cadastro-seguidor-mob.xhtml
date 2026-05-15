@@ -10,34 +10,6 @@
 			<!-- Seguidor -->
 			<p:fieldset legend="Seguidor">
 				<div class="ui-g-12">
-					<p:outputLabel value="Foto" />
-				</div>
-				<div class="ui-g-12 ui-lg-6">
-					<h:panelGrid id="fotoPanelGroupUpload">
-						<p:fileUpload fileUploadListener="#{cadastroSeguidorBean.upload}"
-							allowTypes="/(\.|\/)(gif|png|jpe?g)$/"
-							invalidFileMessage="São permitidas somente imagens (jpg)"
-							auto="true" label="Foto"
-							update="fotoPanelGroup fotoPanelGroupUpload"
-							rendered="#{cadastroSeguidorBean.imagemDoUsuario == null}" />
-					</h:panelGrid>
-				</div>
-
-				<div class="ui-g-12">
-					<h:panelGrid id="fotoPanelGroup">
-						<p:graphicImage value="#{cadastroSeguidorBean.imagemDoUsuario}"
-							rendered="#{cadastroSeguidorBean.imagemDoUsuario ne null}"
-							width="100px" height="200px" id="foto"
-							onclick="PF('fotoDialogWidgetVar').show()" cache="false" />
-
-						<p:commandButton value="Remover Foto"
-							style="width: auto; margin-left: 15px;"
-							actionListener="#{cadastroSeguidorBean.removerFoto}"
-							rendered="#{cadastroSeguidorBean.imagemDoUsuario ne null}"
-							process="@this" update="fotoPanelGroup, fotoPanelGroupUpload" />
-					</h:panelGrid>
-				</div>
-				<div class="ui-g-12">
 					<p:outputLabel value="Nome" for="nome" />
 				</div>
 				<div class="ui-g-12 ui-lg-6">

@@ -47,6 +47,8 @@ public class PesquisaCasalBean implements Serializable {
 	private Casal casal;
 
 	private CasalFilter filter;
+	
+	private boolean novoCasal = false;
 
 	private List<Casal> lista;
 	private List<Paroquia> listaParoquia;
@@ -58,6 +60,8 @@ public class PesquisaCasalBean implements Serializable {
 		this.listaSegueMe = new ArrayList<>();
 		this.lista = new ArrayList<>();
 		this.listaParoquia = new ArrayList<>();
+		this.novoCasal = false;
+
 
 	}
 
@@ -70,6 +74,7 @@ public class PesquisaCasalBean implements Serializable {
 			this.listaSegueMe = segueMeRepository.findByParoquia(filter.getParoquia());
 			filter.setSegueMe(this.usuarioLogado.getSegueMe());
 			this.lista = repository.filtrados(filter);
+			this.novoCasal = false;
 		}
 	}
 
@@ -86,14 +91,18 @@ public class PesquisaCasalBean implements Serializable {
 	public void pesquisarPublic() {
 		lista = repository.filtradosPublic(this.filter);
 		if (lista.isEmpty()) {
+			this.novoCasal = true;
 			FacesUtil.addErrorMessage("Nenhum Resultado Encontrado!");
+		}else{
+			this.novoCasal = false;
 		}
 	}
 	
 	public void atulizarNome() {
 		try {
-			for (Casal casal : lista) {
-				service.salvar(casal);
+			List<Casal> list = this.repository.findAll();
+			for (Casal casal : list) {
+				service.atualizarNome(casal);
 			}
 			FacesUtil.addInfoMessage("Deu Certo.Atulizado com sucesso!");
 		} catch (Exception e) {
@@ -171,5 +180,15 @@ public class PesquisaCasalBean implements Serializable {
 	public void setLista(List<Casal> lista) {
 		this.lista = lista;
 	}
+
+	public boolean isNovoCasal() {
+		return novoCasal;
+	}
+
+	public void setNovoCasal(boolean novoCasal) {
+		this.novoCasal = novoCasal;
+	}
+	
+	
 
 }

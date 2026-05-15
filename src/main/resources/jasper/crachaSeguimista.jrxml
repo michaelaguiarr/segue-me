@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Created with Jaspersoft Studio version 6.6.0.final using JasperReports Library version 6.6.0  -->
+<!-- Created with Jaspersoft Studio version 6.20.0.final using JasperReports Library version 6.20.0-2bc7ab61c56f459e8176eb05c7705e145cd400ad  -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Blank_A4" columnCount="2" printOrder="Horizontal" pageWidth="595" pageHeight="842" columnWidth="270" columnSpacing="14" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="ae4098e2-6e47-4e98-a411-cbf7fea0e5fa">
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 	<property name="com.jaspersoft.studio.unit." value="pixel"/>
@@ -120,44 +120,43 @@ public.evento_segue_me.cracha = true]]>
 			<line>
 				<reportElement x="0" y="0" width="271" height="1" uuid="5968657a-1f97-4e9e-ad7c-d5f0ad6a486c"/>
 			</line>
-			<textField>
-				<reportElement x="7" y="80" width="260" height="50" uuid="00470fd6-e548-417c-8375-d5aace6ad92d"/>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Comic Sans MS" size="24" isBold="true"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$F{apelido}]]></textFieldExpression>
-			</textField>
-			<textField>
-				<reportElement x="79" y="15" width="118" height="20" uuid="a49f9fc1-d3d0-4e18-a014-bc54b8180572"/>
+			<image hAlign="Center" vAlign="Middle" onErrorType="Blank">
+				<reportElement x="209" y="10" width="41" height="40" uuid="27e18a07-1c08-4c6a-ac74-83f90fccd6a2"/>
+				<graphicElement fill="Solid"/>
+				<imageExpression><![CDATA["../../resources/temp/circulo/"+$F{circulo_id}+".jpg"]]></imageExpression>
+			</image>
+			<textField textAdjust="ScaleFont">
+				<reportElement x="70" y="10" width="139" height="20" uuid="54ff85fe-d965-4e6c-a847-accefd9d599b"/>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font fontName="Comic Sans MS" size="13" isBold="true"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{numero_romano} +" SEGUE-ME"]]></textFieldExpression>
 			</textField>
-			<textField isStretchWithOverflow="true">
-				<reportElement x="79" y="35" width="118" height="10" uuid="3ed5eaec-85d6-4b18-bf89-deb89363b2b3"/>
+			<image scaleImage="RetainShape" hAlign="Center" vAlign="Middle">
+				<reportElement x="29" y="10" width="41" height="40" uuid="120b1d08-cc06-46d3-877e-e1985fbbf14f"/>
+				<imageExpression><![CDATA["../../resources/images/segue-me.png"]]></imageExpression>
+			</image>
+			<textField textAdjust="ScaleFont">
+				<reportElement x="70" y="30" width="139" height="10" uuid="3da625c1-646d-4e4f-95ae-ac011a03c518"/>
 				<textElement textAlignment="Center">
 					<font fontName="Comic Sans MS" size="8"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{descricao}]]></textFieldExpression>
 			</textField>
-			<textField isStretchWithOverflow="true">
-				<reportElement x="79" y="45" width="118" height="10" uuid="5b4748d5-c901-4104-a607-4c920d9bf991"/>
+			<textField textAdjust="ScaleFont">
+				<reportElement x="70" y="40" width="139" height="10" uuid="89ba8892-fa57-4ed9-a6bb-a8ae2b22126b"/>
 				<textElement textAlignment="Center">
 					<font fontName="Comic Sans MS" size="8"/>
 				</textElement>
 				<textFieldExpression><![CDATA[new java.text.SimpleDateFormat("dd").format($F{data_inicio})+ ", "+new java.text.SimpleDateFormat("dd").format($F{data_meio})+ " e "+new java.text.SimpleDateFormat("dd 'de' MMMM 'de' yyyy").format($F{data_fim})]]></textFieldExpression>
 			</textField>
-			<image hAlign="Center" vAlign="Middle" onErrorType="Blank">
-				<reportElement x="197" y="15" width="63" height="40" uuid="27e18a07-1c08-4c6a-ac74-83f90fccd6a2"/>
-				<graphicElement fill="Solid"/>
-				<imageExpression><![CDATA["../../resources/temp/circulo/"+$F{circulo_id}+".jpg"]]></imageExpression>
-			</image>
-			<image hAlign="Center" vAlign="Middle" onErrorType="Blank">
-				<reportElement x="16" y="15" width="63" height="40" uuid="936911fa-379c-4888-be26-9636e39fceb3"/>
-				<graphicElement fill="Solid"/>
-				<imageExpression><![CDATA["../../resources/images/segue-me.png"]]></imageExpression>
-			</image>
+			<textField textAdjust="ScaleFont">
+				<reportElement x="29" y="50" width="221" height="120" uuid="f10a3252-b04f-459a-8cd4-1aa0f13ab34c"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Comic Sans MS" size="26" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{apelido}]]></textFieldExpression>
+			</textField>
 		</band>
 	</detail>
 	<columnFooter>

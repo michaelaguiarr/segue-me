@@ -1,29 +1,22 @@
 
 package com.segue.repository;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import com.segue.filter.CasalFilter;
+import com.segue.model.Casal;
+import com.segue.service.NegocioException;
+import com.segue.util.StringExtended;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceException;
 import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.From;
-import javax.persistence.criteria.JoinType;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-
-import org.apache.commons.lang3.StringUtils;
-
-import com.segue.filter.CasalFilter;
-import com.segue.model.Casal;
-import com.segue.service.NegocioException;
-import com.segue.util.StringExtended;
+import javax.persistence.criteria.*;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class CasalRepository implements Serializable {
 
@@ -135,15 +128,31 @@ public class CasalRepository implements Serializable {
 		From<?, ?> enderecoJoin = (From<?, ?>) root.fetch("endereco", JoinType.LEFT);
 		From<?, ?> paroquiaJoin = (From<?, ?>) root.fetch("paroquia", JoinType.LEFT);
 		From<?, ?> eccJoin = (From<?, ?>) root.fetch("ecc", JoinType.LEFT);
-		From<?, ?> numeroRomanoJoin = (From<?, ?>) eccJoin.fetch("numeroRomano", JoinType.INNER);
+		From<?, ?> numeroRomanoJoin = (From<?, ?>) eccJoin.fetch("numeroRomano", JoinType.LEFT);
 
-		Predicate orClause = 
-			    builder.or(
-			    		builder.like(
-			    				builder.lower(root.get("nomeElaSemAcento")), StringExtended.toASCII(filtro.getNomeEle().toLowerCase())),
-			    		builder.like(
-			    				builder.lower(root.get("nomeEleSemAcento")), StringExtended.toASCII(filtro.getNomeEle().toLowerCase())));
-		predicates.add(orClause);	
+		if (filtro.getTelefone() != null && !filtro.getTelefone().isEmpty()) {
+			Predicate telefoneEleUmPredicate = builder.equal(root.get("telefoneEleUm"), filtro.getTelefone());
+			Predicate telefoneEleDoisPredicate = builder.equal(root.get("telefoneEleDois"), filtro.getTelefone());
+			Predicate telefoneElaUmPredicate = builder.equal(root.get("telefoneElaUm"), filtro.getTelefone());
+			Predicate telefoneElaDoisPredicate = builder.equal(root.get("telefoneElaDois"), filtro.getTelefone());
+			predicates.add(builder.or(telefoneEleUmPredicate, telefoneEleDoisPredicate, telefoneElaUmPredicate, telefoneElaDoisPredicate));
+		}
+
+//		Predicate orClause =
+//			    builder.or(
+//			    		builder.like(
+//			    				builder.lower(root.get("nomeElaSemAcento")), StringExtended.toASCII(filtro.getNomeEle().toLowerCase())),
+//			    		builder.like(
+//			    				builder.lower(root.get("nomeEleSemAcento")), StringExtended.toASCII(filtro.getNomeEle().toLowerCase())));
+//		predicates.add(orClause);
+
+//		if (filtro.getNomeEla() == null) {
+//			predicates.add(
+//					builder.equal(root.get("dataNascimentoEle").as(java.sql.Date.class), filtro.getDtNascimento()));
+//		} else {
+//			predicates.add(
+//					builder.equal(root.get("dataNascimentoEla").as(java.sql.Date.class), filtro.getDtNascimento()));
+//		}
 		
 		criteriaQuery.select(root);
 		criteriaQuery.where(predicates.toArray(new Predicate[0]));

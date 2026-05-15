@@ -107,6 +107,9 @@ public class CadastroEventoSeguidorBean implements Serializable {
 
 	public void carregarUsuarioLogado() {
 		this.seguranca = new Seguranca();
+		this.listaParoquia = paroquiaRepository.listaParoquias();
+		this.listaSexo = sexoRepository.findAll();
+		this.listaEquipes = equipeRepository.listaALL();
 		this.usarioLogado = this.seguranca.usuarioLogado();
 		this.listaParoquia = paroquiaRepository.listaParoquias();
 		this.paroquia = this.usarioLogado.getSegueMe().getParoquia();
@@ -136,7 +139,6 @@ public class CadastroEventoSeguidorBean implements Serializable {
 		try {
 			this.evento.setUsuario(usarioLogado);
 			this.evento = service.salvar(evento);
-			listaSexo = sexoRepository.findAll();
 			limpar();
 			carregarUsuarioLogado();
 			FacesUtil.addInfoMessage("Ficha salva com sucesso!");

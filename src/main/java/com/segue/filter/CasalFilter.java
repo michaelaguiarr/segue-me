@@ -16,6 +16,7 @@ public class CasalFilter implements Serializable {
 	private String apelidoEla;
 	private SegueMe segueMe;
 	private Paroquia paroquia;
+	private String telefone;
 
 	private Date dtNascimento;
 
@@ -75,4 +76,11 @@ public class CasalFilter implements Serializable {
 		this.dtNascimento = dtNascimento;
 	}
 
+	public String getTelefone() {
+		return telefone;
+	}
+
+	public void setTelefone(String telefone) {
+		this.telefone = telefone;
+	}
 }

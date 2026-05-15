@@ -96,18 +96,26 @@ public class PesquisaSeguidorBean implements Serializable {
 	}
 
 	public void pesquisarPublic() {
-		listaSeguidor = repository.filtradosPublic(this.filter);
-		if (listaSeguidor.isEmpty()) {
-			this.novoSeguidor = true;
-			FacesUtil.addErrorMessage("Nenhum Resultado Encontrado!");
+		if (filter.getTelefone().isEmpty()) {
+			FacesUtil.addErrorMessage("Informe o Telefone completo!");
+		} else {
+			listaSeguidor = repository.filtradosPublic(this.filter);
+			if (listaSeguidor.isEmpty()) {
+				this.novoSeguidor = true;
+				FacesUtil.addErrorMessage("Nenhum Resultado Encontrado!");
+			}else {
+				this.novoSeguidor = false;
+			}
 		}
 	}
 
 	public void atulizarNome() {
 		try {
-			for (Seguidor s : this.listaSeguidor) {
-				service.salvar(s);
+			List<Seguidor> list = this.repository.findAll();
+			for (Seguidor s : list) {
+				service.atualizarNome(s);
 			}
+			inicializar();
 			FacesUtil.addInfoMessage("Deu Certo.Atulizado com sucesso!");
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -213,5 +221,10 @@ public class PesquisaSeguidorBean implements Serializable {
 	public void setNovoSeguidor(boolean novoSeguidor) {
 		this.novoSeguidor = novoSeguidor;
 	}
+
+	public boolean isNovo() {
+		return this.listaSeguidor != null && !this.listaSeguidor.isEmpty();
+	}
+
 
 }
