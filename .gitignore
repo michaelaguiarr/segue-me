@@ -19,3 +19,7 @@
 # WARs gerados localmente
 deployments/*.war
 deployments/*.war.unpacked/
+
+.idea/
+
+backup/
