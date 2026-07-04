@@ -116,7 +116,7 @@ public class CadastroCirculoBean implements Serializable {
 		UploadedFile uploadedFile = event.getFile();
 
 		try {
-			byte[] fotoFile = fotoService.salvarFotoTempByte(uploadedFile.getFileName(), event.getFile().getContents());
+			byte[] fotoFile = fotoService.normalizarImagemJpeg(uploadedFile.getContents());
 			circulo.setImagem(fotoFile);
 			imagem = fotoService.recuperarViaByte(this.circulo.getImagem(), "circulo", this.circulo.getId());
 		} catch (Exception e) {

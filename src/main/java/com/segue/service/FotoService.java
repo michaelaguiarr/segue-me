@@ -18,15 +18,21 @@ import java.util.UUID;
 import javax.annotation.PostConstruct;
 import javax.faces.context.FacesContext;
 import javax.imageio.ImageIO;
+import javax.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.segue.model.Circulo;
 import com.segue.model.SegueMe;
+import com.segue.repository.CirculoRepository;
 import com.segue.util.jsf.FacesUtil;
 
 public class FotoService implements Serializable {
 
 	private static final long serialVersionUID = 1L;
+
+	@Inject
+	private CirculoRepository circuloRepository;
 
 	private Path diretorioRaizTemp;
 
@@ -202,6 +208,26 @@ public class FotoService implements Serializable {
 		materializar(segueMe.getImagem(), "segueMe", id);
 		materializar(segueMe.getImagemFundo(), "segueMeFundo", id);
 		materializar(segueMe.getImagemRoda(), "segueMeRoda", id);
+	}
+
+	/**
+	 * Materializa a imagem de cada círculo do retiro no diretório temp de onde os
+	 * crachás do seguimista as leem por caminho físico
+	 * ({@code resources/temp/circulo/<id>.jpg}). Análogo a
+	 * {@link #materializarImagensSegueMe(SegueMe)}: deve ser chamado antes de gerar
+	 * o crachá, pois esses arquivos são apagados a cada redeploy/restart do WAR e
+	 * hoje só eram regravados ao abrir a tela de cadastro de cada círculo.
+	 *
+	 * Falhas por imagem são ignoradas dentro de {@link #materializar}, para nunca
+	 * abortar a geração do relatório.
+	 */
+	public void materializarImagensCirculo(SegueMe segueMe) {
+		if (segueMe == null || segueMe.getId() == null) {
+			return;
+		}
+		for (Circulo circulo : circuloRepository.findBySegueMe(segueMe)) {
+			materializar(circulo.getImagem(), "circulo", circulo.getId());
+		}
 	}
 
 	private void materializar(byte[] conteudo, String pasta, Integer id) {
