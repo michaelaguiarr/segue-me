@@ -72,7 +72,7 @@ public class CadastroEquipeBean implements Serializable {
 		UploadedFile uploadedFile = event.getFile();
 
 		try {
-			byte[] fotoFile = fotoService.salvarFotoTempByte(uploadedFile.getFileName(), event.getFile().getContents());
+			byte[] fotoFile = fotoService.normalizarImagemJpeg(uploadedFile.getContents());
 			equipe.setImagem(fotoFile);
 			imagem = fotoService.recuperarViaByte(this.equipe.getImagem(), "equipe", this.equipe.getId());
 		} catch (Exception e) {

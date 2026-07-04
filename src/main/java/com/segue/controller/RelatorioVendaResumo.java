@@ -24,6 +24,7 @@ import com.segue.model.Usuario;
 import com.segue.repository.ParoquiaRepository;
 import com.segue.repository.SegueMeRepository;
 import com.segue.security.Seguranca;
+import com.segue.service.FotoService;
 import com.segue.util.jsf.FacesUtil;
 import com.segue.util.report.ExecutorRelatorioDownload;
 
@@ -49,6 +50,9 @@ public class RelatorioVendaResumo implements Serializable {
 
 	@Inject
 	private ParoquiaRepository paroquiaRepository;
+
+	@Inject
+	private FotoService fotoService;
 
 	private SegueMe segueMe;
 	private Seguranca seguranca;
@@ -91,6 +95,7 @@ public class RelatorioVendaResumo implements Serializable {
 	 */
 	public void emitir() {
 		try {
+			fotoService.materializarImagensSegueMe(this.segueMe);   // padroeira/fundo do retiro
 			Map<String, Object> parametros = new HashMap<>();
 			parametros.put(JRParameter.REPORT_LOCALE, new Locale("pt", "BR"));
 			parametros.put("segueMe", this.segueMe.getId());
