@@ -271,6 +271,30 @@
                 	<target>1.8</target>
             	</configuration>
 	        </plugin>
+	        <!-- Expõe o hash do commit (git.commit.id.abbrev) para o filtering do
+	             application.properties. Versão 4.9.10 = última compatível com Java 8. -->
+	        <plugin>
+	            <groupId>pl.project13.maven</groupId>
+	            <artifactId>git-commit-id-plugin</artifactId>
+	            <version>4.9.10</version>
+	            <executions>
+	                <execution>
+	                    <id>get-git-info</id>
+	                    <phase>initialize</phase>
+	                    <goals>
+	                        <goal>revision</goal>
+	                    </goals>
+	                </execution>
+	            </executions>
+	            <configuration>
+	                <failOnNoGitDirectory>false</failOnNoGitDirectory>
+	                <generateGitPropertiesFile>false</generateGitPropertiesFile>
+	                <abbrevLength>7</abbrevLength>
+	                <includeOnlyProperties>
+	                    <includeOnlyProperty>^git.commit.id.abbrev$</includeOnlyProperty>
+	                </includeOnlyProperties>
+	            </configuration>
+	        </plugin>
 	    </plugins>
 	</build>
 
