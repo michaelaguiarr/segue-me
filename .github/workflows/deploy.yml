@@ -11,6 +11,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Extrair SHA curto
+        run: echo "SHORT_SHA=${GITHUB_SHA::7}" >> $GITHUB_ENV
+
       - name: Deploy na VPS
         uses: appleboy/ssh-action@v1.0.0
         with:
@@ -22,3 +25,56 @@ jobs:
             cd /opt/docker/segue-me
             git pull
             ./scripts/deploy.sh
+
+      - name: Health check
+        run: |
+          echo "Aguardando 60s para o Tomcat subir..."
+          sleep 60
+
+          URL="https://app.michaelsolutions.com.br/segue-me/health"
+          MAX_TENTATIVAS=3
+
+          for i in $(seq 1 $MAX_TENTATIVAS); do
+            echo "Tentativa $i de $MAX_TENTATIVAS..."
+            HTTP_CODE=$(curl -s -o /tmp/health_body.txt -w "%{http_code}" "$URL")
+            BODY=$(cat /tmp/health_body.txt)
+
+            echo "HTTP $HTTP_CODE — $BODY"
+
+            if [ "$HTTP_CODE" = "200" ] && echo "$BODY" | grep -q '"status":"ok"'; then
+              echo "✅ Health check OK"
+              exit 0
+            fi
+
+            if [ "$i" -lt "$MAX_TENTATIVAS" ]; then
+              echo "Aguardando 15s antes da próxima tentativa..."
+              sleep 15
+            fi
+          done
+
+          echo "❌ Health check falhou após $MAX_TENTATIVAS tentativas"
+          exit 1
+
+      - name: Notificar sucesso no Telegram
+        if: success()
+        uses: appleboy/telegram-action@v0.1.1
+        with:
+          to: ${{ secrets.TELEGRAM_CHAT_ID }}
+          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          message: |
+            ✅ Segue-Me — deploy concluído
+            Branch: main
+            Commit: ${{ env.SHORT_SHA }}
+            Por: ${{ github.event.head_commit.author.name }}
+
+      - name: Notificar falha no Telegram
+        if: failure()
+        uses: appleboy/telegram-action@v0.1.1
+        with:
+          to: ${{ secrets.TELEGRAM_CHAT_ID }}
+          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          message: |
+            ❌ Segue-Me — deploy falhou
+            Branch: main
+            Commit: ${{ env.SHORT_SHA }}
+            Por: ${{ github.event.head_commit.author.name }}
