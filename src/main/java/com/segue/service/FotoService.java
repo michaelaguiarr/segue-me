@@ -2,6 +2,11 @@ package com.segue.service;
 
 import static java.nio.file.FileSystems.getDefault;
 
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
@@ -12,9 +17,11 @@ import java.util.UUID;
 
 import javax.annotation.PostConstruct;
 import javax.faces.context.FacesContext;
+import javax.imageio.ImageIO;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.segue.model.SegueMe;
 import com.segue.util.jsf.FacesUtil;
 
 public class FotoService implements Serializable {
@@ -140,6 +147,79 @@ public class FotoService implements Serializable {
 			return imagem = null;
 		}
 
+	}
+
+	/**
+	 * Valida e normaliza a imagem enviada: decodifica o conteúdo, achata sobre
+	 * fundo branco (removendo canal alfa) e reescreve como JPEG baseline RGB —
+	 * formato que o JasperReports consegue renderizar nos crachás e quadrantes.
+	 *
+	 * Lança {@link NegocioException} quando o conteúdo não é uma imagem
+	 * decodificável (ex.: arquivo não-JPEG renomeado, JPEG CMYK/progressivo que
+	 * o ImageIO não consegue ler). Assim o erro aparece no momento do upload, e
+	 * não silenciosamente como imagem em branco no PDF.
+	 */
+	public byte[] normalizarImagemJpeg(byte[] conteudo) throws NegocioException {
+		if (conteudo == null) {
+			return null;
+		}
+		try {
+			BufferedImage original = ImageIO.read(new ByteArrayInputStream(conteudo));
+			if (original == null) {
+				throw new NegocioException(
+						"Imagem inválida ou em formato não suportado. Envie um JPG comum (baseline/RGB).");
+			}
+			BufferedImage rgb = new BufferedImage(original.getWidth(), original.getHeight(),
+					BufferedImage.TYPE_INT_RGB);
+			Graphics2D g = rgb.createGraphics();
+			g.setColor(Color.WHITE);
+			g.fillRect(0, 0, rgb.getWidth(), rgb.getHeight());
+			g.drawImage(original, 0, 0, null);
+			g.dispose();
+			ByteArrayOutputStream saida = new ByteArrayOutputStream();
+			ImageIO.write(rgb, "jpg", saida);
+			return saida.toByteArray();
+		} catch (IOException e) {
+			throw new NegocioException("Não foi possível processar a imagem: " + e.getMessage());
+		}
+	}
+
+	/**
+	 * Materializa as três imagens do retiro (padroeira, fundo e rodapé) no
+	 * diretório temp de onde os relatórios "com layout" as leem por caminho
+	 * físico. Deve ser chamado antes de gerar o quadrante, pois os arquivos em
+	 * {@code resources/temp/...} são apagados a cada redeploy/restart do WAR e
+	 * hoje só eram regravados ao abrir a tela de cadastro do Segue-Me.
+	 *
+	 * Falhas por imagem são ignoradas (a imagem apenas fica em branco no PDF),
+	 * para nunca abortar a geração do relatório.
+	 */
+	public void materializarImagensSegueMe(SegueMe segueMe) {
+		if (segueMe == null || segueMe.getId() == null) {
+			return;
+		}
+		Integer id = Integer.valueOf(segueMe.getId().toString());
+		materializar(segueMe.getImagem(), "segueMe", id);
+		materializar(segueMe.getImagemFundo(), "segueMeFundo", id);
+		materializar(segueMe.getImagemRoda(), "segueMeRoda", id);
+	}
+
+	private void materializar(byte[] conteudo, String pasta, Integer id) {
+		if (conteudo == null) {
+			return;
+		}
+		try {
+			byte[] normalizada = normalizarImagemJpeg(conteudo);
+			Path diretorio = Paths.get(FacesContext.getCurrentInstance().getExternalContext().getRealPath("/")
+					+ "resources/temp/" + pasta);
+			if (!Files.exists(diretorio)) {
+				Files.createDirectories(diretorio);
+			}
+			Path arquivo = Paths.get(diretorio.toRealPath() + "/" + id + ".jpg");
+			Files.write(arquivo, normalizada);
+		} catch (NegocioException | IOException e) {
+			// imagem inválida/ilegível: mantém em branco no relatório, sem abortar
+		}
 	}
 
 	public String recuperarViaByteLog(byte[] conteudo, String pasta, Long id) {

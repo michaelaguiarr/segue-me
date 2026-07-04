@@ -24,6 +24,7 @@ import com.segue.repository.CirculoRepository;
 import com.segue.repository.ParoquiaRepository;
 import com.segue.repository.SegueMeRepository;
 import com.segue.security.Seguranca;
+import com.segue.service.FotoService;
 import com.segue.util.jsf.FacesUtil;
 import com.segue.util.report.ExecutorRelatorioDownload;
 
@@ -52,6 +53,9 @@ public class RelatorioQuadranteSeguimista implements Serializable {
 
 	@Inject
 	private ParoquiaRepository paroquiaRepository;
+
+	@Inject
+	private FotoService fotoService;
 
 	private SegueMe segueMe;
 	private Seguranca seguranca;
@@ -108,6 +112,7 @@ public class RelatorioQuadranteSeguimista implements Serializable {
 			} else {
 				nomeArquivo = "quadranteSeguimista";
 			}
+			fotoService.materializarImagensSegueMe(this.segueMe);
 			Map<String, Object> parametros = new HashMap<>();
 			parametros.put(JRParameter.REPORT_LOCALE, new Locale("pt", "BR"));
 			parametros.put("pagina", this.pagina);

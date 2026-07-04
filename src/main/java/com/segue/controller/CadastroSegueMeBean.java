@@ -98,7 +98,7 @@ public class CadastroSegueMeBean implements Serializable {
 		UploadedFile uploadedFile = event.getFile();
 
 		try {
-			byte[] fotoFile = fotoService.salvarFotoTempByte(uploadedFile.getFileName(), event.getFile().getContents());
+			byte[] fotoFile = fotoService.normalizarImagemJpeg(uploadedFile.getContents());
 			segueMe.setImagem(fotoFile);
 			Integer id = Integer.valueOf(this.segueMe.getId().toString());
 			imagem = fotoService.recuperarViaByte(this.segueMe.getImagem(), "segueMe", id);
@@ -122,7 +122,7 @@ public class CadastroSegueMeBean implements Serializable {
 		UploadedFile uploadedFile = event.getFile();
 
 		try {
-			byte[] fotoFile = fotoService.salvarFotoTempByte(uploadedFile.getFileName(), event.getFile().getContents());
+			byte[] fotoFile = fotoService.normalizarImagemJpeg(uploadedFile.getContents());
 			segueMe.setImagemFundo(fotoFile);
 			Integer id = Integer.valueOf(this.segueMe.getId().toString());
 			imagemFundo = fotoService.recuperarViaByte(this.segueMe.getImagemFundo(), "segueMeFundo", id);
@@ -146,10 +146,10 @@ public class CadastroSegueMeBean implements Serializable {
 		UploadedFile uploadedFile = event.getFile();
 
 		try {
-			byte[] fotoFile = fotoService.salvarFotoTempByte(uploadedFile.getFileName(), event.getFile().getContents());
+			byte[] fotoFile = fotoService.normalizarImagemJpeg(uploadedFile.getContents());
 			segueMe.setImagemRoda(fotoFile);
 			Integer id = Integer.valueOf(this.segueMe.getId().toString());
-			imagemRoda = fotoService.recuperarViaByte(this.segueMe.getImagemFundo(), "segueMeRoda", id);
+			imagemRoda = fotoService.recuperarViaByte(this.segueMe.getImagemRoda(), "segueMeRoda", id);
 		} catch (Exception e) {
 			FacesUtil.addErrorMessage(e.getMessage());
 		}
