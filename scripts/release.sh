@@ -55,29 +55,42 @@ echo "==> Branch atual: $(git branch --show-current)"
 echo "==> Versão: $CURRENT  ->  $VERSION"
 
 # ---------------------------------------------------------------------------
-# 4. Atualiza SÓ a versão do projeto no pom.xml (offline, sem plugin).
-#    Ancorado no artifactId do projeto para não tocar versões de dependências.
+# 4. Atualiza a versão no pom.xml — só quando difere da atual.
+#    Se o pom já estiver na versão pedida, pula bump/commit e cria apenas a tag
+#    (permite marcar com tag uma versão já commitada). O bump é ancorado no
+#    artifactId do projeto (não toca versões de dependências) e roda offline.
 # ---------------------------------------------------------------------------
-perl -0777 -i.bak -pe \
-  's{(<artifactId>segue-me</artifactId>\s*<version>)[^<]+(</version>)}{${1}'"$VERSION"'${2}}' \
-  pom.xml
+COMMITTED=0
+if [ "$CURRENT" = "$VERSION" ]; then
+  echo "==> pom.xml já está em $VERSION — pulando bump/commit; criando apenas a tag."
+else
+  perl -0777 -i.bak -pe \
+    's{(<artifactId>segue-me</artifactId>\s*<version>)[^<]+(</version>)}{${1}'"$VERSION"'${2}}' \
+    pom.xml
 
-if ! grep -q "<version>$VERSION</version>" pom.xml; then
-  mv -f pom.xml.bak pom.xml          # rollback
-  echo "ERRO: não foi possível atualizar a versão do projeto no pom.xml."
-  exit 1
+  if ! grep -q "<version>$VERSION</version>" pom.xml; then
+    mv -f pom.xml.bak pom.xml          # rollback
+    echo "ERRO: não foi possível atualizar a versão do projeto no pom.xml."
+    exit 1
+  fi
+  rm -f pom.xml.bak
+
+  git add pom.xml
+  git commit -m "chore(release): $VERSION"
+  COMMITTED=1
 fi
-rm -f pom.xml.bak
 
 # ---------------------------------------------------------------------------
-# 5. Commit + tag anotada
+# 5. Tag anotada
 # ---------------------------------------------------------------------------
-git add pom.xml
-git commit -m "chore(release): $VERSION"
 git tag -a "$TAG" -m "Release $VERSION"
 
 echo ""
-echo "Release $VERSION preparado: commit + tag '$TAG' criados localmente."
+if [ "$COMMITTED" = "1" ]; then
+  echo "Release $VERSION preparado: commit + tag '$TAG' criados localmente."
+else
+  echo "Tag '$TAG' criada localmente (pom já estava em $VERSION — sem commit novo)."
+fi
 echo ""
 echo "Próximos passos (o push na main dispara o deploy de produção via CI/CD):"
 echo "  git push origin $(git branch --show-current)"
