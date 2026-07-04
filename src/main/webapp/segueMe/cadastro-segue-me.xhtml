@@ -128,6 +128,8 @@
 												fileUploadListener="#{cadastroSegueMeBean.upload}"
 												allowTypes="/(\.|\/)(jpe?g)$/"
 												invalidFileMessage="São permitidas somente imagens (jpg)"
+												sizeLimit="5242880"
+												invalidSizeMessage="A imagem deve ter no máximo 5 MB"
 												auto="true" label="Foto"
 												update="fotoPanelGroup fotoPanelGroupUpload"
 												rendered="#{cadastroSegueMeBean.imagem == null}" />
@@ -156,7 +158,9 @@
 											<p:fileUpload
 												fileUploadListener="#{cadastroSegueMeBean.uploadFundo}"
 												allowTypes="/(\.|\/)(jpe?g)$/"
-												invalidFileMessage="São permitidas somente imagens (png)"
+												invalidFileMessage="São permitidas somente imagens (jpg)"
+												sizeLimit="5242880"
+												invalidSizeMessage="A imagem deve ter no máximo 5 MB"
 												auto="true" label="Foto"
 												update="fotoPanelGroupFundo fotoPanelGroupUploadFundo"
 												rendered="#{cadastroSegueMeBean.imagemFundo == null}" />
@@ -187,7 +191,9 @@
 											<p:fileUpload
 												fileUploadListener="#{cadastroSegueMeBean.uploadRoda}"
 												allowTypes="/(\.|\/)(jpe?g)$/"
-												invalidFileMessage="São permitidas somente imagens (png)"
+												invalidFileMessage="São permitidas somente imagens (jpg)"
+												sizeLimit="5242880"
+												invalidSizeMessage="A imagem deve ter no máximo 5 MB"
 												auto="true" label="Foto"
 												update="fotoPanelGroupRoda fotoPanelGroupUploadRoda"
 												rendered="#{cadastroSegueMeBean.imagemRoda == null}" />
