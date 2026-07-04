@@ -10,6 +10,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.segue.util.AppInfo;
+
 @WebServlet("/health")
 public class HealthCheckServlet extends HttpServlet {
 
@@ -19,7 +21,10 @@ public class HealthCheckServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
-        String json = "{\"status\":\"ok\",\"timestamp\":\"" + Instant.now().toString() + "\"}";
+        String json = "{\"status\":\"ok\""
+                + ",\"version\":\"" + AppInfo.versao() + "\""
+                + ",\"commit\":\"" + AppInfo.commit() + "\""
+                + ",\"timestamp\":\"" + Instant.now().toString() + "\"}";
 
         resp.setStatus(HttpServletResponse.SC_OK);
         resp.setContentType("application/json");
