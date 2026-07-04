@@ -92,6 +92,40 @@ docker compose exec postgres psql -U segueme -d segueme
 
 ---
 
+## Versionamento / Release
+
+A versão da aplicação é **fonte única no `pom.xml`** (`<version>`). Ela alimenta o
+rodapé da tela de login automaticamente: o Maven filtra `src/main/resources/application.properties`
+(`versao=${project.version}`, `build=${build.timestamp}`) e o `ApplicationInfoController`
+lê essas propriedades. O login mostra `Versão X.Y.Z · dd/MM/yyyy`.
+
+> O `<resources>` do `pom.xml` filtra **apenas** o `application.properties`. Nunca ligue
+> filtering na pasta `resources/` inteira — há `.jasper` binários e templates Velocity que
+> seriam corrompidos.
+
+### Subir a versão (SemVer)
+
+Use o script — ele valida, sobe a versão no `pom.xml`, faz o commit e cria a tag anotada:
+
+```bash
+./scripts/release.sh 3.0.2        # PATCH: correções
+./scripts/release.sh 3.1.0        # MINOR: features compatíveis
+./scripts/release.sh 4.0.0        # MAJOR: mudanças que quebram compatibilidade
+./scripts/release.sh 3.1.0-beta   # com qualificador
+```
+
+Fluxo recomendado: rodar na `develop` → merge `develop → main` → push.
+
+```bash
+git push origin develop
+git push origin main        # ← dispara o deploy de produção (GitHub Actions)
+git push origin v3.0.2      # publica a tag do release
+```
+
+> O push na `main` dispara o CI/CD de produção. Faça-o só quando quiser publicar.
+
+---
+
 ## Scripts SQL iniciais
 
 Coloque arquivos `.sql` na pasta `sql/` para que sejam executados automaticamente
@@ -116,8 +150,11 @@ sql/
 │   └── system.properties    # JSF=Development, locale pt_BR
 ├── deployments/             # Pasta monitorada pelo TomEE para hot-deploy
 │   └── .gitkeep
-└── sql/                     # Scripts SQL executados na inicialização do banco
-    └── .gitkeep
+├── sql/                     # Scripts SQL executados na inicialização do banco
+│   └── .gitkeep
+└── scripts/
+    ├── deploy.sh            # Deploy em produção (docker-compose.prod.yml)
+    └── release.sh           # Sobe a versão no pom.xml + commit + tag
 ```
 
 ---
