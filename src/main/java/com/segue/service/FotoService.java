@@ -23,8 +23,10 @@ import javax.inject.Inject;
 import org.apache.commons.lang3.StringUtils;
 
 import com.segue.model.Circulo;
+import com.segue.model.Equipe;
 import com.segue.model.SegueMe;
 import com.segue.repository.CirculoRepository;
+import com.segue.repository.EquipeRepository;
 import com.segue.util.jsf.FacesUtil;
 
 public class FotoService implements Serializable {
@@ -33,6 +35,9 @@ public class FotoService implements Serializable {
 
 	@Inject
 	private CirculoRepository circuloRepository;
+
+	@Inject
+	private EquipeRepository equipeRepository;
 
 	private Path diretorioRaizTemp;
 
@@ -227,6 +232,24 @@ public class FotoService implements Serializable {
 		}
 		for (Circulo circulo : circuloRepository.findBySegueMe(segueMe)) {
 			materializar(circulo.getImagem(), "circulo", circulo.getId());
+		}
+	}
+
+	/**
+	 * Materializa a imagem de cada equipe no diretório temp de onde os crachás
+	 * "SF" as leem por caminho físico ({@code resources/temp/equipe/<id>.jpg}).
+	 * A {@link Equipe} é um catálogo global (não pertence a um retiro), então
+	 * regrava todas as equipes via {@link EquipeRepository#listaALL()}.
+	 *
+	 * Como {@link #materializarImagensSegueMe(SegueMe)} / {@link
+	 * #materializarImagensCirculo(SegueMe)}: deve ser chamado antes de gerar o
+	 * crachá, pois esses arquivos são apagados a cada redeploy/restart do WAR e
+	 * hoje só eram regravados ao abrir a tela de cadastro de cada equipe.
+	 * Falhas por imagem são ignoradas dentro de {@link #materializar}.
+	 */
+	public void materializarImagensEquipe() {
+		for (Equipe equipe : equipeRepository.listaALL()) {
+			materializar(equipe.getImagem(), "equipe", equipe.getId());
 		}
 	}
 
