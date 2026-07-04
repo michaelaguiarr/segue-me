@@ -1,3 +1,5 @@
-# Ignorar WARs e diretórios de unpacking do TomEE
-*.war
-*.war.unpacked/
+# Pasta de deploy: ignora tudo que for publicado aqui
+# (WARs e diretórios explodidos pelo Tomcat/TomEE, ex.: segue-me/, ROOT/)
+# mantendo apenas este .gitignore para preservar a pasta no repositório.
+*
+!.gitignore
