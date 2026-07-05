@@ -49,6 +49,16 @@ public class CadastroEventoSeguidorService implements Serializable {
 	public void remover(Evento equipe) throws NegocioException {
 		repository.remover(equipe);
 	}
+
+	/**
+	 * Atualiza em lote a flag de crachá dos eventos informados (impresso/pendente),
+	 * sem carregar entidades. Usado pela marcação em lote das telas de pesquisa e
+	 * pelos relatórios de crachá.
+	 */
+	@Transactional
+	public int atualizarCracha(List<Long> ids, boolean valor) {
+		return repository.atualizarCracha(ids, valor);
+	}
 	
 	/**
 	 * Busca seguidor por nome

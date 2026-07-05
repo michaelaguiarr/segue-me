@@ -30,7 +30,7 @@ services:
         condition: service_healthy
     environment:
       JAVA_OPTS: >-
-        -Xms256m -Xmx768m
+        -Xms512m -Xmx1536m
         -Dfile.encoding=UTF-8
         -Duser.language=pt
         -Duser.country=BR

@@ -72,7 +72,6 @@ public class RelatorioCrachaSeguidorEquipe implements Serializable {
 	private Usuario usarioLogado;
 	private Paroquia paroquia;
 	private Equipe equipe;
-	private boolean atualizar;
 	private String nomeArquivo = "cracha";
 
 	private List<Paroquia> listaParoquia;
@@ -95,7 +94,6 @@ public class RelatorioCrachaSeguidorEquipe implements Serializable {
 		seguranca = new Seguranca();
 		segueMe = new SegueMe();
 		equipe = new Equipe();
-		atualizar = false;
 		this.listaSegueMe = new ArrayList<>();
 		this.listaParoquia = new ArrayList<>();
 		this.listaEquipe = new ArrayList<>();
@@ -133,23 +131,31 @@ public class RelatorioCrachaSeguidorEquipe implements Serializable {
 
 			if (executor.isRelatorioGerado()) {
 				facesContext.responseComplete();
-				if (atualizar) {
-					List<Evento> eventos = new ArrayList<>();
-					EventoSeguidorFilter filter = new EventoSeguidorFilter();
-					filter.setCracha("SIM");
-					filter.setSegueMe(segueMe);
-					filter.setEquipe(equipe);
-					eventos = eventoRepository.filtradosSeguidor(filter);
-					for (Evento evento : eventos) {
-						evento.setCracha(false);
-						evento = service.salvar(evento);
-						evento = new Evento();
-					}
-				}
-				inicializar();
 			}
 		} catch (Exception e) {
 			FacesUtil.addErrorMessage("A execução do relatório não retornou dados.");
+		}
+	}
+
+	/**
+	 * Marca como impressos (cracha = false) todos os crachás pendentes do Segue-Me
+	 * e da equipe selecionados. Deve ser acionado somente após confirmar que a
+	 * impressão física saiu corretamente.
+	 */
+	public void marcarComoImpressos() {
+		try {
+			EventoSeguidorFilter filter = new EventoSeguidorFilter();
+			filter.setCracha("SIM");
+			filter.setSegueMe(segueMe);
+			filter.setEquipe(equipe);
+			List<Long> ids = new ArrayList<>();
+			for (Evento evento : eventoRepository.filtradosSeguidor(filter)) {
+				ids.add(evento.getId());
+			}
+			service.atualizarCracha(ids, false);
+			FacesUtil.addInfoMessage(ids.size() + " crachá(s) marcado(s) como impresso(s).");
+		} catch (Exception e) {
+			FacesUtil.addErrorMessage("Não foi possível marcar os crachás como impressos.");
 		}
 	}
 
@@ -193,14 +199,6 @@ public class RelatorioCrachaSeguidorEquipe implements Serializable {
 
 	public void setListaSegueMe(List<SegueMe> listaSegueMe) {
 		this.listaSegueMe = listaSegueMe;
-	}
-
-	public boolean isAtualizar() {
-		return atualizar;
-	}
-
-	public void setAtualizar(boolean atualizar) {
-		this.atualizar = atualizar;
 	}
 
 	public Equipe getEquipe() {

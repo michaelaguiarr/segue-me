@@ -2,6 +2,7 @@ package com.segue.service;
 
 import java.io.Serializable;
 import java.text.ParseException;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -45,6 +46,15 @@ public class CadastroPalestraConvidadoService implements Serializable {
 	@Transactional
 	public void remover(Evento equipe) throws NegocioException {
 		repository.remover(equipe);
+	}
+
+	/**
+	 * Atualiza em lote a flag de crachá dos eventos informados, sem carregar
+	 * entidades.
+	 */
+	@Transactional
+	public int atualizarCracha(List<Long> ids, boolean valor) {
+		return repository.atualizarCracha(ids, valor);
 	}
 
 }

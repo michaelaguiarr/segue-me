@@ -14,10 +14,10 @@ services:
     restart: always
     environment:
       JAVA_OPTS: >-
-        -Xms512m -Xmx1g
+        -Xms512m -Xmx1536m
         -Dfile.encoding=UTF-8
         -Duser.language=pt
-        -Duser.country=BR
+        -Duser.country=BR4
         -Duser.timezone=America/Sao_Paulo
         -Djavax.faces.PROJECT_STAGE=Production
     networks:

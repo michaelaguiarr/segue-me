@@ -13,6 +13,9 @@
 	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="Segue-me"/>
 	<parameter name="segueMe" class="java.lang.Long"/>
+	<parameter name="whereCracha" class="java.lang.String">
+		<defaultValueExpression><![CDATA["public.evento_segue_me.cracha = true"]]></defaultValueExpression>
+	</parameter>
 	<queryString>
 		<![CDATA[SELECT
 public.evento_segue_me.id AS id,
@@ -43,7 +46,7 @@ ON public.evento_segue_me.fk_palestrante_convidado_id = public.palestrante_convi
 WHERE
 public.evento_segue_me.fk_inscricao_id is null and
 public.evento_segue_me.fk_segue_me_id =  $P{segueMe}  and
-public.evento_segue_me.cracha = true]]>
+$P!{whereCracha}]]>
 	</queryString>
 	<field name="id" class="java.lang.Long">
 		<property name="com.jaspersoft.studio.field.label" value="id"/>

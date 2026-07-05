@@ -66,7 +66,6 @@ public class RelatorioCrachaConvidado implements Serializable {
 	private Seguranca seguranca;
 	private Usuario usarioLogado;
 	private Paroquia paroquia;
-	private boolean atualizar;
 	private String nomeArquivo = "cracha";
 
 	private List<Paroquia> listaParoquia;
@@ -86,7 +85,6 @@ public class RelatorioCrachaConvidado implements Serializable {
 		usarioLogado = new Usuario();
 		seguranca = new Seguranca();
 		segueMe = new SegueMe();
-		atualizar = false;
 		this.listaSegueMe = new ArrayList<>();
 		this.listaParoquia = new ArrayList<>();
 	}
@@ -122,22 +120,30 @@ public class RelatorioCrachaConvidado implements Serializable {
 
 			if (executor.isRelatorioGerado()) {
 				facesContext.responseComplete();
-				if(atualizar) {
-					List<Evento> eventos = new ArrayList<>();
-					PalestraConvidadoFilter filter = new PalestraConvidadoFilter();
-					filter.setCracha("SIM");
-					filter.setSegueMe(segueMe);;
-					eventos = eventoRepository.filtradosPalestraConvidado(filter);
-					for (Evento evento : eventos) {
-						evento.setCracha(false);
-						evento = service.salvar(evento);
-						evento = new Evento();
-					}
-				}
-				inicializar();
 			}
 		} catch (Exception e) {
 			FacesUtil.addErrorMessage("A execução do relatório não retornou dados.");
+		}
+	}
+
+	/**
+	 * Marca como impressos (cracha = false) todos os crachás de convidado
+	 * pendentes do Segue-Me selecionado. Deve ser acionado somente após confirmar
+	 * que a impressão física saiu corretamente.
+	 */
+	public void marcarComoImpressos() {
+		try {
+			PalestraConvidadoFilter filter = new PalestraConvidadoFilter();
+			filter.setCracha("SIM");
+			filter.setSegueMe(segueMe);
+			List<Long> ids = new ArrayList<>();
+			for (Evento evento : eventoRepository.filtradosPalestraConvidado(filter)) {
+				ids.add(evento.getId());
+			}
+			service.atualizarCracha(ids, false);
+			FacesUtil.addInfoMessage(ids.size() + " crachá(s) marcado(s) como impresso(s).");
+		} catch (Exception e) {
+			FacesUtil.addErrorMessage("Não foi possível marcar os crachás como impressos.");
 		}
 	}
 
@@ -181,14 +187,6 @@ public class RelatorioCrachaConvidado implements Serializable {
 
 	public void setListaSegueMe(List<SegueMe> listaSegueMe) {
 		this.listaSegueMe = listaSegueMe;
-	}
-
-	public boolean isAtualizar() {
-		return atualizar;
-	}
-
-	public void setAtualizar(boolean atualizar) {
-		this.atualizar = atualizar;
 	}
 
 }
