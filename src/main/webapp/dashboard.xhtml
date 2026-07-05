@@ -98,9 +98,23 @@
 			.dg-tbl tfoot td { font-weight: 700; border-top: 2px solid #ebe3d6; padding: 11px 12px; font-variant-numeric: tabular-nums; }
 			.dg-tbl td.acts { white-space: nowrap; text-align: right; }
 			.dg-rowbtns { display: inline-flex; gap: 6px; justify-content: flex-end; }
-			.dg-rowbtn.ui-button { padding: 5px 11px !important; font-size: 12px !important; font-weight: 600 !important; border-radius: 8px !important; }
-			.dg-rowbtn.ui-button .ui-button-text { padding: 0 !important; }
-			.dg-rowbtn.ui-button .fa { margin-right: 5px; }
+			.dg-rowbtn.ui-button { font-size: 12px !important; font-weight: 600 !important; border-radius: 8px !important; }
+			.dg-dot { display: inline-block; width: 11px; height: 11px; border-radius: 50%; margin-right: 9px; vertical-align: middle; box-shadow: inset 0 0 0 1px rgba(0,0,0,.12); }
+
+			/* aniversariantes */
+			.dg-bday-banner { display: flex; align-items: center; gap: 13px; background: linear-gradient(90deg,#fff4e0,#fde7cb); border: 1px solid #f2d6a6; border-radius: 13px; padding: 13px 17px; margin-bottom: 16px; }
+			.dg-bday-banner .cake { font-size: 24px; line-height: 1; }
+			.dg-bday-banner .txt { font-size: 14px; color: #7a6a58; }
+			.dg-bday-banner .txt b { color: #b96c08; }
+			.dg-bday-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+			.dg-bday-list li { display: flex; align-items: center; gap: 11px; padding: 8px 6px; border-bottom: 1px solid #f0e9dd; }
+			.dg-bday-list li:last-child { border-bottom: none; }
+			.dg-bday-list li.today { background: #fbeed8; border-radius: 9px; border-bottom-color: transparent; }
+			.dg-bday-day { min-width: 34px; font-weight: 700; font-variant-numeric: tabular-nums; color: #b96c08; text-align: center; font-size: 15px; }
+			.dg-bday-nm { flex: 1; font-weight: 600; font-size: 14px; }
+			.dg-bday-nm .cake-inline { margin-left: 6px; }
+			.dg-bday-gp { font-size: 12px; color: #9c8d7e; display: inline-flex; align-items: center; }
+			.dg-bday-empty { color: #9c8d7e; font-size: 13px; padding: 10px 6px; }
 
 			/* status list */
 			.dg-stack { height: 12px; border-radius: 99px; overflow: hidden; display: flex; margin-bottom: 14px; background: #f2ece2; }
@@ -288,6 +302,100 @@
 							</table>
 							<h:outputText rendered="#{empty dashboardBean.equipes}" styleClass="dg-note" value="Nenhum seguidor alocado no quadrante ainda." />
 						</h:form>
+					</div>
+				</div>
+			</div>
+
+			<!-- Seguimistas por círculo -->
+			<div class="dg-sec">
+				<div class="dg-panel">
+					<div class="dg-phead">
+						<div><h3>Seguimistas por círculo</h3><div class="sub">#{dashboardBean.totalSeguimistas} seguimistas em círculo · ordenado por crachás a imprimir</div></div>
+					</div>
+					<div class="dg-pbody dg-scroll">
+						<h:form>
+							<table class="dg-tbl">
+								<thead><tr><th>Círculo</th><th class="n">Seguimistas</th><th class="n">A imprimir</th><th class="n">Impressão</th><th class="acts">Imprimir só deste círculo</th></tr></thead>
+								<tbody>
+									<ui:repeat value="#{dashboardBean.circulos}" var="c">
+										<tr>
+											<td><span class="dg-dot" style="background:#{c.corHex}"></span><span class="team">#{c.corLabel}</span><h:outputText rendered="#{not empty c.nome}" styleClass="dg-bday-gp" style="margin-left:9px" value="#{c.nome}" /></td>
+											<td class="n">#{c.total}</td>
+											<td class="n"><span class="dg-pend #{c.crachaCompleto ? 'done' : ''}">#{c.crachaCompleto ? '✓' : c.pendentes}</span></td>
+											<td class="n">#{c.pctImpresso}%</td>
+											<td class="acts">
+												<span class="dg-rowbtns">
+													<p:commandButton value="Lista" icon="fa fa-list" ajax="false" styleClass="dg-rowbtn"
+														title="Imprimir a relação (lista) dos seguimistas deste círculo"
+														action="#{dashboardBean.gerarListaCirculo(c.circuloId, c.corLabel)}" />
+													<p:commandButton value="Quadrante" icon="fa fa-th-large" ajax="false" styleClass="dg-rowbtn"
+														title="Imprimir o quadrante deste círculo"
+														action="#{dashboardBean.gerarQuadranteCirculo(c.circuloId, c.corLabel)}" />
+												</span>
+											</td>
+										</tr>
+									</ui:repeat>
+								</tbody>
+								<tfoot><tr>
+									<td>Total · #{dashboardBean.circulos.size()} círculos</td>
+									<td class="n">#{dashboardBean.totalSeguimistas}</td>
+									<td class="n"><span class="dg-pend">#{dashboardBean.totalSeguimistasPendentes}</span></td>
+									<td class="n"></td>
+									<td class="acts">
+										<p:commandButton value="Crachás de todos" icon="fa fa-print" ajax="false" styleClass="dg-rowbtn"
+											title="O crachá do seguimista é gerado para o retiro inteiro — não é possível separar por círculo."
+											action="#{dashboardBean.gerarCracha('Seguimista')}" />
+									</td>
+								</tr></tfoot>
+							</table>
+							<h:outputText rendered="#{empty dashboardBean.circulos}" styleClass="dg-note" value="Nenhum seguimista alocado em círculo ainda." />
+						</h:form>
+					</div>
+				</div>
+			</div>
+
+			<!-- Aniversariantes -->
+			<div class="dg-sec">
+				<div class="dg-sec-head">
+					<h2>Aniversariantes de #{dashboardBean.mesAtualNome}</h2>
+					<div class="s">Seguimistas e seguidores de serviço · atenção a quem faz no dia</div>
+				</div>
+				<h:panelGroup rendered="#{dashboardBean.temAniversarianteHoje}">
+					<div class="dg-bday-banner">
+						<span class="cake">🎂</span>
+						<span class="txt">Hoje é aniversário de <ui:repeat value="#{dashboardBean.aniversariantesHoje}" var="a" varStatus="st"><b>#{a.nome}</b><h:outputText rendered="#{not st.last}" value=", " /></ui:repeat>. Passe lá dar os parabéns!</span>
+					</div>
+				</h:panelGroup>
+				<div class="dg-cols">
+					<div class="dg-panel">
+						<div class="dg-phead"><div><h3>Seguimistas</h3><div class="sub">#{dashboardBean.aniversariantesSeguimistas.size()} no mês</div></div></div>
+						<div class="dg-pbody">
+							<ul class="dg-bday-list">
+								<ui:repeat value="#{dashboardBean.aniversariantesSeguimistas}" var="a">
+									<li class="#{a.hoje ? 'today' : ''}">
+										<span class="dg-bday-day">#{a.dia}</span>
+										<span class="dg-bday-nm">#{a.nome}<h:outputText rendered="#{a.hoje}" styleClass="cake-inline" value="🎂" /></span>
+										<span class="dg-bday-gp"><span class="dg-dot" style="background:#{a.corHex}"></span>#{a.grupo}</span>
+									</li>
+								</ui:repeat>
+							</ul>
+							<h:outputText rendered="#{empty dashboardBean.aniversariantesSeguimistas}" styleClass="dg-bday-empty" value="Nenhum seguimista aniversariante neste mês." />
+						</div>
+					</div>
+					<div class="dg-panel">
+						<div class="dg-phead"><div><h3>Seguidores de serviço</h3><div class="sub">#{dashboardBean.aniversariantesServico.size()} no mês</div></div></div>
+						<div class="dg-pbody">
+							<ul class="dg-bday-list">
+								<ui:repeat value="#{dashboardBean.aniversariantesServico}" var="a">
+									<li class="#{a.hoje ? 'today' : ''}">
+										<span class="dg-bday-day">#{a.dia}</span>
+										<span class="dg-bday-nm">#{a.nome}<h:outputText rendered="#{a.hoje}" styleClass="cake-inline" value="🎂" /></span>
+										<span class="dg-bday-gp">#{a.grupo}</span>
+									</li>
+								</ui:repeat>
+							</ul>
+							<h:outputText rendered="#{empty dashboardBean.aniversariantesServico}" styleClass="dg-bday-empty" value="Nenhum seguidor de serviço aniversariante neste mês." />
+						</div>
 					</div>
 				</div>
 			</div>

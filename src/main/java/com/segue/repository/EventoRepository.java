@@ -173,6 +173,49 @@ public class EventoRepository implements Serializable {
 				.getResultList();
 	}
 
+	/**
+	 * Seguimistas (inscrição aprovada) por círculo: linhas [circuloId, nome,
+	 * corCirculo(CorCirculo), total, pendentes]. Agrupa por {@code Evento.circulo}
+	 * — a MESMA ligação usada pelos relatórios Jasper (relacaoSeguimistaCirculo,
+	 * quadranteSeguimista) — para que os números batam com o impresso. Ordenado
+	 * por crachás a imprimir (desc). Usado no Dashboard da Gráfica.
+	 */
+	public List<Object[]> resumoSeguimistasPorCirculo(SegueMe sm) {
+		return manager.createQuery("SELECT c.id, c.nome, c.corCirculo, COUNT(e), "
+				+ "COALESCE(SUM(CASE WHEN e.cracha = true THEN 1 ELSE 0 END), 0) "
+				+ "FROM Evento e JOIN e.seguidor s JOIN e.inscricao i JOIN e.circulo c "
+				+ "WHERE e.segueMe = :sm AND i.statusInscricao = :aprovado "
+				+ "GROUP BY c.id, c.nome, c.corCirculo "
+				+ "ORDER BY COALESCE(SUM(CASE WHEN e.cracha = true THEN 1 ELSE 0 END), 0) DESC, c.corCirculo",
+				Object[].class).setParameter("sm", sm).setParameter("aprovado", StatusInscricao.APROVADO)
+				.getResultList();
+	}
+
+	/**
+	 * Seguimistas com data de nascimento preenchida: linhas [nome, dataNascimento,
+	 * corCirculo(CorCirculo), circuloNome]. O filtro por mês/dia é feito no bean
+	 * (volume pequeno, evita função de data específica do banco). "Seguimista" =
+	 * Evento com inscrição aprovada; nome/nascimento vêm do {@code Seguidor}.
+	 */
+	public List<Object[]> aniversariantesSeguimistas(SegueMe sm) {
+		return manager.createQuery("SELECT s.nome, s.dataNascimento, c.corCirculo, c.nome "
+				+ "FROM Evento e JOIN e.seguidor s JOIN e.inscricao i LEFT JOIN e.circulo c "
+				+ "WHERE e.segueMe = :sm AND i.statusInscricao = :aprovado AND s.dataNascimento IS NOT NULL",
+				Object[].class).setParameter("sm", sm).setParameter("aprovado", StatusInscricao.APROVADO)
+				.getResultList();
+	}
+
+	/**
+	 * Seguidores de serviço (equipe + função) com data de nascimento preenchida:
+	 * linhas [nome, dataNascimento, equipeTitulo]. Filtro por mês/dia no bean.
+	 */
+	public List<Object[]> aniversariantesSeguidoresServico(SegueMe sm) {
+		return manager.createQuery("SELECT s.nome, s.dataNascimento, eq.titulo "
+				+ "FROM Evento e JOIN e.seguidor s JOIN e.equipe eq JOIN e.funcao f "
+				+ "WHERE e.segueMe = :sm AND s.dataNascimento IS NOT NULL", Object[].class)
+				.setParameter("sm", sm).getResultList();
+	}
+
 	public List<Evento> filtradosInscricao(EventoFilter filtro) {
 		CriteriaBuilder builder = manager.getCriteriaBuilder();
 		CriteriaQuery<Tuple> criteriaQuery = builder.createTupleQuery();
