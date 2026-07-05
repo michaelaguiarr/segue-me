@@ -176,7 +176,10 @@
 							<h:outputText rendered="#{dashboardBean.totalPrevistos eq 0}" value="Quadrante ainda não montado." />
 						</div>
 						<div class="dg-dactions">
-							<p:button value="Gerar quadrante" icon="fa fa-th" styleClass="dg-btn green-btn" outcome="/evento-seguidor/relatorio-quadrante" />
+							<h:form>
+								<p:commandButton value="Gerar quadrante" icon="fa fa-th" style="width:100%"
+									styleClass="dg-btn green-btn" ajax="false" action="#{dashboardBean.gerarQuadrante}" />
+							</h:form>
 							<div class="dg-chips">
 								<p:button value="Por equipe" styleClass="dg-btn dg-chip" outcome="/evento-seguidor/relatorio-quadrante-equipe" />
 								<p:button value="Seguimistas" styleClass="dg-btn dg-chip" outcome="/evento-seguidor/relatorio-quadrante-seguimista" />
