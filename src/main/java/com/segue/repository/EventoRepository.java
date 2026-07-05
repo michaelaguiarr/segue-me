@@ -198,7 +198,7 @@ public class EventoRepository implements Serializable {
 	 * Evento com inscrição aprovada; nome/nascimento vêm do {@code Seguidor}.
 	 */
 	public List<Object[]> aniversariantesSeguimistas(SegueMe sm) {
-		return manager.createQuery("SELECT s.nome, s.dataNascimento, c.corCirculo, c.nome "
+		return manager.createQuery("SELECT s.nome, s.apelido, s.dataNascimento, c.corCirculo, c.nome "
 				+ "FROM Evento e JOIN e.seguidor s JOIN e.inscricao i LEFT JOIN e.circulo c "
 				+ "WHERE e.segueMe = :sm AND i.statusInscricao = :aprovado AND s.dataNascimento IS NOT NULL",
 				Object[].class).setParameter("sm", sm).setParameter("aprovado", StatusInscricao.APROVADO)
@@ -207,13 +207,28 @@ public class EventoRepository implements Serializable {
 
 	/**
 	 * Seguidores de serviço (equipe + função) com data de nascimento preenchida:
-	 * linhas [nome, dataNascimento, equipeTitulo]. Filtro por mês/dia no bean.
+	 * linhas [nome, apelido, dataNascimento, equipeTitulo]. Filtro por mês/dia no
+	 * bean.
 	 */
 	public List<Object[]> aniversariantesSeguidoresServico(SegueMe sm) {
-		return manager.createQuery("SELECT s.nome, s.dataNascimento, eq.titulo "
+		return manager.createQuery("SELECT s.nome, s.apelido, s.dataNascimento, eq.titulo "
 				+ "FROM Evento e JOIN e.seguidor s JOIN e.equipe eq JOIN e.funcao f "
 				+ "WHERE e.segueMe = :sm AND s.dataNascimento IS NOT NULL", Object[].class)
 				.setParameter("sm", sm).getResultList();
+	}
+
+	/**
+	 * Casais de serviço (equipe + função): linhas [nomeEle, nomeEla,
+	 * dataNascimentoEle, dataNascimentoEla, dataCasamento, equipeTitulo]. Cada
+	 * casal pode render até 3 aniversários no mês (nascimento dele, dela e
+	 * casamento) — o filtro por mês/dia e o cálculo de anos de casados são feitos
+	 * no bean.
+	 */
+	public List<Object[]> aniversariantesCasais(SegueMe sm) {
+		return manager.createQuery("SELECT c.nomeEle, c.nomeEla, c.dataNascimentoEle, c.dataNascimentoEla, "
+				+ "c.dataCasamento, eq.titulo "
+				+ "FROM Evento e JOIN e.casal c JOIN e.equipe eq JOIN e.funcao f "
+				+ "WHERE e.segueMe = :sm", Object[].class).setParameter("sm", sm).getResultList();
 	}
 
 	public List<Evento> filtradosInscricao(EventoFilter filtro) {

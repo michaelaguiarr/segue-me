@@ -113,6 +113,8 @@
 			.dg-bday-day { min-width: 34px; font-weight: 700; font-variant-numeric: tabular-nums; color: #b96c08; text-align: center; font-size: 15px; }
 			.dg-bday-nm { flex: 1; font-weight: 600; font-size: 14px; }
 			.dg-bday-nm .cake-inline { margin-left: 6px; }
+			.dg-bday-ap { color: #9c8d7e; font-weight: 500; font-size: 12.5px; }
+			.dg-servdet { opacity: .82; }
 			.dg-bday-gp { font-size: 12px; color: #9c8d7e; display: inline-flex; align-items: center; }
 			.dg-bday-empty { color: #9c8d7e; font-size: 13px; padding: 10px 6px; }
 
@@ -165,6 +167,8 @@
 							</span>
 						</h:panelGroup>
 						<span><b class="dg-tnum">#{dashboardBean.totalInscritos}</b> inscritos</span>
+							<span><i class="fa fa-users"></i><b class="dg-tnum">#{dashboardBean.pessoasServindo}</b> pessoas servindo</span>
+							<span class="dg-servdet">#{dashboardBean.seguidoresServindo} seguidores e #{dashboardBean.casaisServindo} casais</span>
 					</div>
 				</div>
 				<div class="dg-prep">
@@ -374,7 +378,7 @@
 								<ui:repeat value="#{dashboardBean.aniversariantesSeguimistas}" var="a">
 									<li class="#{a.hoje ? 'today' : ''}">
 										<span class="dg-bday-day">#{a.dia}</span>
-										<span class="dg-bday-nm">#{a.nome}<h:outputText rendered="#{a.hoje}" styleClass="cake-inline" value="🎂" /></span>
+										<span class="dg-bday-nm">#{a.nome}<h:outputText rendered="#{a.temApelido}" styleClass="dg-bday-ap" value=" (#{a.apelido})" /><h:outputText rendered="#{a.hoje}" styleClass="cake-inline" value="🎂" /></span>
 										<span class="dg-bday-gp"><span class="dg-dot" style="background:#{a.corHex}"></span>#{a.grupo}</span>
 									</li>
 								</ui:repeat>
@@ -389,12 +393,52 @@
 								<ui:repeat value="#{dashboardBean.aniversariantesServico}" var="a">
 									<li class="#{a.hoje ? 'today' : ''}">
 										<span class="dg-bday-day">#{a.dia}</span>
-										<span class="dg-bday-nm">#{a.nome}<h:outputText rendered="#{a.hoje}" styleClass="cake-inline" value="🎂" /></span>
+										<span class="dg-bday-nm">#{a.nome}<h:outputText rendered="#{a.temApelido}" styleClass="dg-bday-ap" value=" (#{a.apelido})" /><h:outputText rendered="#{a.hoje}" styleClass="cake-inline" value="🎂" /></span>
 										<span class="dg-bday-gp">#{a.grupo}</span>
 									</li>
 								</ui:repeat>
 							</ul>
 							<h:outputText rendered="#{empty dashboardBean.aniversariantesServico}" styleClass="dg-bday-empty" value="Nenhum seguidor de serviço aniversariante neste mês." />
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Aniversariantes de casais -->
+			<div class="dg-sec">
+				<div class="dg-sec-head">
+					<h2>Casais · aniversários de #{dashboardBean.mesAtualNome}</h2>
+					<div class="s">Casais de serviço · nascimento e aniversário de casamento no mês</div>
+				</div>
+				<div class="dg-cols">
+					<div class="dg-panel">
+						<div class="dg-phead"><div><h3>Aniversário</h3><div class="sub">#{dashboardBean.aniversariantesCasaisNascimento.size()} no mês</div></div></div>
+						<div class="dg-pbody">
+							<ul class="dg-bday-list">
+								<ui:repeat value="#{dashboardBean.aniversariantesCasaisNascimento}" var="a">
+									<li class="#{a.hoje ? 'today' : ''}">
+										<span class="dg-bday-day">#{a.dia}</span>
+										<span class="dg-bday-nm">#{a.nome}<h:outputText rendered="#{a.hoje}" styleClass="cake-inline" value="🎂" /></span>
+										<span class="dg-bday-gp">#{a.grupo}</span>
+									</li>
+								</ui:repeat>
+							</ul>
+							<h:outputText rendered="#{empty dashboardBean.aniversariantesCasaisNascimento}" styleClass="dg-bday-empty" value="Nenhum casal aniversariante neste mês." />
+						</div>
+					</div>
+					<div class="dg-panel">
+						<div class="dg-phead"><div><h3>Aniversário de casamento</h3><div class="sub">#{dashboardBean.aniversariantesCasamento.size()} no mês</div></div></div>
+						<div class="dg-pbody">
+							<ul class="dg-bday-list">
+								<ui:repeat value="#{dashboardBean.aniversariantesCasamento}" var="a">
+									<li class="#{a.hoje ? 'today' : ''}">
+										<span class="dg-bday-day">#{a.dia}</span>
+										<span class="dg-bday-nm">#{a.nome}<h:outputText rendered="#{a.hoje}" styleClass="cake-inline" value="💍" /></span>
+										<span class="dg-bday-gp"><i class="fa fa-heart" style="color:#e0830b;margin-right:5px"></i>#{a.grupo}</span>
+									</li>
+								</ui:repeat>
+							</ul>
+							<h:outputText rendered="#{empty dashboardBean.aniversariantesCasamento}" styleClass="dg-bday-empty" value="Nenhum aniversário de casamento neste mês." />
 						</div>
 					</div>
 				</div>

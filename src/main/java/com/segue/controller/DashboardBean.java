@@ -80,6 +80,10 @@ public class DashboardBean implements Serializable {
 	private long vagas;
 	private int pctAlocacao;
 
+	private long pessoasServindo;
+	private long seguidoresServindo;
+	private long casaisServindo;
+
 	private List<StatusLinha> situacoes = new ArrayList<>();
 	private long totalInscritos;
 
@@ -90,6 +94,8 @@ public class DashboardBean implements Serializable {
 	private List<Aniversariante> aniversariantesSeguimistas = new ArrayList<>();
 	private List<Aniversariante> aniversariantesServico = new ArrayList<>();
 	private List<Aniversariante> aniversariantesHoje = new ArrayList<>();
+	private List<Aniversariante> aniversariantesCasaisNascimento = new ArrayList<>();
+	private List<Aniversariante> aniversariantesCasamento = new ArrayList<>();
 	private String mesAtualNome;
 
 	private static final String[] MESES = { "janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho",
@@ -113,6 +119,9 @@ public class DashboardBean implements Serializable {
 		carregarSituacoes();
 		carregarCirculos();
 		carregarAniversariantes();
+		carregarAniversariantesCasais();
+		this.seguidoresServindo = totalAlocados;
+		this.pessoasServindo = seguidoresServindo + casaisServindo * 2;
 	}
 
 	private void carregarCrachas() {
@@ -120,8 +129,9 @@ public class DashboardBean implements Serializable {
 				"/evento-seguidor/relatorio-cracha-equipe");
 		adicionarCracha("Seguimistas", "fa fa-user", "Seguimista", eventoRepository.resumoCrachaSeguimistas(segueMe),
 				null);
-		adicionarCracha("Casais", "fa fa-heart", "Casal", eventoRepository.resumoCrachaCasais(segueMe),
-				"/evento-casal/relatorio-cracha-equipe");
+		long[] casais = eventoRepository.resumoCrachaCasais(segueMe);
+		this.casaisServindo = casais[0];
+		adicionarCracha("Casais", "fa fa-heart", "Casal", casais, "/evento-casal/relatorio-cracha-equipe");
 		adicionarCracha("Padres / Bispos", "fa fa-institution", "Padre", eventoRepository.resumoCrachaPadres(segueMe),
 				null);
 		adicionarCracha("Palestrantes", "fa fa-microphone", "Convidado", eventoRepository.resumoCrachaConvidados(segueMe),
@@ -193,14 +203,15 @@ public class DashboardBean implements Serializable {
 		this.mesAtualNome = MESES[mes - 1];
 
 		for (Object[] r : eventoRepository.aniversariantesSeguimistas(segueMe)) {
-			Aniversariante a = montarAniversariante((String) r[0], (Date) r[1], (CorCirculo) r[2], (String) r[3], mes,
-					dia);
+			Aniversariante a = montarAniversariante((String) r[0], (String) r[1], (Date) r[2], (CorCirculo) r[3],
+					(String) r[4], mes, dia);
 			if (a != null) {
 				aniversariantesSeguimistas.add(a);
 			}
 		}
 		for (Object[] r : eventoRepository.aniversariantesSeguidoresServico(segueMe)) {
-			Aniversariante a = montarAniversariante((String) r[0], (Date) r[1], null, (String) r[2], mes, dia);
+			Aniversariante a = montarAniversariante((String) r[0], (String) r[1], (Date) r[2], null, (String) r[3], mes,
+					dia);
 			if (a != null) {
 				aniversariantesServico.add(a);
 			}
@@ -219,9 +230,53 @@ public class DashboardBean implements Serializable {
 		}
 	}
 
+	/**
+	 * Aniversariantes de casais de serviço: nascimento (dele e dela) e aniversário
+	 * de casamento no mês corrente. Cada casal pode gerar até 3 entradas; o
+	 * casamento traz "N anos" (ano atual − ano do casamento).
+	 */
+	private void carregarAniversariantesCasais() {
+		Calendar hoje = Calendar.getInstance();
+		int mes = hoje.get(Calendar.MONTH) + 1;
+		int dia = hoje.get(Calendar.DAY_OF_MONTH);
+		int anoAtual = hoje.get(Calendar.YEAR);
+
+		for (Object[] r : eventoRepository.aniversariantesCasais(segueMe)) {
+			String nomeEle = (String) r[0];
+			String nomeEla = (String) r[1];
+			Date nascEle = (Date) r[2];
+			Date nascEla = (Date) r[3];
+			Date casamento = (Date) r[4];
+			String equipe = (String) r[5];
+
+			Aniversariante ele = montarAniversariante(nomeEle, null, nascEle, null, equipe, mes, dia);
+			if (ele != null) {
+				aniversariantesCasaisNascimento.add(ele);
+			}
+			Aniversariante ela = montarAniversariante(nomeEla, null, nascEla, null, equipe, mes, dia);
+			if (ela != null) {
+				aniversariantesCasaisNascimento.add(ela);
+			}
+			if (casamento != null) {
+				Calendar c = Calendar.getInstance();
+				c.setTime(casamento);
+				if (c.get(Calendar.MONTH) + 1 == mes) {
+					int diaCas = c.get(Calendar.DAY_OF_MONTH);
+					int anos = anoAtual - c.get(Calendar.YEAR);
+					boolean ehHoje = diaCas == dia;
+					String casal = nomeEle + " & " + nomeEla;
+					String detalhe = anos > 0 ? anos + (anos == 1 ? " ano" : " anos") + " · " + equipe : equipe;
+					aniversariantesCasamento.add(new Aniversariante(casal, null, diaCas, detalhe, null, null, ehHoje));
+				}
+			}
+		}
+		ordenarPorDia(aniversariantesCasaisNascimento);
+		ordenarPorDia(aniversariantesCasamento);
+	}
+
 	/** Cria o aniversariante só se nascer no mês corrente; marca {@code hoje}. */
-	private Aniversariante montarAniversariante(String nome, Date nascimento, CorCirculo cor, String grupo, int mes,
-			int dia) {
+	private Aniversariante montarAniversariante(String nome, String apelido, Date nascimento, CorCirculo cor,
+			String grupo, int mes, int dia) {
 		if (nascimento == null) {
 			return null;
 		}
@@ -233,7 +288,7 @@ public class DashboardBean implements Serializable {
 		}
 		int diaNasc = c.get(Calendar.DAY_OF_MONTH);
 		boolean ehHoje = diaNasc == dia;
-		return new Aniversariante(nome, diaNasc, grupo, cor, corHex(cor), ehHoje);
+		return new Aniversariante(nome, apelido, diaNasc, grupo, cor, corHex(cor), ehHoje);
 	}
 
 	private void ordenarPorDia(List<Aniversariante> lista) {
@@ -564,6 +619,26 @@ public class DashboardBean implements Serializable {
 		return mesAtualNome;
 	}
 
+	public long getPessoasServindo() {
+		return pessoasServindo;
+	}
+
+	public long getSeguidoresServindo() {
+		return seguidoresServindo;
+	}
+
+	public long getCasaisServindo() {
+		return casaisServindo;
+	}
+
+	public List<Aniversariante> getAniversariantesCasaisNascimento() {
+		return aniversariantesCasaisNascimento;
+	}
+
+	public List<Aniversariante> getAniversariantesCasamento() {
+		return aniversariantesCasamento;
+	}
+
 	// ===== DTOs de exibição =====
 
 	public static class Cracha implements Serializable {
@@ -775,14 +850,17 @@ public class DashboardBean implements Serializable {
 	public static class Aniversariante implements Serializable {
 		private static final long serialVersionUID = 1L;
 		private final String nome;
+		private final String apelido;
 		private final int dia;
 		private final String grupo;
 		private final CorCirculo cor;
 		private final String corHex;
 		private final boolean hoje;
 
-		Aniversariante(String nome, int dia, String grupo, CorCirculo cor, String corHex, boolean hoje) {
+		Aniversariante(String nome, String apelido, int dia, String grupo, CorCirculo cor, String corHex,
+				boolean hoje) {
 			this.nome = nome;
+			this.apelido = apelido;
 			this.dia = dia;
 			this.grupo = grupo;
 			this.cor = cor;
@@ -792,6 +870,14 @@ public class DashboardBean implements Serializable {
 
 		public String getNome() {
 			return nome;
+		}
+
+		public String getApelido() {
+			return apelido;
+		}
+
+		public boolean isTemApelido() {
+			return apelido != null && !apelido.trim().isEmpty();
 		}
 
 		public int getDia() {
