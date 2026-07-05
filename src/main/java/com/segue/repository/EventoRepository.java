@@ -166,6 +166,20 @@ public class EventoRepository implements Serializable {
 				Object[].class).setParameter("sm", sm).getResultList();
 	}
 
+	/**
+	 * Casais de serviço por equipe: linhas [equipeId, titulo, previstos, totalCasais].
+	 * Traz titulo/previstos para o Dashboard poder incluir também as equipes que
+	 * têm SÓ casais (sem seguidores) na tabela e nos totais. Usado para descontar
+	 * os casais (cada casal = 2 pessoas) no "faltam", já que {@code Equipe.pessoas}
+	 * planeja seguidores + casais.
+	 */
+	public List<Object[]> resumoCasaisPorEquipe(SegueMe sm) {
+		return manager.createQuery("SELECT eq.id, eq.titulo, eq.pessoas, COUNT(e) "
+				+ "FROM Evento e JOIN e.casal c JOIN e.equipe eq JOIN e.funcao f "
+				+ "WHERE e.segueMe = :sm GROUP BY eq.id, eq.titulo, eq.pessoas", Object[].class)
+				.setParameter("sm", sm).getResultList();
+	}
+
 	/** Inscritos por situação: linhas [StatusInscricao, total] do Segue-Me. */
 	public List<Object[]> resumoInscritosPorStatus(SegueMe sm) {
 		return manager.createQuery("SELECT i.statusInscricao, COUNT(i) FROM Evento e JOIN e.inscricao i "

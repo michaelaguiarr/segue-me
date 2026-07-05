@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -77,12 +78,16 @@ public class DashboardBean implements Serializable {
 	private List<EquipeLinha> equipes = new ArrayList<>();
 	private long totalPrevistos;
 	private long totalAlocados;
+	private long totalAlocadosPessoas;
+	private long totalPendentesEquipes;
 	private long vagas;
 	private int pctAlocacao;
 
 	private long pessoasServindo;
 	private long seguidoresServindo;
 	private long casaisServindo;
+	private long alocadosQuadrante;
+	private long excedenteQuadrante;
 
 	private List<StatusLinha> situacoes = new ArrayList<>();
 	private long totalInscritos;
@@ -122,6 +127,14 @@ public class DashboardBean implements Serializable {
 		carregarAniversariantesCasais();
 		this.seguidoresServindo = totalAlocados;
 		this.pessoasServindo = seguidoresServindo + casaisServindo * 2;
+		// Quadrante = escala de TODAS as pessoas servindo (seguidores + casais*2)
+		// vs o total planejado das equipes (Equipe.pessoas, que inclui os casais).
+		this.alocadosQuadrante = pessoasServindo;
+		this.excedenteQuadrante = Math.max(0, alocadosQuadrante - totalPrevistos);
+		this.vagas = Math.max(0, totalPrevistos - alocadosQuadrante);
+		this.pctAlocacao = totalPrevistos > 0
+				? (int) Math.min(100, Math.round(alocadosQuadrante * 100.0 / totalPrevistos))
+				: 0;
 	}
 
 	private void carregarCrachas() {
@@ -149,19 +162,41 @@ public class DashboardBean implements Serializable {
 
 	private void carregarEquipes() {
 		Integer minhaEquipe = usuarioLogado.getEquipe() != null ? usuarioLogado.getEquipe().getId() : null;
+		// Une seguidores + casais por equipe. Preserva a ordem dos seguidores (por
+		// crachás a imprimir); equipes só de casais entram depois. Cada valor é
+		// [previstos, seguidores, casais, pendentesSeguidor].
+		Map<Integer, long[]> dados = new LinkedHashMap<>();
+		Map<Integer, String> titulos = new HashMap<>();
 		for (Object[] r : eventoRepository.resumoSeguidoresPorEquipe(segueMe)) {
 			Integer equipeId = (Integer) r[0];
-			String titulo = (String) r[1];
+			titulos.put(equipeId, (String) r[1]);
 			long previstos = r[2] != null ? ((Number) r[2]).longValue() : 0;
-			long alocados = ((Number) r[3]).longValue();
+			long seguidores = ((Number) r[3]).longValue();
 			long pendentes = ((Number) r[4]).longValue();
-			boolean sua = minhaEquipe != null && minhaEquipe.equals(equipeId);
-			equipes.add(new EquipeLinha(equipeId, titulo, previstos, alocados, pendentes, sua));
-			totalPrevistos += previstos;
-			totalAlocados += alocados;
+			dados.put(equipeId, new long[] { previstos, seguidores, 0, pendentes });
 		}
-		this.vagas = Math.max(0, totalPrevistos - totalAlocados);
-		this.pctAlocacao = totalPrevistos > 0 ? (int) Math.round(totalAlocados * 100.0 / totalPrevistos) : 0;
+		for (Object[] r : eventoRepository.resumoCasaisPorEquipe(segueMe)) {
+			Integer equipeId = (Integer) r[0];
+			long casais = ((Number) r[3]).longValue();
+			long[] d = dados.get(equipeId);
+			if (d != null) {
+				d[2] = casais;
+			} else {
+				titulos.put(equipeId, (String) r[1]);
+				long previstos = r[2] != null ? ((Number) r[2]).longValue() : 0;
+				dados.put(equipeId, new long[] { previstos, 0, casais, 0 });
+			}
+		}
+		for (Map.Entry<Integer, long[]> entry : dados.entrySet()) {
+			Integer equipeId = entry.getKey();
+			long[] d = entry.getValue();
+			boolean sua = minhaEquipe != null && minhaEquipe.equals(equipeId);
+			equipes.add(new EquipeLinha(equipeId, titulos.get(equipeId), d[0], d[1], d[2], d[3], sua));
+			totalPrevistos += d[0];
+			totalAlocados += d[1];
+			totalAlocadosPessoas += d[1] + d[2] * 2;
+			totalPendentesEquipes += d[3];
+		}
 	}
 
 	private void carregarSituacoes() {
@@ -571,12 +606,32 @@ public class DashboardBean implements Serializable {
 		return totalAlocados;
 	}
 
+	public long getTotalAlocadosPessoas() {
+		return totalAlocadosPessoas;
+	}
+
+	public long getTotalPendentesEquipes() {
+		return totalPendentesEquipes;
+	}
+
 	public long getVagas() {
 		return vagas;
 	}
 
 	public int getPctAlocacao() {
 		return pctAlocacao;
+	}
+
+	public long getAlocadosQuadrante() {
+		return alocadosQuadrante;
+	}
+
+	public long getExcedenteQuadrante() {
+		return excedenteQuadrante;
+	}
+
+	public boolean isTemExcedente() {
+		return excedenteQuadrante > 0;
 	}
 
 	public List<StatusLinha> getSituacoes() {
@@ -710,14 +765,17 @@ public class DashboardBean implements Serializable {
 		private final String titulo;
 		private final long previstos;
 		private final long alocados;
+		private final long casais;
 		private final long pendentes;
 		private final boolean sua;
 
-		EquipeLinha(Integer equipeId, String titulo, long previstos, long alocados, long pendentes, boolean sua) {
+		EquipeLinha(Integer equipeId, String titulo, long previstos, long alocados, long casais, long pendentes,
+				boolean sua) {
 			this.equipeId = equipeId;
 			this.titulo = titulo;
 			this.previstos = previstos;
 			this.alocados = alocados;
+			this.casais = casais;
 			this.pendentes = pendentes;
 			this.sua = sua;
 		}
@@ -734,8 +792,23 @@ public class DashboardBean implements Serializable {
 			return previstos;
 		}
 
+		/** Seguidores alocados na equipe. */
 		public long getAlocados() {
 			return alocados;
+		}
+
+		/** Casais alocados na equipe. */
+		public long getCasais() {
+			return casais;
+		}
+
+		public boolean isTemCasais() {
+			return casais > 0;
+		}
+
+		/** Pessoas alocadas = seguidores + casais*2 (mesma base do "previstos"). */
+		public long getAlocadosPessoas() {
+			return alocados + casais * 2;
 		}
 
 		public long getPendentes() {
@@ -746,12 +819,13 @@ public class DashboardBean implements Serializable {
 			return alocados - pendentes;
 		}
 
+		/** Vagas em aberto na equipe, já descontando os casais (2 por casal). */
 		public long getFaltam() {
-			return Math.max(0, previstos - alocados);
+			return Math.max(0, previstos - getAlocadosPessoas());
 		}
 
 		public boolean isCompletaEquipe() {
-			return previstos > 0 && alocados >= previstos;
+			return previstos > 0 && getAlocadosPessoas() >= previstos;
 		}
 
 		public boolean isCrachaCompleto() {

@@ -93,6 +93,7 @@
 			.dg-tbl .team { font-weight: 600; }
 			.dg-mine { font-size: 10px; font-weight: 700; color: #b96c08; background: #fbeed8; padding: 2px 8px; border-radius: 999px; margin-left: 7px; text-transform: uppercase; }
 			.dg-gap { font-size: 11px; color: #9c8d7e; margin-left: 5px; }
+			.dg-sub2 { font-size: 11.5px; color: #9c8d7e; font-weight: 500; }
 			.dg-pend { font-weight: 700; color: #e0830b; }
 			.dg-pend.done { color: #1e9e5a; font-weight: 600; }
 			.dg-tbl tfoot td { font-weight: 700; border-top: 2px solid #ebe3d6; padding: 11px 12px; font-variant-numeric: tabular-nums; }
@@ -191,11 +192,12 @@
 							<div><div class="dg-dlabel">Quadrante</div><div class="dg-dsub">Escala de serviço do encontro</div></div>
 							<span class="dg-pill #{dashboardBean.montagemCompleta ? 'ok' : 'warn'}">#{dashboardBean.montagemCompleta ? 'Montagem completa' : 'Montagem em aberto'}</span>
 						</div>
-						<div class="dg-mnum dg-tnum"><b>#{dashboardBean.totalAlocados}</b> <span>de #{dashboardBean.totalPrevistos} alocados no quadrante</span></div>
+						<div class="dg-mnum dg-tnum"><b>#{dashboardBean.alocadosQuadrante}</b> <span>de #{dashboardBean.totalPrevistos} pessoas no quadrante (seguidores + casais)</span></div>
 						<div class="dg-meter"><i style="width:#{dashboardBean.pctAlocacao}%"></i></div>
 						<div class="dg-mfoot">
 							<h:panelGroup rendered="#{dashboardBean.vagas gt 0}"><span class="warn">#{dashboardBean.vagas} vagas em aberto</span> · gere quando a montagem estiver fechada</h:panelGroup>
-							<h:outputText rendered="#{dashboardBean.montagemCompleta}" value="Montagem fechada — pronto para gerar." />
+							<h:outputText rendered="#{dashboardBean.montagemCompleta and not dashboardBean.temExcedente}" value="Montagem fechada — pronto para gerar." />
+								<h:outputText rendered="#{dashboardBean.montagemCompleta and dashboardBean.temExcedente}" value="Montagem completa · #{dashboardBean.excedenteQuadrante} além do previsto." />
 							<h:outputText rendered="#{dashboardBean.totalPrevistos eq 0}" value="Quadrante ainda não montado." />
 						</div>
 						<div class="dg-dactions">
@@ -264,7 +266,7 @@
 			<div class="dg-sec">
 				<div class="dg-panel">
 					<div class="dg-phead">
-						<div><h3>Seguidores por equipe</h3><div class="sub">Detalhe do quadrante · ordenado por crachás a imprimir</div></div>
+						<div><h3>Pessoas por equipe</h3><div class="sub">Seguidores + casais (2 por casal) · vagas já descontam os casais · ordenado por crachás a imprimir</div></div>
 						<p:button value="Imprimir separado por equipe" icon="fa fa-print" styleClass="dg-btn" style="margin-left:auto"
 							outcome="/evento-seguidor/relatorio-cracha-equipe" />
 					</div>
@@ -277,7 +279,7 @@
 										<tr>
 											<td><span class="team">#{e.titulo}</span><h:outputText rendered="#{e.sua}" styleClass="dg-mine" value="Sua equipe" /></td>
 											<td class="n">#{e.previstos}</td>
-											<td class="n">#{e.alocados}<h:outputText rendered="#{e.faltam gt 0}" styleClass="dg-gap" value="· faltam #{e.faltam}" /></td>
+											<td class="n">#{e.alocadosPessoas}<h:outputText rendered="#{e.temCasais}" styleClass="dg-sub2" value=" (#{e.alocados} seg + #{e.casais} cas)" /><h:outputText rendered="#{e.faltam gt 0}" styleClass="dg-gap" value=" · faltam #{e.faltam}" /></td>
 											<td class="n"><span class="dg-pend #{e.crachaCompleto ? 'done' : ''}">#{e.crachaCompleto ? '✓' : e.pendentes}</span></td>
 											<td class="n">#{e.pctImpresso}%</td>
 											<td class="acts">
@@ -298,8 +300,8 @@
 								<tfoot><tr>
 									<td>Total · #{dashboardBean.equipes.size()} equipes</td>
 									<td class="n">#{dashboardBean.totalPrevistos}</td>
-									<td class="n">#{dashboardBean.totalAlocados}</td>
-									<td class="n"><span class="dg-pend">#{dashboardBean.totalPendentes}</span></td>
+									<td class="n">#{dashboardBean.totalAlocadosPessoas}</td>
+									<td class="n"><span class="dg-pend">#{dashboardBean.totalPendentesEquipes}</span></td>
 									<td class="n"></td>
 									<td class="acts"></td>
 								</tr></tfoot>
