@@ -150,14 +150,17 @@ public class CasalRepository implements Serializable {
 	
 	public List<Casal> filtradosPublic(CasalFilter filtro) {
 		CriteriaBuilder builder = manager.getCriteriaBuilder();
-		CriteriaQuery<Casal> criteriaQuery = builder.createQuery(Casal.class);
+		CriteriaQuery<Tuple> criteriaQuery = builder.createTupleQuery();
 		List<Predicate> predicates = new ArrayList<>();
 
 		Root<Casal> root = criteriaQuery.from(Casal.class);
-		From<?, ?> enderecoJoin = (From<?, ?>) root.fetch("endereco", JoinType.LEFT);
-		From<?, ?> paroquiaJoin = (From<?, ?>) root.fetch("paroquia", JoinType.LEFT);
-		From<?, ?> eccJoin = (From<?, ?>) root.fetch("ecc", JoinType.LEFT);
-		From<?, ?> numeroRomanoJoin = (From<?, ?>) eccJoin.fetch("numeroRomano", JoinType.LEFT);
+		// Projeção da listagem pública (ver filtrados): joins (não fetch) sem os
+		// blobs imagem_ele/imagem_ela. Aqui numeroRomano é LEFT (não filtra casais
+		// sem ECC), preservando o conjunto de resultados original.
+		root.join("endereco", JoinType.LEFT);
+		Join<Object, Object> paroquiaJoin = root.join("paroquia", JoinType.LEFT);
+		Join<Object, Object> eccJoin = root.join("ecc", JoinType.LEFT);
+		eccJoin.join("numeroRomano", JoinType.LEFT);
 
 		if (filtro.getTelefone() != null && !filtro.getTelefone().isEmpty()) {
 			Predicate telefoneEleUmPredicate = builder.equal(root.get("telefoneEleUm"), filtro.getTelefone());
@@ -186,12 +189,13 @@ public class CasalRepository implements Serializable {
 //					builder.equal(root.get("dataNascimentoEla").as(java.sql.Date.class), filtro.getDtNascimento()));
 //		}
 		
-		criteriaQuery.select(root);
+		criteriaQuery.multiselect(root.get("id"), root.get("timestamp"), root.get("nomeEle"), root.get("apelidoEle"),
+				root.get("nomeEla"), root.get("apelidoEla"), root.get("telefoneEleUm"), root.get("telefoneElaUm"),
+				paroquiaJoin.get("descricao"));
 		criteriaQuery.where(predicates.toArray(new Predicate[0]));
 		criteriaQuery.orderBy(builder.asc(root.get("nomeEle")), builder.asc(root.get("paroquia")));
 
-		TypedQuery<Casal> query = manager.createQuery(criteriaQuery);
-		return query.getResultList();
+		return montarProjecao(manager.createQuery(criteriaQuery).getResultList());
 	}
 
 

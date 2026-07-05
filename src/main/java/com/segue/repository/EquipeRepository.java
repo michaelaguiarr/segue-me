@@ -36,7 +36,24 @@ public class EquipeRepository implements Serializable {
 		}
 	}
 
+	/**
+	 * Lista para exibição (pesquisa, dropdowns, relatórios): projeção SEM o blob
+	 * {@code imagem}, que não é exibido nesses contextos e pesava ~9,7 MB por
+	 * chamada. Quando a foto for necessária (regravar em disco), use
+	 * {@link #listaComImagem()}.
+	 */
 	public List<Equipe> listaALL() {
+		return manager.createQuery(
+				"SELECT new com.segue.model.Equipe(b.id, b.titulo, b.ordem, b.pessoas, b.obs, b.ativo) "
+						+ "FROM Equipe b ORDER BY b.ordem",
+				Equipe.class).getResultList();
+	}
+
+	/**
+	 * Lista completa COM o blob {@code imagem}. Usar só quando a foto é necessária
+	 * (ex.: {@code FotoService} regrava os arquivos de foto das equipes em disco).
+	 */
+	public List<Equipe> listaComImagem() {
 		return manager.createQuery("SELECT b FROM Equipe b ORDER BY b.ordem ", Equipe.class).getResultList();
 	}
 

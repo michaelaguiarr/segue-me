@@ -40,6 +40,25 @@ public class Equipe implements Serializable {
 
 	private byte[] imagem;
 
+	/**
+	 * Construtor padrão exigido pela JPA.
+	 */
+	public Equipe() {
+	}
+
+	/**
+	 * Construtor de projeção (listagens, dropdowns, relatórios): sem o blob
+	 * {@code imagem}. Usado por {@code EquipeRepository.listaALL()}.
+	 */
+	public Equipe(Integer id, String titulo, Integer ordem, Integer pessoas, String obs, boolean ativo) {
+		this.id = id;
+		this.titulo = titulo;
+		this.ordem = ordem;
+		this.pessoas = pessoas;
+		this.obs = obs;
+		this.ativo = ativo;
+	}
+
 	public Integer getId() {
 		return id;
 	}

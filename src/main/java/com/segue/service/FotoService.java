@@ -239,7 +239,7 @@ public class FotoService implements Serializable {
 	 * Materializa a imagem de cada equipe no diretório temp de onde os crachás
 	 * "SF" as leem por caminho físico ({@code resources/temp/equipe/<id>.jpg}).
 	 * A {@link Equipe} é um catálogo global (não pertence a um retiro), então
-	 * regrava todas as equipes via {@link EquipeRepository#listaALL()}.
+	 * regrava todas as equipes via {@link EquipeRepository#listaComImagem()}.
 	 *
 	 * Como {@link #materializarImagensSegueMe(SegueMe)} / {@link
 	 * #materializarImagensCirculo(SegueMe)}: deve ser chamado antes de gerar o
@@ -248,7 +248,7 @@ public class FotoService implements Serializable {
 	 * Falhas por imagem são ignoradas dentro de {@link #materializar}.
 	 */
 	public void materializarImagensEquipe() {
-		for (Equipe equipe : equipeRepository.listaALL()) {
+		for (Equipe equipe : equipeRepository.listaComImagem()) {
 			materializar(equipe.getImagem(), "equipe", equipe.getId());
 		}
 	}
