@@ -10,10 +10,12 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceException;
+import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.From;
+import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
@@ -30,14 +32,20 @@ import com.segue.filter.PalestraConvidadoFilter;
 import com.segue.filter.PalestraPadreFilter;
 import com.segue.filter.PalestraSeguidorFilter;
 import com.segue.model.Casal;
+import com.segue.model.Circulo;
+import com.segue.model.CorCirculo;
 import com.segue.model.Equipe;
 import com.segue.model.Evento;
+import com.segue.model.Funcao;
+import com.segue.model.NumeroRomano;
 import com.segue.model.Padre;
 import com.segue.model.Palestra;
 import com.segue.model.PalestranteConvidado;
 import com.segue.model.Paroquia;
 import com.segue.model.SegueMe;
 import com.segue.model.Seguidor;
+import com.segue.model.Sexo;
+import com.segue.model.StatusConvite;
 import com.segue.model.StatusInscricao;
 import com.segue.service.NegocioException;
 
@@ -56,6 +64,19 @@ public class EventoRepository implements Serializable {
 		Evento novo = manager.merge(evento);
 		manager.flush();
 		return novo;
+	}
+
+	/**
+	 * Atualiza em lote apenas a flag {@code cracha} dos eventos informados, via
+	 * JPQL UPDATE (não carrega entidades nem imagens). Deve ser chamado dentro de
+	 * uma transação (ver serviços @Transactional).
+	 */
+	public int atualizarCracha(List<Long> ids, boolean valor) {
+		if (ids == null || ids.isEmpty()) {
+			return 0;
+		}
+		return manager.createQuery("UPDATE Evento e SET e.cracha = :valor WHERE e.id IN :ids")
+				.setParameter("valor", valor).setParameter("ids", ids).executeUpdate();
 	}
 
 	public void remover(Evento evento) throws NegocioException {
@@ -130,48 +151,35 @@ public class EventoRepository implements Serializable {
 
 	public List<Evento> filtradosSeguidor(EventoSeguidorFilter filtro) {
 		CriteriaBuilder builder = manager.getCriteriaBuilder();
-		CriteriaQuery<Evento> criteriaQuery = builder.createQuery(Evento.class);
+		CriteriaQuery<Tuple> criteriaQuery = builder.createTupleQuery();
 		List<Predicate> predicates = new ArrayList<>();
 
 		Root<Evento> root = criteriaQuery.from(Evento.class);
-		From<?, ?> seguidorJoin = (From<?, ?>) root.fetch("seguidor", JoinType.INNER);
-		From<?, ?> enderecoJoin = (From<?, ?>) seguidorJoin.fetch("endereco", JoinType.LEFT);
-		From<?, ?> paroquiaJoin = (From<?, ?>) seguidorJoin.fetch("paroquia", JoinType.LEFT);
-		From<?, ?> segueMeSeguidorJoin = (From<?, ?>) seguidorJoin.fetch("segueMe", JoinType.LEFT);
-		From<?, ?> circuloJoin = (From<?, ?>) seguidorJoin.fetch("circulo", JoinType.LEFT);
-		From<?, ?> sexoJoin = (From<?, ?>) seguidorJoin.fetch("sexo", JoinType.LEFT);
-		From<?, ?> casalJoin = (From<?, ?>) root.fetch("casal", JoinType.LEFT);
-		From<?, ?> padreJoin = (From<?, ?>) root.fetch("padre", JoinType.LEFT);
-		From<?, ?> palestranteConvidadoJoin = (From<?, ?>) root.fetch("palestranteConvidado", JoinType.LEFT);
-		From<?, ?> funcaoJoin = (From<?, ?>) root.fetch("funcao", JoinType.LEFT);
-		From<?, ?> segueMeJoin = (From<?, ?>) root.fetch("segueMe", JoinType.INNER);
-		From<?, ?> equipeJoin = (From<?, ?>) root.fetch("equipe", JoinType.LEFT);
-		From<?, ?> inscricaoJoin = (From<?, ?>) root.fetch("inscricao", JoinType.LEFT);
-		From<?, ?> palestraJoin = (From<?, ?>) root.fetch("palestra", JoinType.LEFT);
-		From<?, ?> usuarioJoin = (From<?, ?>) root.fetch("usuario", JoinType.INNER);
+		Join<Object, Object> seguidorJoin = root.join("seguidor", JoinType.INNER);
+		Join<Object, Object> sexoJoin = seguidorJoin.join("sexo", JoinType.LEFT);
+		Join<Object, Object> equipeJoin = root.join("equipe", JoinType.INNER);
+		Join<Object, Object> funcaoJoin = root.join("funcao", JoinType.INNER);
+		Join<Object, Object> segueMeJoin = root.join("segueMe", JoinType.INNER);
+		Join<Object, Object> paroquiaJoin = segueMeJoin.join("paroquia", JoinType.LEFT);
+		Join<Object, Object> numeroRomanoJoin = segueMeJoin.join("numeroRomano", JoinType.LEFT);
 
 		if (filtro.getParoquia() != null) {
 			predicates.add(builder.equal(segueMeJoin.get("paroquia"), filtro.getParoquia()));
 		}
-
 		if (filtro.getSegueMe() != null) {
 			predicates.add(builder.equal(root.get("segueMe"), filtro.getSegueMe()));
 		}
-
 		if (StringUtils.isNotBlank(filtro.getNome())) {
 			predicates.add(
 					builder.like(builder.lower(seguidorJoin.get("nome")), "%" + filtro.getNome().toLowerCase() + "%"));
 		}
-
 		if (StringUtils.isNotBlank(filtro.getApelido())) {
 			predicates.add(builder.like(builder.lower(seguidorJoin.get("apelido")),
 					"%" + filtro.getApelido().toLowerCase() + "%"));
 		}
-
 		if (filtro.getEquipe() != null) {
 			predicates.add(builder.equal(root.get("equipe"), filtro.getEquipe()));
 		}
-
 		if (filtro.getFuncao() != null) {
 			predicates.add(builder.equal(root.get("funcao"), filtro.getFuncao()));
 		}
@@ -183,69 +191,112 @@ public class EventoRepository implements Serializable {
 			}
 		}
 
-		predicates.add(builder.isNotNull(root.get("funcao")));
-		predicates.add(builder.isNotNull(root.get("equipe")));
-		criteriaQuery.select(root);
+		// Projeção leve: NÃO seleciona a foto (byte[]) do seguidor. A listagem só
+		// exibe dados textuais; carregar as imagens de todos os seguidores estourava
+		// a memória (OOM). O INNER join em equipe/funcao substitui o isNotNull.
+		criteriaQuery.multiselect(root.get("id"), root.get("idade"), root.get("cracha"), root.get("statusConvite"),
+				seguidorJoin.get("id"), seguidorJoin.get("nome"), seguidorJoin.get("telefoneUm"), sexoJoin.get("cod"),
+				equipeJoin.get("id"), equipeJoin.get("titulo"), equipeJoin.get("ordem"), funcaoJoin.get("descricao"),
+				funcaoJoin.get("ordem"), segueMeJoin.get("id"), paroquiaJoin.get("descricao"),
+				numeroRomanoJoin.get("numeroRomano"));
 		criteriaQuery.where(predicates.toArray(new Predicate[0]));
-		criteriaQuery.orderBy(builder.asc(root.get("segueMe")), builder.asc(equipeJoin.get("ordem")),
+		criteriaQuery.orderBy(builder.asc(segueMeJoin.get("id")), builder.asc(equipeJoin.get("ordem")),
 				builder.asc(funcaoJoin.get("ordem")), builder.asc(seguidorJoin.get("nome")));
 
-		TypedQuery<Evento> query = manager.createQuery(criteriaQuery);
-		return query.getResultList();
+		List<Tuple> tuples = manager.createQuery(criteriaQuery).getResultList();
+		List<Evento> eventos = new ArrayList<>(tuples.size());
+		for (Tuple t : tuples) {
+			eventos.add(montarEventoSeguidor(t));
+		}
+		return eventos;
+	}
+
+	/**
+	 * Monta um {@link Evento} "leve" (sem foto) a partir da projeção usada em
+	 * {@link #filtradosSeguidor(EventoSeguidorFilter)}. Os índices seguem a ordem
+	 * do multiselect.
+	 */
+	private Evento montarEventoSeguidor(Tuple t) {
+		Evento evento = new Evento();
+		evento.setId((Long) t.get(0));
+		evento.setIdade((Integer) t.get(1));
+		evento.setCracha((Boolean) t.get(2));
+		evento.setStatusConvite((StatusConvite) t.get(3));
+
+		Seguidor seguidor = new Seguidor();
+		seguidor.setId((Integer) t.get(4));
+		seguidor.setNome((String) t.get(5));
+		seguidor.setTelefoneUm((String) t.get(6));
+		Integer sexoCod = (Integer) t.get(7);
+		if (sexoCod != null) {
+			Sexo sexo = new Sexo();
+			sexo.setCod(sexoCod);
+			seguidor.setSexo(sexo);
+		}
+		evento.setSeguidor(seguidor);
+
+		Equipe equipe = new Equipe();
+		equipe.setId((Integer) t.get(8));
+		equipe.setTitulo((String) t.get(9));
+		equipe.setOrdem((Integer) t.get(10));
+		evento.setEquipe(equipe);
+
+		Funcao funcao = new Funcao();
+		funcao.setDescricao((String) t.get(11));
+		funcao.setOrdem((Integer) t.get(12));
+		evento.setFuncao(funcao);
+
+		SegueMe segueMe = new SegueMe();
+		segueMe.setId((Long) t.get(13));
+		Paroquia paroquia = new Paroquia();
+		paroquia.setDescricao((String) t.get(14));
+		segueMe.setParoquia(paroquia);
+		NumeroRomano numeroRomano = new NumeroRomano();
+		numeroRomano.setNumeroRomano((String) t.get(15));
+		segueMe.setNumeroRomano(numeroRomano);
+		evento.setSegueMe(segueMe);
+
+		return evento;
 	}
 
 	public List<Evento> filtradosCasal(EventoCasalFilter filtro) {
 		CriteriaBuilder builder = manager.getCriteriaBuilder();
-		CriteriaQuery<Evento> criteriaQuery = builder.createQuery(Evento.class);
+		CriteriaQuery<Tuple> criteriaQuery = builder.createTupleQuery();
 		List<Predicate> predicates = new ArrayList<>();
 
 		Root<Evento> root = criteriaQuery.from(Evento.class);
-		From<?, ?> seguidorJoin = (From<?, ?>) root.fetch("seguidor", JoinType.LEFT);
-		From<?, ?> casalJoin = (From<?, ?>) root.fetch("casal", JoinType.INNER);
-		From<?, ?> enderecoJoin = (From<?, ?>) casalJoin.fetch("endereco", JoinType.LEFT);
-		From<?, ?> eccJoin = (From<?, ?>) casalJoin.fetch("ecc", JoinType.LEFT);
-		From<?, ?> padreJoin = (From<?, ?>) root.fetch("padre", JoinType.LEFT);
-		From<?, ?> palestranteConvidadoJoin = (From<?, ?>) root.fetch("palestranteConvidado", JoinType.LEFT);
-		From<?, ?> funcaoJoin = (From<?, ?>) root.fetch("funcao", JoinType.LEFT);
-		From<?, ?> segueMeJoin = (From<?, ?>) root.fetch("segueMe", JoinType.INNER);
-		From<?, ?> numeroRomanoJoin = (From<?, ?>) segueMeJoin.fetch("numeroRomano", JoinType.INNER);
-		From<?, ?> equipeJoin = (From<?, ?>) root.fetch("equipe", JoinType.LEFT);
-		From<?, ?> inscricaoJoin = (From<?, ?>) root.fetch("inscricao", JoinType.LEFT);
-		From<?, ?> palestraJoin = (From<?, ?>) root.fetch("palestra", JoinType.LEFT);
-		From<?, ?> usuarioJoin = (From<?, ?>) root.fetch("usuario", JoinType.INNER);
+		Join<Object, Object> casalJoin = root.join("casal", JoinType.INNER);
+		Join<Object, Object> equipeJoin = root.join("equipe", JoinType.INNER);
+		Join<Object, Object> funcaoJoin = root.join("funcao", JoinType.INNER);
+		Join<Object, Object> segueMeJoin = root.join("segueMe", JoinType.INNER);
+		Join<Object, Object> paroquiaJoin = segueMeJoin.join("paroquia", JoinType.LEFT);
+		Join<Object, Object> numeroRomanoJoin = segueMeJoin.join("numeroRomano", JoinType.LEFT);
 
 		if (filtro.getParoquia() != null) {
 			predicates.add(builder.equal(segueMeJoin.get("paroquia"), filtro.getParoquia()));
 		}
-
 		if (filtro.getSegueMe() != null) {
 			predicates.add(builder.equal(root.get("segueMe"), filtro.getSegueMe()));
 		}
-
 		if (StringUtils.isNotBlank(filtro.getNomeEle())) {
 			predicates.add(builder.like(builder.lower(casalJoin.get("nomeEle")),
 					"%" + filtro.getNomeEle().toLowerCase() + "%"));
 		}
-
 		if (StringUtils.isNotBlank(filtro.getApelidoEle())) {
 			predicates.add(builder.like(builder.lower(casalJoin.get("apelidoEle")),
 					"%" + filtro.getApelidoEle().toLowerCase() + "%"));
 		}
-
 		if (StringUtils.isNotBlank(filtro.getNomeEla())) {
 			predicates.add(builder.like(builder.lower(casalJoin.get("nomeEla")),
 					"%" + filtro.getNomeEla().toLowerCase() + "%"));
 		}
-
 		if (StringUtils.isNotBlank(filtro.getApelidoEla())) {
 			predicates.add(builder.like(builder.lower(casalJoin.get("apelidoEla")),
 					"%" + filtro.getApelidoEla().toLowerCase() + "%"));
 		}
-
 		if (filtro.getEquipe() != null) {
 			predicates.add(builder.equal(root.get("equipe"), filtro.getEquipe()));
 		}
-
 		if (filtro.getFuncao() != null) {
 			predicates.add(builder.equal(root.get("funcao"), filtro.getFuncao()));
 		}
@@ -257,62 +308,93 @@ public class EventoRepository implements Serializable {
 			}
 		}
 
-		predicates.add(builder.isNotNull(root.get("funcao")));
-		predicates.add(builder.isNotNull(root.get("equipe")));
-		criteriaQuery.select(root);
+		// Projeção leve: NÃO seleciona as fotos (byte[]) do casal — evita OOM.
+		criteriaQuery.multiselect(root.get("id"), root.get("cracha"), root.get("statusConvite"), casalJoin.get("id"),
+				casalJoin.get("apelidoEle"), casalJoin.get("apelidoEla"), casalJoin.get("telefoneEleUm"),
+				casalJoin.get("telefoneElaUm"), equipeJoin.get("id"), equipeJoin.get("titulo"), equipeJoin.get("ordem"),
+				funcaoJoin.get("descricao"), segueMeJoin.get("id"), paroquiaJoin.get("descricao"),
+				numeroRomanoJoin.get("numeroRomano"));
 		criteriaQuery.where(predicates.toArray(new Predicate[0]));
-		criteriaQuery.orderBy(builder.asc(root.get("segueMe")), builder.asc(equipeJoin.get("ordem")),
+		criteriaQuery.orderBy(builder.asc(segueMeJoin.get("id")), builder.asc(equipeJoin.get("ordem")),
 				builder.asc(funcaoJoin.get("ordem")), builder.asc(casalJoin.get("nomeEle")));
 
-		TypedQuery<Evento> query = manager.createQuery(criteriaQuery);
-		return query.getResultList();
+		List<Tuple> tuples = manager.createQuery(criteriaQuery).getResultList();
+		List<Evento> eventos = new ArrayList<>(tuples.size());
+		for (Tuple t : tuples) {
+			eventos.add(montarEventoCasal(t));
+		}
+		return eventos;
+	}
+
+	/** Monta um Evento "leve" (sem fotos) a partir da projeção de filtradosCasal. */
+	private Evento montarEventoCasal(Tuple t) {
+		Evento evento = new Evento();
+		evento.setId((Long) t.get(0));
+		evento.setCracha((Boolean) t.get(1));
+		evento.setStatusConvite((StatusConvite) t.get(2));
+
+		Casal casal = new Casal();
+		casal.setId((Integer) t.get(3));
+		casal.setApelidoEle((String) t.get(4));
+		casal.setApelidoEla((String) t.get(5));
+		casal.setTelefoneEleUm((String) t.get(6));
+		casal.setTelefoneElaUm((String) t.get(7));
+		evento.setCasal(casal);
+
+		Equipe equipe = new Equipe();
+		equipe.setId((Integer) t.get(8));
+		equipe.setTitulo((String) t.get(9));
+		equipe.setOrdem((Integer) t.get(10));
+		evento.setEquipe(equipe);
+
+		Funcao funcao = new Funcao();
+		funcao.setDescricao((String) t.get(11));
+		evento.setFuncao(funcao);
+
+		SegueMe segueMe = new SegueMe();
+		segueMe.setId((Long) t.get(12));
+		Paroquia paroquia = new Paroquia();
+		paroquia.setDescricao((String) t.get(13));
+		segueMe.setParoquia(paroquia);
+		NumeroRomano numeroRomano = new NumeroRomano();
+		numeroRomano.setNumeroRomano((String) t.get(14));
+		segueMe.setNumeroRomano(numeroRomano);
+		evento.setSegueMe(segueMe);
+
+		return evento;
 	}
 
 	public List<Evento> filtradosSeguimista(EventoSeguimistaFilter filtro) {
 		CriteriaBuilder builder = manager.getCriteriaBuilder();
-		CriteriaQuery<Evento> criteriaQuery = builder.createQuery(Evento.class);
+		CriteriaQuery<Tuple> criteriaQuery = builder.createTupleQuery();
 		List<Predicate> predicates = new ArrayList<>();
 
 		Root<Evento> root = criteriaQuery.from(Evento.class);
-		From<?, ?> seguidorJoin = (From<?, ?>) root.fetch("seguidor", JoinType.LEFT);
-		From<?, ?> enderecoJoin = (From<?, ?>) seguidorJoin.fetch("endereco", JoinType.LEFT);
-		From<?, ?> paroquiaJoin = (From<?, ?>) seguidorJoin.fetch("paroquia", JoinType.LEFT);
-		From<?, ?> segueMeSeguidorJoin = (From<?, ?>) seguidorJoin.fetch("segueMe", JoinType.LEFT);
-		From<?, ?> circuloJoin = (From<?, ?>) seguidorJoin.fetch("circulo", JoinType.LEFT);
-		From<?, ?> sexoJoin = (From<?, ?>) seguidorJoin.fetch("sexo", JoinType.LEFT);
-		From<?, ?> casalJoin = (From<?, ?>) root.fetch("casal", JoinType.LEFT);
-		From<?, ?> padreJoin = (From<?, ?>) root.fetch("padre", JoinType.LEFT);
-		From<?, ?> palestranteConvidadoJoin = (From<?, ?>) root.fetch("palestranteConvidado", JoinType.LEFT);
-		From<?, ?> funcaoJoin = (From<?, ?>) root.fetch("funcao", JoinType.LEFT);
-		From<?, ?> segueMeJoin = (From<?, ?>) root.fetch("segueMe", JoinType.INNER);
-		From<?, ?> equipeJoin = (From<?, ?>) root.fetch("equipe", JoinType.LEFT);
-		From<?, ?> inscricaoJoin = (From<?, ?>) root.fetch("inscricao", JoinType.INNER);
-		From<?, ?> palestraJoin = (From<?, ?>) root.fetch("palestra", JoinType.LEFT);
-		From<?, ?> usuarioJoin = (From<?, ?>) root.fetch("usuario", JoinType.INNER);
-		From<?, ?> numeroRomanoJoin = (From<?, ?>) segueMeJoin.fetch("numeroRomano", JoinType.INNER);
+		Join<Object, Object> seguidorJoin = root.join("seguidor", JoinType.INNER);
+		Join<Object, Object> sexoJoin = seguidorJoin.join("sexo", JoinType.LEFT);
+		Join<Object, Object> circuloJoin = seguidorJoin.join("circulo", JoinType.LEFT);
+		Join<Object, Object> segueMeJoin = root.join("segueMe", JoinType.INNER);
+		Join<Object, Object> paroquiaJoin = segueMeJoin.join("paroquia", JoinType.LEFT);
+		Join<Object, Object> numeroRomanoJoin = segueMeJoin.join("numeroRomano", JoinType.LEFT);
+		Join<Object, Object> inscricaoJoin = root.join("inscricao", JoinType.INNER);
 
 		if (filtro.getParoquia() != null) {
 			predicates.add(builder.equal(segueMeJoin.get("paroquia"), filtro.getParoquia()));
 		}
-
 		if (filtro.getSegueMe() != null) {
 			predicates.add(builder.equal(root.get("segueMe"), filtro.getSegueMe()));
 		}
-
 		if (StringUtils.isNotBlank(filtro.getNome())) {
 			predicates.add(
 					builder.like(builder.lower(seguidorJoin.get("nome")), "%" + filtro.getNome().toLowerCase() + "%"));
 		}
-
 		if (StringUtils.isNotBlank(filtro.getApelido())) {
 			predicates.add(builder.like(builder.lower(seguidorJoin.get("apelido")),
 					"%" + filtro.getApelido().toLowerCase() + "%"));
 		}
-
 		if (filtro.getCirculo() != null) {
 			predicates.add(builder.equal(seguidorJoin.get("circulo"), filtro.getCirculo()));
 		}
-
 		if (filtro.getCracha() != "TODOS") {
 			if (filtro.getCracha().equals("SIM")) {
 				predicates.add(builder.equal(root.get("cracha"), true));
@@ -320,62 +402,95 @@ public class EventoRepository implements Serializable {
 				predicates.add(builder.equal(root.get("cracha"), false));
 			}
 		}
-
 		predicates.add(builder.equal(inscricaoJoin.get("statusInscricao"), StatusInscricao.APROVADO));
-		criteriaQuery.select(root);
+
+		// Projeção leve: NÃO seleciona a foto (byte[]) do seguidor — evita OOM.
+		criteriaQuery.multiselect(root.get("id"), root.get("idade"), root.get("cracha"), seguidorJoin.get("id"),
+				seguidorJoin.get("nome"), seguidorJoin.get("telefoneUm"), seguidorJoin.get("dataNascimento"),
+				sexoJoin.get("cod"), circuloJoin.get("id"), circuloJoin.get("corCirculo"), segueMeJoin.get("id"),
+				paroquiaJoin.get("descricao"), numeroRomanoJoin.get("numeroRomano"));
 		criteriaQuery.where(predicates.toArray(new Predicate[0]));
-		criteriaQuery.orderBy(builder.asc(root.get("segueMe")), builder.asc(circuloJoin.get("corCirculo")),
+		criteriaQuery.orderBy(builder.asc(segueMeJoin.get("id")), builder.asc(circuloJoin.get("corCirculo")),
 				builder.asc(seguidorJoin.get("nome")));
 
-		TypedQuery<Evento> query = manager.createQuery(criteriaQuery);
-		return query.getResultList();
+		List<Tuple> tuples = manager.createQuery(criteriaQuery).getResultList();
+		List<Evento> eventos = new ArrayList<>(tuples.size());
+		for (Tuple t : tuples) {
+			eventos.add(montarEventoSeguimista(t));
+		}
+		return eventos;
+	}
+
+	/** Monta um Evento "leve" (sem foto) a partir da projeção de filtradosSeguimista. */
+	private Evento montarEventoSeguimista(Tuple t) {
+		Evento evento = new Evento();
+		evento.setId((Long) t.get(0));
+		evento.setIdade((Integer) t.get(1));
+		evento.setCracha((Boolean) t.get(2));
+
+		Seguidor seguidor = new Seguidor();
+		seguidor.setId((Integer) t.get(3));
+		seguidor.setNome((String) t.get(4));
+		seguidor.setTelefoneUm((String) t.get(5));
+		seguidor.setDataNascimento((Date) t.get(6));
+		Integer sexoCod = (Integer) t.get(7);
+		if (sexoCod != null) {
+			Sexo sexo = new Sexo();
+			sexo.setCod(sexoCod);
+			seguidor.setSexo(sexo);
+		}
+		Integer circuloId = (Integer) t.get(8);
+		if (circuloId != null) {
+			Circulo circulo = new Circulo();
+			circulo.setId(circuloId);
+			circulo.setCorCirculo((CorCirculo) t.get(9));
+			seguidor.setCirculo(circulo);
+		}
+		evento.setSeguidor(seguidor);
+
+		SegueMe segueMe = new SegueMe();
+		segueMe.setId((Long) t.get(10));
+		Paroquia paroquia = new Paroquia();
+		paroquia.setDescricao((String) t.get(11));
+		segueMe.setParoquia(paroquia);
+		NumeroRomano numeroRomano = new NumeroRomano();
+		numeroRomano.setNumeroRomano((String) t.get(12));
+		segueMe.setNumeroRomano(numeroRomano);
+		evento.setSegueMe(segueMe);
+
+		return evento;
 	}
 
 	public List<Evento> filtradosPadre(EventoPadreFilter filtro) {
 		CriteriaBuilder builder = manager.getCriteriaBuilder();
-		CriteriaQuery<Evento> criteriaQuery = builder.createQuery(Evento.class);
+		CriteriaQuery<Tuple> criteriaQuery = builder.createTupleQuery();
 		List<Predicate> predicates = new ArrayList<>();
 
 		Root<Evento> root = criteriaQuery.from(Evento.class);
-		From<?, ?> seguidorJoin = (From<?, ?>) root.fetch("seguidor", JoinType.LEFT);
-		From<?, ?> enderecoJoin = (From<?, ?>) seguidorJoin.fetch("endereco", JoinType.LEFT);
-		From<?, ?> paroquiaJoin = (From<?, ?>) seguidorJoin.fetch("paroquia", JoinType.LEFT);
-		From<?, ?> segueMeSeguidorJoin = (From<?, ?>) seguidorJoin.fetch("segueMe", JoinType.LEFT);
-		From<?, ?> circuloJoin = (From<?, ?>) seguidorJoin.fetch("circulo", JoinType.LEFT);
-		From<?, ?> sexoJoin = (From<?, ?>) seguidorJoin.fetch("sexo", JoinType.LEFT);
-		From<?, ?> casalJoin = (From<?, ?>) root.fetch("casal", JoinType.LEFT);
-		From<?, ?> padreJoin = (From<?, ?>) root.fetch("padre", JoinType.INNER);
-		From<?, ?> palestranteConvidadoJoin = (From<?, ?>) root.fetch("palestranteConvidado", JoinType.LEFT);
-		From<?, ?> funcaoJoin = (From<?, ?>) root.fetch("funcao", JoinType.LEFT);
-		From<?, ?> segueMeJoin = (From<?, ?>) root.fetch("segueMe", JoinType.INNER);
-		From<?, ?> equipeJoin = (From<?, ?>) root.fetch("equipe", JoinType.LEFT);
-		From<?, ?> inscricaoJoin = (From<?, ?>) root.fetch("inscricao", JoinType.LEFT);
-		From<?, ?> palestraJoin = (From<?, ?>) root.fetch("palestra", JoinType.LEFT);
-		From<?, ?> usuarioJoin = (From<?, ?>) root.fetch("usuario", JoinType.INNER);
-		From<?, ?> numeroRomanoJoin = (From<?, ?>) segueMeJoin.fetch("numeroRomano", JoinType.INNER);
+		Join<Object, Object> padreJoin = root.join("padre", JoinType.INNER);
+		Join<Object, Object> equipeJoin = root.join("equipe", JoinType.INNER);
+		Join<Object, Object> funcaoJoin = root.join("funcao", JoinType.INNER);
+		Join<Object, Object> segueMeJoin = root.join("segueMe", JoinType.INNER);
+		Join<Object, Object> paroquiaJoin = segueMeJoin.join("paroquia", JoinType.LEFT);
+		Join<Object, Object> numeroRomanoJoin = segueMeJoin.join("numeroRomano", JoinType.LEFT);
 
 		if (filtro.getParoquia() != null) {
 			predicates.add(builder.equal(segueMeJoin.get("paroquia"), filtro.getParoquia()));
 		}
-
 		if (filtro.getSegueMe() != null) {
 			predicates.add(builder.equal(root.get("segueMe"), filtro.getSegueMe()));
 		}
-
 		if (StringUtils.isNotBlank(filtro.getNome())) {
 			predicates.add(
 					builder.like(builder.lower(padreJoin.get("nome")), "%" + filtro.getNome().toLowerCase() + "%"));
 		}
-
 		if (StringUtils.isNotBlank(filtro.getApelido())) {
 			predicates.add(builder.like(builder.lower(padreJoin.get("apelido")),
 					"%" + filtro.getApelido().toLowerCase() + "%"));
 		}
-
 		if (filtro.getEquipe() != null) {
 			predicates.add(builder.equal(root.get("equipe"), filtro.getEquipe()));
 		}
-
 		if (filtro.getFuncao() != null) {
 			predicates.add(builder.equal(root.get("funcao"), filtro.getFuncao()));
 		}
@@ -387,15 +502,59 @@ public class EventoRepository implements Serializable {
 			}
 		}
 
-		predicates.add(builder.isNotNull(root.get("funcao")));
-		predicates.add(builder.isNotNull(root.get("equipe")));
-		criteriaQuery.select(root);
+		// Projeção leve: NÃO seleciona a foto (byte[]) do padre. INNER em equipe/funcao
+		// substitui o isNotNull.
+		criteriaQuery.multiselect(root.get("id"), root.get("cracha"), root.get("statusConvite"), padreJoin.get("id"),
+				padreJoin.get("nome"), padreJoin.get("apelido"), padreJoin.get("telefoneUm"), equipeJoin.get("id"),
+				equipeJoin.get("titulo"), equipeJoin.get("ordem"), funcaoJoin.get("descricao"), segueMeJoin.get("id"),
+				paroquiaJoin.get("descricao"), numeroRomanoJoin.get("numeroRomano"));
 		criteriaQuery.where(predicates.toArray(new Predicate[0]));
-		criteriaQuery.orderBy(builder.asc(root.get("segueMe")), builder.asc(equipeJoin.get("ordem")),
+		criteriaQuery.orderBy(builder.asc(segueMeJoin.get("id")), builder.asc(equipeJoin.get("ordem")),
 				builder.asc(funcaoJoin.get("ordem")), builder.asc(padreJoin.get("nome")));
 
-		TypedQuery<Evento> query = manager.createQuery(criteriaQuery);
-		return query.getResultList();
+		List<Tuple> tuples = manager.createQuery(criteriaQuery).getResultList();
+		List<Evento> eventos = new ArrayList<>(tuples.size());
+		for (Tuple t : tuples) {
+			eventos.add(montarEventoPadre(t));
+		}
+		return eventos;
+	}
+
+	/** Monta um Evento "leve" (sem foto) a partir da projeção de filtradosPadre. */
+	private Evento montarEventoPadre(Tuple t) {
+		Evento evento = new Evento();
+		evento.setId((Long) t.get(0));
+		evento.setCracha((Boolean) t.get(1));
+		evento.setStatusConvite((StatusConvite) t.get(2));
+
+		Padre padre = new Padre();
+		padre.setId((Integer) t.get(3));
+		padre.setNome((String) t.get(4));
+		padre.setApelido((String) t.get(5));
+		padre.setTelefoneUm((String) t.get(6));
+		evento.setPadre(padre);
+
+		Equipe equipe = new Equipe();
+		equipe.setId((Integer) t.get(7));
+		equipe.setTitulo((String) t.get(8));
+		equipe.setOrdem((Integer) t.get(9));
+		evento.setEquipe(equipe);
+
+		Funcao funcao = new Funcao();
+		funcao.setDescricao((String) t.get(10));
+		evento.setFuncao(funcao);
+
+		SegueMe segueMe = new SegueMe();
+		segueMe.setId((Long) t.get(11));
+		Paroquia paroquia = new Paroquia();
+		paroquia.setDescricao((String) t.get(12));
+		segueMe.setParoquia(paroquia);
+		NumeroRomano numeroRomano = new NumeroRomano();
+		numeroRomano.setNumeroRomano((String) t.get(13));
+		segueMe.setNumeroRomano(numeroRomano);
+		evento.setSegueMe(segueMe);
+
+		return evento;
 	}
 
 	public List<Evento> filtradosPalestraCasal(PalestraCasalFilter filtro) {
@@ -601,49 +760,34 @@ public class EventoRepository implements Serializable {
 
 	public List<Evento> filtradosPalestraConvidado(PalestraConvidadoFilter filtro) {
 		CriteriaBuilder builder = manager.getCriteriaBuilder();
-		CriteriaQuery<Evento> criteriaQuery = builder.createQuery(Evento.class);
+		CriteriaQuery<Tuple> criteriaQuery = builder.createTupleQuery();
 		List<Predicate> predicates = new ArrayList<>();
 
 		Root<Evento> root = criteriaQuery.from(Evento.class);
-		From<?, ?> seguidorJoin = (From<?, ?>) root.fetch("seguidor", JoinType.LEFT);
-		From<?, ?> enderecoJoin = (From<?, ?>) seguidorJoin.fetch("endereco", JoinType.LEFT);
-		From<?, ?> paroquiaJoin = (From<?, ?>) seguidorJoin.fetch("paroquia", JoinType.LEFT);
-		From<?, ?> segueMeSeguidorJoin = (From<?, ?>) seguidorJoin.fetch("segueMe", JoinType.LEFT);
-		From<?, ?> circuloJoin = (From<?, ?>) seguidorJoin.fetch("circulo", JoinType.LEFT);
-		From<?, ?> sexoJoin = (From<?, ?>) seguidorJoin.fetch("sexo", JoinType.LEFT);
-		From<?, ?> casalJoin = (From<?, ?>) root.fetch("casal", JoinType.LEFT);
-		From<?, ?> padreJoin = (From<?, ?>) root.fetch("padre", JoinType.LEFT);
-		From<?, ?> palestranteConvidadoJoin = (From<?, ?>) root.fetch("palestranteConvidado", JoinType.INNER);
-		From<?, ?> funcaoJoin = (From<?, ?>) root.fetch("funcao", JoinType.LEFT);
-		From<?, ?> segueMeJoin = (From<?, ?>) root.fetch("segueMe", JoinType.INNER);
-		From<?, ?> equipeJoin = (From<?, ?>) root.fetch("equipe", JoinType.LEFT);
-		From<?, ?> inscricaoJoin = (From<?, ?>) root.fetch("inscricao", JoinType.LEFT);
-		From<?, ?> palestraJoin = (From<?, ?>) root.fetch("palestra", JoinType.INNER);
-		From<?, ?> usuarioJoin = (From<?, ?>) root.fetch("usuario", JoinType.INNER);
-		From<?, ?> numeroRomanoJoin = (From<?, ?>) segueMeJoin.fetch("numeroRomano", JoinType.INNER);
+		Join<Object, Object> convidadoJoin = root.join("palestranteConvidado", JoinType.INNER);
+		Join<Object, Object> sexoJoin = convidadoJoin.join("sexo", JoinType.LEFT);
+		Join<Object, Object> palestraJoin = root.join("palestra", JoinType.INNER);
+		Join<Object, Object> segueMeJoin = root.join("segueMe", JoinType.INNER);
+		Join<Object, Object> paroquiaJoin = segueMeJoin.join("paroquia", JoinType.LEFT);
+		Join<Object, Object> numeroRomanoJoin = segueMeJoin.join("numeroRomano", JoinType.LEFT);
 
 		if (filtro.getParoquia() != null) {
 			predicates.add(builder.equal(segueMeJoin.get("paroquia"), filtro.getParoquia()));
 		}
-
 		if (filtro.getSegueMe() != null) {
 			predicates.add(builder.equal(root.get("segueMe"), filtro.getSegueMe()));
 		}
-
 		if (StringUtils.isNotBlank(filtro.getNome())) {
-			predicates.add(
-					builder.like(builder.lower(palestranteConvidadoJoin.get("nome")), "%" + filtro.getNome().toLowerCase() + "%"));
+			predicates.add(builder.like(builder.lower(convidadoJoin.get("nome")),
+					"%" + filtro.getNome().toLowerCase() + "%"));
 		}
-
 		if (StringUtils.isNotBlank(filtro.getApelido())) {
-			predicates.add(builder.like(builder.lower(palestranteConvidadoJoin.get("apelido")),
+			predicates.add(builder.like(builder.lower(convidadoJoin.get("apelido")),
 					"%" + filtro.getApelido().toLowerCase() + "%"));
 		}
-
 		if (filtro.getPalestra() != null) {
 			predicates.add(builder.equal(root.get("palestra"), filtro.getPalestra()));
 		}
-
 		if (filtro.getCracha() != "TODOS") {
 			if (filtro.getCracha().equals("SIM")) {
 				predicates.add(builder.equal(root.get("cracha"), true));
@@ -651,16 +795,63 @@ public class EventoRepository implements Serializable {
 				predicates.add(builder.equal(root.get("cracha"), false));
 			}
 		}
-
 		predicates.add(builder.isNull(root.get("funcao")));
 		predicates.add(builder.isNull(root.get("equipe")));
-		criteriaQuery.select(root);
-		criteriaQuery.where(predicates.toArray(new Predicate[0]));
-		criteriaQuery.orderBy(builder.asc(root.get("segueMe")), builder.asc(palestraJoin.get("ordem")),
-				builder.asc(palestranteConvidadoJoin.get("nome")));
 
-		TypedQuery<Evento> query = manager.createQuery(criteriaQuery);
-		return query.getResultList();
+		// Projeção leve: NÃO seleciona a foto (byte[]) do convidado.
+		criteriaQuery.multiselect(root.get("id"), root.get("idade"), root.get("cracha"), root.get("statusConvite"),
+				convidadoJoin.get("id"), convidadoJoin.get("nome"), convidadoJoin.get("telefoneUm"), sexoJoin.get("cod"),
+				palestraJoin.get("id"), palestraJoin.get("nome"), palestraJoin.get("ordem"), segueMeJoin.get("id"),
+				paroquiaJoin.get("descricao"), numeroRomanoJoin.get("numeroRomano"));
+		criteriaQuery.where(predicates.toArray(new Predicate[0]));
+		criteriaQuery.orderBy(builder.asc(segueMeJoin.get("id")), builder.asc(palestraJoin.get("ordem")),
+				builder.asc(convidadoJoin.get("nome")));
+
+		List<Tuple> tuples = manager.createQuery(criteriaQuery).getResultList();
+		List<Evento> eventos = new ArrayList<>(tuples.size());
+		for (Tuple t : tuples) {
+			eventos.add(montarEventoConvidado(t));
+		}
+		return eventos;
+	}
+
+	/** Monta um Evento "leve" (sem foto) a partir da projeção de filtradosPalestraConvidado. */
+	private Evento montarEventoConvidado(Tuple t) {
+		Evento evento = new Evento();
+		evento.setId((Long) t.get(0));
+		evento.setIdade((Integer) t.get(1));
+		evento.setCracha((Boolean) t.get(2));
+		evento.setStatusConvite((StatusConvite) t.get(3));
+
+		PalestranteConvidado convidado = new PalestranteConvidado();
+		convidado.setId((Integer) t.get(4));
+		convidado.setNome((String) t.get(5));
+		convidado.setTelefoneUm((String) t.get(6));
+		Integer sexoCod = (Integer) t.get(7);
+		if (sexoCod != null) {
+			Sexo sexo = new Sexo();
+			sexo.setCod(sexoCod);
+			convidado.setSexo(sexo);
+		}
+		evento.setPalestranteConvidado(convidado);
+
+		Palestra palestra = new Palestra();
+		palestra.setId((Long) t.get(8));
+		palestra.setNome((String) t.get(9));
+		palestra.setOrdem((Integer) t.get(10));
+		evento.setPalestra(palestra);
+
+		SegueMe segueMe = new SegueMe();
+		segueMe.setId((Long) t.get(11));
+		Paroquia paroquia = new Paroquia();
+		paroquia.setDescricao((String) t.get(12));
+		segueMe.setParoquia(paroquia);
+		NumeroRomano numeroRomano = new NumeroRomano();
+		numeroRomano.setNumeroRomano((String) t.get(13));
+		segueMe.setNumeroRomano(numeroRomano);
+		evento.setSegueMe(segueMe);
+
+		return evento;
 	}
 
 	public List<Evento> filtradosHistorico(Seguidor seguidor) {

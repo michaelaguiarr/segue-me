@@ -17,6 +17,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
 @Entity
 @Table(name = "evento_segue_me")
@@ -87,6 +88,13 @@ public class Evento implements Serializable {
 	@ManyToOne
 	@JoinColumn(name = "fk_circulo_id", foreignKey = @ForeignKey(name = "fk_circulo_id"))
 	private Circulo circulo;
+
+	/**
+	 * Marcação temporária (não persistida) usada nas telas de listagem para
+	 * selecionar em lote quais crachás (re)imprimir ou marcar como impressos.
+	 */
+	@Transient
+	private boolean selecionado;
 
 	public Long getId() {
 		return id;
@@ -222,6 +230,14 @@ public class Evento implements Serializable {
 
 	public void setCirculo(Circulo circulo) {
 		this.circulo = circulo;
+	}
+
+	public boolean isSelecionado() {
+		return selecionado;
+	}
+
+	public void setSelecionado(boolean selecionado) {
+		this.selecionado = selecionado;
 	}
 
 	@Override

@@ -95,6 +95,30 @@
 
 						<div class="ui-g">
 
+							<div class="ui-g-12">
+								<h:outputText style="color:#777;"
+									value="Marque os participantes na lista e escolha: imprimir os crachás (gera o PDF), ou atualizar a situação (impresso / não impresso)." />
+							</div>
+
+							<div class="ui-g-12">
+								<p:commandButton value="Imprimir selecionados"
+									style="width: auto; margin-right: 25px;" icon="fa fa-print"
+									styleClass="green-btn"
+									title="Gera o PDF dos crachás dos participantes marcados, para imprimir."
+									action="#{pesquisaEventoSeguimistaBean.imprimirSelecionados()}"
+									process="@form" ajax="false" />
+								<h:outputText style="color:#777; margin-right: 6px;"
+									value="Situação:" />
+								<p:commandButton value="Marcar como impresso" type="button"
+									style="width: auto;" icon="fa fa-check"
+									title="Muda a situação para impresso nos participantes marcados."
+									onclick="PF('confMarcarImpressos').show();" />
+								<p:commandButton value="Marcar como não impresso" type="button"
+									style="width: auto;" icon="fa fa-undo"
+									title="Muda a situação para não impresso (para reimprimir depois)."
+									onclick="PF('confMarcarImprimir').show();" />
+							</div>
+
 							<p:dataTable var="seguidor" id="datatable-seguidor"
 								value="#{pesquisaEventoSeguimistaBean.listaEventoSeguidor}"
 								reflow="true" selectionMode="single"
@@ -108,6 +132,11 @@
 
 								<p:ajax event="rowSelect"
 									listener="#{pesquisaEventoSeguimistaBean.selecionar()}" />
+
+								<p:column headerText="Sel." width="30">
+									<h:selectBooleanCheckbox value="#{seguidor.selecionado}"
+										onclick="event.stopPropagation();" />
+								</p:column>
 
 								<p:column headerText="Nome" sortBy="#{seguidor.seguidor.nome}"
 									width="200">
@@ -151,9 +180,32 @@
 
 								<p:column headerText="Crachá Impresso?"
 									sortBy="#{seguidor.cracha}" width="50">
-									<h:outputText value="#{seguidor.cracha ? 'Não' : 'Sim'}" />
+									<h:outputText value="#{seguidor.cracha ? 'Não impresso' : 'Impresso'}" style="padding:2px 8px; border-radius:10px; color:#fff; font-size:0.85em; white-space:nowrap; background-color:#{seguidor.cracha ? '#9e9e9e' : '#66bb6a'};" />
 								</p:column>
 							</p:dataTable>
+
+							<p:confirmDialog widgetVar="confMarcarImprimir"
+								header="Marcar como não impresso"
+								message="Marcar os participantes selecionados como NÃO impressos? Eles voltam para a fila de impressão.">
+								<p:commandButton value="Sim" icon="fa fa-check"
+									action="#{pesquisaEventoSeguimistaBean.marcarSelecionadosParaImprimir()}"
+									process="@form" update="@form"
+									oncomplete="PF('confMarcarImprimir').hide();" />
+								<p:commandButton value="Não" type="button" icon="fa fa-close"
+									onclick="PF('confMarcarImprimir').hide();" />
+							</p:confirmDialog>
+
+							<p:confirmDialog widgetVar="confMarcarImpressos"
+								header="Marcar como impresso"
+								message="Marcar os participantes selecionados como impressos?">
+								<p:commandButton value="Sim" icon="fa fa-check"
+									action="#{pesquisaEventoSeguimistaBean.marcarSelecionadosComoImpressos()}"
+									process="@form" update="@form"
+									oncomplete="PF('confMarcarImpressos').hide();" />
+								<p:commandButton value="Não" type="button" icon="fa fa-close"
+									onclick="PF('confMarcarImpressos').hide();" />
+							</p:confirmDialog>
+
 							<p:dialog
 								header="#{pesquisaEventoSeguidorBean.evento.seguidor.nome}"
 								id="fotoDialog" widgetVar="fotoDialogWidgetVar">

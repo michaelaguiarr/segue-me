@@ -50,22 +50,26 @@
 								</p:selectOneMenu>
 							</div>
 
-							<div class="ui-g-12">
-								<p:outputLabel value="Atualizar Seguidor?" for="seguidor" />
+							<div class="save ui-g-12">
+								<p:commandButton value="Gerar PDF" style="width: auto;"
+									action="#{relatorioCrachaCasal.emitir()}" update="@form"
+									process="@form" icon="fa fa-file-pdf-o"
+									styleClass="green-btn topo" ajax="false" />
+								<p:commandButton value="Marcar como impressos" type="button"
+									style="width: auto;" icon="fa fa-check" styleClass="topo"
+									onclick="PF('confMarcarImpressos').show();" />
 							</div>
 
-							<div class="ui-g-12 ui-lg-6">
-								<p:selectBooleanButton id="seguidor"
-									value="#{relatorioCrachaCasal.atualizar}" onLabel="Sim"
-									offLabel="Não" onIcon="ui-icon-check" offIcon="ui-icon-close"
-									style="width:60px" />
-							</div>
-							<div class="save ui-g-12">
-								<p:commandButton value="Gerar" style="width: auto;"
-									action="#{relatorioCrachaCasal.emitir()}" update="@form"
-									process="@form" icon="fa fa-save" styleClass="green-btn topo"
-									ajax="false" />
-							</div>
+							<p:confirmDialog widgetVar="confMarcarImpressos"
+								header="Marcar crachás como impressos"
+								message="Confirma que a impressão saiu corretamente? Os crachás pendentes deste Segue-Me serão marcados como impressos.">
+								<p:commandButton value="Sim" icon="fa fa-check"
+									action="#{relatorioCrachaCasal.marcarComoImpressos()}"
+									process="@form" update="@form"
+									oncomplete="PF('confMarcarImpressos').hide();" />
+								<p:commandButton value="Não" type="button" icon="fa fa-close"
+									onclick="PF('confMarcarImpressos').hide();" />
+							</p:confirmDialog>
 
 						</div>
 					</div>
