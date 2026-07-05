@@ -4,11 +4,15 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
+
+import org.primefaces.model.LazyDataModel;
+import org.primefaces.model.SortOrder;
 
 import com.segue.filter.EventoFilter;
 import com.segue.model.Evento;
@@ -45,6 +49,7 @@ public class PesquisaInscricaoBean implements Serializable {
 	private EventoFilter filter;
 
 	private List<Evento> listaInscritos;
+	private LazyDataModel<Evento> modelo;
 	private List<Paroquia> listaParoquia;
 	private List<SegueMe> listaSegueMe;
 
@@ -63,17 +68,31 @@ public class PesquisaInscricaoBean implements Serializable {
 		filter.setParoquia(this.usuarioLogado.getSegueMe().getParoquia());
 		this.listaSegueMe = segueMeRepository.findByParoquia(filter.getParoquia());
 		filter.setSegueMe(this.usuarioLogado.getSegueMe());
-		this.listaInscritos = repository.filtradosInscricao(this.filter);
+		this.modelo = criarModelo();
+	}
+
+	/**
+	 * Cria o modelo de paginação server-side (só a página visível vem à memória).
+	 */
+	private LazyDataModel<Evento> criarModelo() {
+		return new LazyDataModel<Evento>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public List<Evento> load(int first, int pageSize, String sortField, SortOrder sortOrder,
+					Map<String, Object> filters) {
+				setRowCount(repository.contarInscricao(filter).intValue());
+				boolean asc = sortOrder != SortOrder.DESCENDING;
+				return repository.filtradosInscricaoPaginado(filter, first, pageSize, sortField, asc);
+			}
+		};
 	}
 
 	/**
 	 * Pesquisa usuario pelo nome, paroquia, Segue-me e Equipe
 	 */
 	public void pesquisar() {
-		listaInscritos = repository.filtradosInscricao(this.filter);
-		if (listaInscritos.isEmpty()) {
-			FacesUtil.addErrorMessage("Nenhum Resultado Encontrado!");
-		}
+		this.modelo = criarModelo();
 	}
 
 	/**
@@ -120,6 +139,10 @@ public class PesquisaInscricaoBean implements Serializable {
 
 	public void setListaInscritos(List<Evento> listaInscritos) {
 		this.listaInscritos = listaInscritos;
+	}
+
+	public LazyDataModel<Evento> getModelo() {
+		return modelo;
 	}
 
 	public List<Paroquia> getListaParoquia() {

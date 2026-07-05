@@ -147,6 +147,91 @@ public class CasalRepository implements Serializable {
 		}
 		return casais;
 	}
+
+	/** Predicados compartilhados da listagem de casal (página e contagem). */
+	private List<Predicate> predicadosCasal(CriteriaBuilder builder, Root<Casal> root, CasalFilter filtro) {
+		List<Predicate> predicates = new ArrayList<>();
+		if (filtro.getParoquia() != null) {
+			predicates.add(builder.equal(root.get("paroquia"), filtro.getParoquia()));
+		}
+		if (StringUtils.isNotBlank(filtro.getNomeEle())) {
+			predicates.add(builder.like(builder.lower(root.get("nomeEleSemAcento")),
+					"%" + StringExtended.toASCII(filtro.getNomeEle().toLowerCase()) + "%"));
+		}
+		if (StringUtils.isNotBlank(filtro.getApelidoEle())) {
+			predicates.add(builder.like(builder.lower(root.get("apelidoEle")),
+					"%" + filtro.getApelidoEle().toLowerCase() + "%"));
+		}
+		if (StringUtils.isNotBlank(filtro.getNomeEla())) {
+			predicates.add(builder.like(builder.lower(root.get("nomeElaSemAcento")),
+					"%" + StringExtended.toASCII(filtro.getNomeEla().toLowerCase()) + "%"));
+		}
+		if (StringUtils.isNotBlank(filtro.getApelidoEla())) {
+			predicates.add(builder.like(builder.lower(root.get("apelidoEla")),
+					"%" + filtro.getApelidoEla().toLowerCase() + "%"));
+		}
+		predicates.add(builder.equal(root.get("ativo"), true));
+		return predicates;
+	}
+
+	/** Conta o total de casais do filtro (usado pelo LazyDataModel). */
+	public Long contar(CasalFilter filtro) {
+		CriteriaBuilder builder = manager.getCriteriaBuilder();
+		CriteriaQuery<Long> criteriaQuery = builder.createQuery(Long.class);
+		Root<Casal> root = criteriaQuery.from(Casal.class);
+		// O INNER em ecc.numeroRomano filtra casais sem ECC — replicado no count.
+		root.join("ecc", JoinType.LEFT).join("numeroRomano", JoinType.INNER);
+		criteriaQuery.select(builder.count(root));
+		criteriaQuery.where(predicadosCasal(builder, root, filtro).toArray(new Predicate[0]));
+		return manager.createQuery(criteriaQuery).getSingleResult();
+	}
+
+	/** Página da listagem de casal (projeção sem blob) para paginação server-side. */
+	public List<Casal> filtradosPaginado(CasalFilter filtro, int first, int pageSize, String sortField, boolean asc) {
+		CriteriaBuilder builder = manager.getCriteriaBuilder();
+		CriteriaQuery<Tuple> criteriaQuery = builder.createTupleQuery();
+		Root<Casal> root = criteriaQuery.from(Casal.class);
+		root.join("endereco", JoinType.LEFT);
+		Join<Object, Object> paroquiaJoin = root.join("paroquia", JoinType.LEFT);
+		Join<Object, Object> eccJoin = root.join("ecc", JoinType.LEFT);
+		eccJoin.join("numeroRomano", JoinType.INNER);
+		criteriaQuery.multiselect(root.get("id"), root.get("timestamp"), root.get("nomeEle"), root.get("apelidoEle"),
+				root.get("nomeEla"), root.get("apelidoEla"), root.get("telefoneEleUm"), root.get("telefoneElaUm"),
+				paroquiaJoin.get("descricao"));
+		criteriaQuery.where(predicadosCasal(builder, root, filtro).toArray(new Predicate[0]));
+		criteriaQuery.orderBy(ordenacaoCasal(builder, root, paroquiaJoin, sortField, asc));
+		List<Tuple> tuples = manager.createQuery(criteriaQuery).setFirstResult(first).setMaxResults(pageSize)
+				.getResultList();
+		return montarProjecao(tuples);
+	}
+
+	/** Mapeia a coluna de ordenação do p:dataTable para a expressão (default: nomeEle). */
+	private Order ordenacaoCasal(CriteriaBuilder builder, Root<Casal> root, Join<Object, Object> paroquiaJoin,
+			String sortField, boolean asc) {
+		Expression<?> expr;
+		switch (sortField == null ? "nomeEle" : sortField) {
+		case "timestamp.time":
+			expr = root.get("timestamp");
+			break;
+		case "nomeEla":
+			expr = root.get("nomeEla");
+			break;
+		case "telefoneEleUm":
+			expr = root.get("telefoneEleUm");
+			break;
+		case "telefoneElaUm":
+			expr = root.get("telefoneElaUm");
+			break;
+		case "paroquia.descricao":
+			expr = paroquiaJoin.get("descricao");
+			break;
+		case "nomeEle":
+		default:
+			expr = root.get("nomeEle");
+			break;
+		}
+		return asc ? builder.asc(expr) : builder.desc(expr);
+	}
 	
 	public List<Casal> filtradosPublic(CasalFilter filtro) {
 		CriteriaBuilder builder = manager.getCriteriaBuilder();

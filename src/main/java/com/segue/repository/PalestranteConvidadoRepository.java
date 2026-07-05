@@ -14,9 +14,11 @@ import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
@@ -85,7 +87,23 @@ public class PalestranteConvidadoRepository implements Serializable {
 		criteriaQuery.where(predicates.toArray(new Predicate[0]));
 		criteriaQuery.orderBy(builder.asc(root.get("nome")));
 
-		List<Tuple> tuples = manager.createQuery(criteriaQuery).getResultList();
+		return montarProjecao(manager.createQuery(criteriaQuery).getResultList());
+	}
+
+	/** Predicados compartilhados da listagem de convidado (página e contagem). */
+	private List<Predicate> predicadosConvidado(CriteriaBuilder builder, Root<PalestranteConvidado> root,
+			PalestranteConvidadoFilter filtro) {
+		List<Predicate> predicates = new ArrayList<>();
+		if (StringUtils.isNotBlank(filtro.getNome())) {
+			predicates.add(builder.or(
+					builder.like(builder.lower(root.get("nome")), "%" + filtro.getNome().toLowerCase() + "%"),
+					builder.like(builder.lower(root.get("apelido")), "%" + filtro.getNome().toLowerCase() + "%")));
+		}
+		predicates.add(builder.equal(root.get("ativo"), true));
+		return predicates;
+	}
+
+	private List<PalestranteConvidado> montarProjecao(List<Tuple> tuples) {
 		List<PalestranteConvidado> convidados = new ArrayList<>(tuples.size());
 		for (Tuple t : tuples) {
 			Integer sexoCod = (Integer) t.get(5);
@@ -94,6 +112,55 @@ public class PalestranteConvidadoRepository implements Serializable {
 					(String) t.get(3), (String) t.get(4), sexo));
 		}
 		return convidados;
+	}
+
+	/** Conta o total de convidados do filtro (usado pelo LazyDataModel). */
+	public Long contar(PalestranteConvidadoFilter filtro) {
+		CriteriaBuilder builder = manager.getCriteriaBuilder();
+		CriteriaQuery<Long> criteriaQuery = builder.createQuery(Long.class);
+		Root<PalestranteConvidado> root = criteriaQuery.from(PalestranteConvidado.class);
+		// INNER em endereco/sexo filtra o conjunto — replicado no count.
+		root.join("endereco", JoinType.INNER);
+		root.join("sexo", JoinType.INNER);
+		criteriaQuery.select(builder.count(root));
+		criteriaQuery.where(predicadosConvidado(builder, root, filtro).toArray(new Predicate[0]));
+		return manager.createQuery(criteriaQuery).getSingleResult();
+	}
+
+	/** Página da listagem de convidado (projeção sem blob) para paginação server-side. */
+	public List<PalestranteConvidado> filtradosPaginado(PalestranteConvidadoFilter filtro, int first, int pageSize,
+			String sortField, boolean asc) {
+		CriteriaBuilder builder = manager.getCriteriaBuilder();
+		CriteriaQuery<Tuple> criteriaQuery = builder.createTupleQuery();
+		Root<PalestranteConvidado> root = criteriaQuery.from(PalestranteConvidado.class);
+		root.join("endereco", JoinType.INNER);
+		Join<Object, Object> sexoJoin = root.join("sexo", JoinType.INNER);
+		criteriaQuery.multiselect(root.get("id"), root.get("timestamp"), root.get("nome"), root.get("apelido"),
+				root.get("telefoneUm"), sexoJoin.get("cod"));
+		criteriaQuery.where(predicadosConvidado(builder, root, filtro).toArray(new Predicate[0]));
+		criteriaQuery.orderBy(ordenacaoConvidado(builder, root, sortField, asc));
+		List<Tuple> tuples = manager.createQuery(criteriaQuery).setFirstResult(first).setMaxResults(pageSize)
+				.getResultList();
+		return montarProjecao(tuples);
+	}
+
+	/** Mapeia a coluna de ordenação do p:dataTable para a expressão (default: nome). */
+	private Order ordenacaoConvidado(CriteriaBuilder builder, Root<PalestranteConvidado> root, String sortField,
+			boolean asc) {
+		Expression<?> expr;
+		switch (sortField == null ? "nome" : sortField) {
+		case "timestamp.time":
+			expr = root.get("timestamp");
+			break;
+		case "telefoneUm":
+			expr = root.get("telefoneUm");
+			break;
+		case "nome":
+		default:
+			expr = root.get("nome");
+			break;
+		}
+		return asc ? builder.asc(expr) : builder.desc(expr);
 	}
 
 	/**

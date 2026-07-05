@@ -14,9 +14,11 @@ import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
@@ -133,7 +135,26 @@ public class PadreRepository implements Serializable {
 		criteriaQuery.where(predicates.toArray(new Predicate[0]));
 		criteriaQuery.orderBy(builder.asc(root.get("nome")), builder.asc(root.get("paroquia")));
 
-		List<Tuple> tuples = manager.createQuery(criteriaQuery).getResultList();
+		return montarProjecao(manager.createQuery(criteriaQuery).getResultList());
+	}
+
+	/** Predicados compartilhados da listagem de padre (página e contagem). */
+	private List<Predicate> predicadosPadre(CriteriaBuilder builder, Root<Padre> root, PadreFilter filtro) {
+		List<Predicate> predicates = new ArrayList<>();
+		if (filtro.getParoquia() != null) {
+			predicates.add(builder.equal(root.get("paroquia"), filtro.getParoquia()));
+		}
+		if (StringUtils.isNotBlank(filtro.getNome())) {
+			predicates.add(builder.like(builder.lower(root.get("nome")), "%" + filtro.getNome().toLowerCase() + "%"));
+		}
+		if (StringUtils.isNotBlank(filtro.getApelido())) {
+			predicates.add(
+					builder.like(builder.lower(root.get("apelido")), "%" + filtro.getApelido().toLowerCase() + "%"));
+		}
+		return predicates;
+	}
+
+	private List<Padre> montarProjecao(List<Tuple> tuples) {
 		List<Padre> padres = new ArrayList<>(tuples.size());
 		for (Tuple t : tuples) {
 			Paroquia paroquia = new Paroquia();
@@ -141,5 +162,47 @@ public class PadreRepository implements Serializable {
 			padres.add(new Padre((Integer) t.get(0), (String) t.get(1), (String) t.get(2), paroquia));
 		}
 		return padres;
+	}
+
+	/** Conta o total de padres do filtro (usado pelo LazyDataModel). */
+	public Long contar(PadreFilter filtro) {
+		CriteriaBuilder builder = manager.getCriteriaBuilder();
+		CriteriaQuery<Long> criteriaQuery = builder.createQuery(Long.class);
+		Root<Padre> root = criteriaQuery.from(Padre.class);
+		root.join("endereco", JoinType.INNER); // INNER filtra padres sem endereco
+		criteriaQuery.select(builder.count(root));
+		criteriaQuery.where(predicadosPadre(builder, root, filtro).toArray(new Predicate[0]));
+		return manager.createQuery(criteriaQuery).getSingleResult();
+	}
+
+	/** Página da listagem de padre (projeção sem blob) para paginação server-side. */
+	public List<Padre> filtradosPaginado(PadreFilter filtro, int first, int pageSize, String sortField, boolean asc) {
+		CriteriaBuilder builder = manager.getCriteriaBuilder();
+		CriteriaQuery<Tuple> criteriaQuery = builder.createTupleQuery();
+		Root<Padre> root = criteriaQuery.from(Padre.class);
+		root.join("endereco", JoinType.INNER);
+		Join<Object, Object> paroquiaJoin = root.join("paroquia", JoinType.LEFT);
+		criteriaQuery.multiselect(root.get("id"), root.get("nome"), root.get("apelido"), paroquiaJoin.get("descricao"));
+		criteriaQuery.where(predicadosPadre(builder, root, filtro).toArray(new Predicate[0]));
+		criteriaQuery.orderBy(ordenacaoPadre(builder, root, paroquiaJoin, sortField, asc));
+		List<Tuple> tuples = manager.createQuery(criteriaQuery).setFirstResult(first).setMaxResults(pageSize)
+				.getResultList();
+		return montarProjecao(tuples);
+	}
+
+	/** Mapeia a coluna de ordenação do p:dataTable para a expressão (default: nome). */
+	private Order ordenacaoPadre(CriteriaBuilder builder, Root<Padre> root, Join<Object, Object> paroquiaJoin,
+			String sortField, boolean asc) {
+		Expression<?> expr;
+		switch (sortField == null ? "nome" : sortField) {
+		case "paroquia.descricao":
+			expr = paroquiaJoin.get("descricao");
+			break;
+		case "nome":
+		default:
+			expr = root.get("nome");
+			break;
+		}
+		return asc ? builder.asc(expr) : builder.desc(expr);
 	}
 }

@@ -47,10 +47,10 @@
 						<div class="ui-g">
 
 							<p:dataTable var="convidado" id="datatable-convidado"
-								value="#{pesquisaPalestranteConvidadoBean.listaPalestranteConvidado}" reflow="true"
+								value="#{pesquisaPalestranteConvidadoBean.modelo}" lazy="true" reflow="true"
 								selectionMode="single"
 								selection="#{pesquisaPalestranteConvidadoBean.palestranteConvidado}"
-								rowKey="#{convidado}" emptyMessage="Palestrante Convidado não encontrado!"
+								rowKey="#{convidado.id}" emptyMessage="Palestrante Convidado não encontrado!"
 								paginator="true" sortBy="#{convidado.nome}"
 								paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
 								currentPageReportTemplate=" Exibindo de {startRecord} a {endRecord} no total de {totalRecords} - Página: {currentPage}/{totalPages} "

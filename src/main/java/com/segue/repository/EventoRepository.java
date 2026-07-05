@@ -14,9 +14,11 @@ import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
@@ -204,6 +206,108 @@ public class EventoRepository implements Serializable {
 		evento.setSegueMe(segueMe);
 
 		return evento;
+	}
+
+	/** Predicados compartilhados da listagem de inscritos (página e contagem). */
+	private List<Predicate> predicadosInscricao(CriteriaBuilder builder, Root<Evento> root,
+			Join<Object, Object> seguidorJoin, Join<Object, Object> segueMeJoin, Join<Object, Object> inscricaoJoin,
+			EventoFilter filtro) {
+		List<Predicate> predicates = new ArrayList<>();
+		if (filtro.getParoquia() != null) {
+			predicates.add(builder.equal(segueMeJoin.get("paroquia"), filtro.getParoquia()));
+		}
+		if (filtro.getSegueMe() != null) {
+			predicates.add(builder.equal(root.get("segueMe"), filtro.getSegueMe()));
+		}
+		if (StringUtils.isNotBlank(filtro.getNome())) {
+			predicates.add(
+					builder.like(builder.lower(seguidorJoin.get("nome")), "%" + filtro.getNome().toLowerCase() + "%"));
+		}
+		if (filtro.getId() != null) {
+			predicates.add(builder.equal(inscricaoJoin.get("numero"), filtro.getId()));
+		}
+		if (filtro.getStatusInscricao() != null) {
+			predicates.add(builder.equal(inscricaoJoin.get("statusInscricao"), filtro.getStatusInscricao()));
+		}
+		return predicates;
+	}
+
+	/** Conta o total de inscritos do filtro (usado pelo LazyDataModel). */
+	public Long contarInscricao(EventoFilter filtro) {
+		CriteriaBuilder builder = manager.getCriteriaBuilder();
+		CriteriaQuery<Long> criteriaQuery = builder.createQuery(Long.class);
+		Root<Evento> root = criteriaQuery.from(Evento.class);
+		Join<Object, Object> seguidorJoin = root.join("seguidor", JoinType.LEFT);
+		Join<Object, Object> segueMeJoin = root.join("segueMe", JoinType.INNER);
+		segueMeJoin.join("numeroRomano", JoinType.INNER);
+		Join<Object, Object> inscricaoJoin = root.join("inscricao", JoinType.INNER);
+		root.join("usuario", JoinType.INNER);
+		criteriaQuery.select(builder.count(root));
+		criteriaQuery.where(predicadosInscricao(builder, root, seguidorJoin, segueMeJoin, inscricaoJoin, filtro)
+				.toArray(new Predicate[0]));
+		return manager.createQuery(criteriaQuery).getSingleResult();
+	}
+
+	/** Página da listagem de inscritos (projeção sem foto) para paginação server-side. */
+	public List<Evento> filtradosInscricaoPaginado(EventoFilter filtro, int first, int pageSize, String sortField,
+			boolean asc) {
+		CriteriaBuilder builder = manager.getCriteriaBuilder();
+		CriteriaQuery<Tuple> criteriaQuery = builder.createTupleQuery();
+		Root<Evento> root = criteriaQuery.from(Evento.class);
+		Join<Object, Object> seguidorJoin = root.join("seguidor", JoinType.LEFT);
+		Join<Object, Object> sexoJoin = seguidorJoin.join("sexo", JoinType.LEFT);
+		Join<Object, Object> segueMeJoin = root.join("segueMe", JoinType.INNER);
+		Join<Object, Object> numeroRomanoJoin = segueMeJoin.join("numeroRomano", JoinType.INNER);
+		Join<Object, Object> inscricaoJoin = root.join("inscricao", JoinType.INNER);
+		Join<Object, Object> inscricaoParoquiaJoin = inscricaoJoin.join("paroquia", JoinType.LEFT);
+		root.join("usuario", JoinType.INNER);
+		criteriaQuery.multiselect(root.get("id"), root.get("idade"), seguidorJoin.get("id"), seguidorJoin.get("nome"),
+				seguidorJoin.get("telefoneUm"), sexoJoin.get("cod"), inscricaoJoin.get("numero"),
+				inscricaoJoin.get("dataInsccricao"), inscricaoJoin.get("fichaDoPadre"),
+				inscricaoJoin.get("statusInscricao"), inscricaoParoquiaJoin.get("descricao"), segueMeJoin.get("id"),
+				segueMeJoin.get("titulo"), numeroRomanoJoin.get("numeroRomano"));
+		criteriaQuery.where(predicadosInscricao(builder, root, seguidorJoin, segueMeJoin, inscricaoJoin, filtro)
+				.toArray(new Predicate[0]));
+		criteriaQuery.orderBy(ordenacaoInscricao(builder, root, seguidorJoin, inscricaoJoin, inscricaoParoquiaJoin,
+				numeroRomanoJoin, sortField, asc));
+		List<Tuple> tuples = manager.createQuery(criteriaQuery).setFirstResult(first).setMaxResults(pageSize)
+				.getResultList();
+		List<Evento> eventos = new ArrayList<>(tuples.size());
+		for (Tuple t : tuples) {
+			eventos.add(montarEventoInscricao(t));
+		}
+		return eventos;
+	}
+
+	/** Mapeia a coluna de ordenação do p:dataTable para a expressão (default: nº da inscrição). */
+	private Order ordenacaoInscricao(CriteriaBuilder builder, Root<Evento> root, Join<Object, Object> seguidorJoin,
+			Join<Object, Object> inscricaoJoin, Join<Object, Object> inscricaoParoquiaJoin,
+			Join<Object, Object> numeroRomanoJoin, String sortField, boolean asc) {
+		Expression<?> expr;
+		switch (sortField == null ? "" : sortField) {
+		case "id":
+			expr = root.get("id");
+			break;
+		case "seguidor.nome":
+			expr = seguidorJoin.get("nome");
+			break;
+		case "seguidor.telefoneUm":
+			expr = seguidorJoin.get("telefoneUm");
+			break;
+		case "inscricao.statusInscricao.nome":
+			expr = inscricaoJoin.get("statusInscricao");
+			break;
+		case "inscricao.paroquia.descricao":
+			expr = inscricaoParoquiaJoin.get("descricao");
+			break;
+		case "segueMe.numeroRomano.numeroRomano":
+			expr = numeroRomanoJoin.get("numeroRomano");
+			break;
+		default:
+			expr = inscricaoJoin.get("numero");
+			break;
+		}
+		return asc ? builder.asc(expr) : builder.desc(expr);
 	}
 
 	public List<Evento> filtradosSeguidor(EventoSeguidorFilter filtro) {

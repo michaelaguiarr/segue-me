@@ -60,9 +60,9 @@
 						<div class="ui-g">
 
 							<p:dataTable var="padre" id="datatable-padre"
-								value="#{pesquisaPadreBean.listaPadre}" reflow="true"
+								value="#{pesquisaPadreBean.modelo}" lazy="true" reflow="true"
 								selectionMode="single" selection="#{pesquisaPadreBean.padre}"
-								rowKey="#{padre}" emptyMessage="Padre/Bispo não encontrado!"
+								rowKey="#{padre.id}" emptyMessage="Padre/Bispo não encontrado!"
 								paginator="true" sortBy="#{padre.paroquia.descricao}"
 								paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
 								currentPageReportTemplate=" Exibindo de {startRecord} a {endRecord} no total de {totalRecords} - Página: {currentPage}/{totalPages} "
