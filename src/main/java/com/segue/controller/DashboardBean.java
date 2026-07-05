@@ -99,21 +99,21 @@ public class DashboardBean implements Serializable {
 	}
 
 	private void carregarCrachas() {
-		adicionarCracha("Seguidores", "fa fa-users", eventoRepository.resumoCrachaSeguidores(segueMe),
-				"/evento-seguidor/relatorio-cracha", "/evento-seguidor/relatorio-cracha-equipe");
-		adicionarCracha("Seguimistas", "fa fa-user", eventoRepository.resumoCrachaSeguimistas(segueMe),
-				"/evento-seguidor/relatorio-cracha-seguimista", null);
-		adicionarCracha("Casais", "fa fa-heart", eventoRepository.resumoCrachaCasais(segueMe),
-				"/evento-casal/relatorio-cracha", "/evento-casal/relatorio-cracha-equipe");
-		adicionarCracha("Padres / Bispos", "fa fa-institution", eventoRepository.resumoCrachaPadres(segueMe),
-				"/evento-padre/relatorio-cracha", null);
-		adicionarCracha("Palestrantes", "fa fa-microphone", eventoRepository.resumoCrachaConvidados(segueMe),
-				"/evento-convidado/relatorio-cracha", null);
+		adicionarCracha("Seguidores", "fa fa-users", "Seguidor", eventoRepository.resumoCrachaSeguidores(segueMe),
+				"/evento-seguidor/relatorio-cracha-equipe");
+		adicionarCracha("Seguimistas", "fa fa-user", "Seguimista", eventoRepository.resumoCrachaSeguimistas(segueMe),
+				null);
+		adicionarCracha("Casais", "fa fa-heart", "Casal", eventoRepository.resumoCrachaCasais(segueMe),
+				"/evento-casal/relatorio-cracha-equipe");
+		adicionarCracha("Padres / Bispos", "fa fa-institution", "Padre", eventoRepository.resumoCrachaPadres(segueMe),
+				null);
+		adicionarCracha("Palestrantes", "fa fa-microphone", "Convidado", eventoRepository.resumoCrachaConvidados(segueMe),
+				null);
 		this.pctCrachas = totalCrachas > 0 ? (int) Math.round(totalImpressos * 100.0 / totalCrachas) : 0;
 	}
 
-	private void adicionarCracha(String rotulo, String icone, long[] r, String outcome, String outcomeEquipe) {
-		Cracha c = new Cracha(rotulo, icone, r[0], r[1], outcome, outcomeEquipe);
+	private void adicionarCracha(String rotulo, String icone, String jasperTipo, long[] r, String outcomeEquipe) {
+		Cracha c = new Cracha(rotulo, icone, jasperTipo, r[0], r[1], outcomeEquipe);
 		crachas.add(c);
 		totalCrachas += c.getTotal();
 		totalPendentes += c.getPendentes();
@@ -185,8 +185,45 @@ public class DashboardBean implements Serializable {
 			parametros.put(JRParameter.REPORT_LOCALE, new Locale("pt", "BR"));
 			parametros.put("pagina", 0);
 			parametros.put("segueMe", segueMe.getId());
-			ExecutorRelatorioDownload executor = new ExecutorRelatorioDownload("/jasper/quadranteSeguidor.jasper",
+			ExecutorRelatorioDownload executor = new ExecutorRelatorioDownload("/jasper/quadranteSeguidorLayout.jasper",
 					response, parametros, "Quadrante" + segueMe.getNumeroRomano().getNumeroRomano() + ".pdf");
+			manager.unwrap(Session.class).doWork(executor);
+			if (executor.isRelatorioGerado()) {
+				facesContext.responseComplete();
+			}
+		} catch (Exception e) {
+			FacesUtil.addErrorMessage("A execução do relatório não retornou dados.");
+		}
+	}
+
+	/**
+	 * Gera e baixa o PDF dos crachás de um papel direto do dashboard, usando o
+	 * MESMO modelo configurado no retiro que a tela de relatório
+	 * ({@code segueMe.nomeArquivoCracha}, ou "cracha" quando vazio) — cada retiro
+	 * tem seu próprio modelo. {@code tipo} ∈ {Seguidor, Seguimista, Casal, Padre,
+	 * Convidado}. Deve ser acionado por um botão NÃO-AJAX, pois escreve o PDF na
+	 * resposta HTTP.
+	 */
+	public void gerarCracha(String tipo) {
+		if (segueMe == null || tipo == null) {
+			return;
+		}
+		try {
+			fotoService.materializarImagensSegueMe(segueMe);
+			if ("Seguimista".equals(tipo)) {
+				fotoService.materializarImagensCirculo(segueMe); // crachá de seguimista usa a imagem do círculo
+			} else {
+				fotoService.materializarImagensEquipe(); // demais crachás usam a imagem das equipes
+			}
+			String nomeArquivo = segueMe.getNomeArquivoCracha() == null || segueMe.getNomeArquivoCracha().isEmpty()
+					? "cracha"
+					: segueMe.getNomeArquivoCracha();
+			Map<String, Object> parametros = new HashMap<>();
+			parametros.put(JRParameter.REPORT_LOCALE, new Locale("pt", "BR"));
+			parametros.put("segueMe", segueMe.getId());
+			ExecutorRelatorioDownload executor = new ExecutorRelatorioDownload(
+					"/jasper/" + nomeArquivo + tipo + ".jasper", response, parametros,
+					"Cracha" + tipo + segueMe.getNumeroRomano().getNumeroRomano() + ".pdf");
 			manager.unwrap(Session.class).doWork(executor);
 			if (executor.isRelatorioGerado()) {
 				facesContext.responseComplete();
@@ -270,17 +307,17 @@ public class DashboardBean implements Serializable {
 		private static final long serialVersionUID = 1L;
 		private final String rotulo;
 		private final String icone;
-		private final String outcome;
+		private final String jasperTipo;
 		private final String outcomeEquipe;
 		private final long total;
 		private final long pendentes;
 
-		Cracha(String rotulo, String icone, long total, long pendentes, String outcome, String outcomeEquipe) {
+		Cracha(String rotulo, String icone, String jasperTipo, long total, long pendentes, String outcomeEquipe) {
 			this.rotulo = rotulo;
 			this.icone = icone;
+			this.jasperTipo = jasperTipo;
 			this.total = total;
 			this.pendentes = pendentes;
-			this.outcome = outcome;
 			this.outcomeEquipe = outcomeEquipe;
 		}
 
@@ -316,8 +353,8 @@ public class DashboardBean implements Serializable {
 			return total == 0;
 		}
 
-		public String getOutcome() {
-			return outcome;
+		public String getJasperTipo() {
+			return jasperTipo;
 		}
 
 		public String getOutcomeEquipe() {

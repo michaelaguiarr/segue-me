@@ -198,7 +198,10 @@
 						<div class="dg-meter"><i class="ok" style="width:#{dashboardBean.pctCrachas}%"></i></div>
 						<div class="dg-mfoot dg-tnum">#{dashboardBean.totalImpressos} de #{dashboardBean.totalCrachas} impressos</div>
 						<div class="dg-dactions">
-							<p:button value="Imprimir crachás" icon="fa fa-print" styleClass="dg-btn green-btn" outcome="/evento-seguidor/relatorio-cracha" />
+							<h:form>
+								<p:commandButton value="Imprimir crachás" icon="fa fa-print" style="width:100%"
+									styleClass="dg-btn green-btn" ajax="false" action="#{dashboardBean.gerarCracha('Seguidor')}" />
+							</h:form>
 							<a class="dg-detail" href="#dgCrachas">Ver detalhe por papel e por equipe &#8595;</a>
 						</div>
 					</div>
@@ -211,24 +214,27 @@
 					<h2>Crachás por papel</h2>
 					<div class="s"><b class="dg-tnum">#{dashboardBean.totalPendentes}</b> a imprimir · <b class="dg-tnum">#{dashboardBean.totalImpressos}</b> de <b class="dg-tnum">#{dashboardBean.totalCrachas}</b> impressos</div>
 				</div>
-				<div class="dg-roles">
-					<ui:repeat value="#{dashboardBean.crachas}" var="c">
-						<div class="dg-role">
-							<div class="r"><span class="ic"><i class="#{c.icone}"></i></span><span class="nm">#{c.rotulo}</span></div>
-							<div><span class="n dg-tnum #{c.completo ? 'zero' : ''}">#{c.pendentes}</span><span class="nu">a imprimir</span></div>
-							<div class="dg-meter"><i class="ok" style="width:#{c.pctImpresso}%"></i></div>
-							<div class="foot">
-								<h:panelGroup rendered="#{c.completo}"><span class="dg-badge-done">Tudo impresso</span></h:panelGroup>
-								<h:outputText rendered="#{not c.completo}" styleClass="dg-tnum" value="#{c.impressos} / #{c.total} impressos" />
-								<span class="pct dg-tnum">#{c.pctImpresso}%</span>
+				<h:form>
+					<div class="dg-roles">
+						<ui:repeat value="#{dashboardBean.crachas}" var="c">
+							<div class="dg-role">
+								<div class="r"><span class="ic"><i class="#{c.icone}"></i></span><span class="nm">#{c.rotulo}</span></div>
+								<div><span class="n dg-tnum #{c.completo ? 'zero' : ''}">#{c.pendentes}</span><span class="nu">a imprimir</span></div>
+								<div class="dg-meter"><i class="ok" style="width:#{c.pctImpresso}%"></i></div>
+								<div class="foot">
+									<h:panelGroup rendered="#{c.completo}"><span class="dg-badge-done">Tudo impresso</span></h:panelGroup>
+									<h:outputText rendered="#{not c.completo}" styleClass="dg-tnum" value="#{c.impressos} / #{c.total} impressos" />
+									<span class="pct dg-tnum">#{c.pctImpresso}%</span>
+								</div>
+								<div class="acts">
+									<p:commandButton value="#{c.vazio ? 'Sem registros' : (c.completo ? 'Reimprimir' : 'Imprimir')}" disabled="#{c.vazio}" ajax="false"
+										styleClass="dg-btn #{c.completo or c.vazio ? '' : 'green-btn'}" style="flex:1" action="#{dashboardBean.gerarCracha(c.jasperTipo)}" />
+									<p:button value="Por equipe" rendered="#{c.temEquipe}" styleClass="dg-btn" outcome="#{c.outcomeEquipe}" />
+								</div>
 							</div>
-							<div class="acts">
-								<p:button value="#{c.vazio ? 'Sem registros' : (c.completo ? 'Reimprimir' : 'Imprimir')}" disabled="#{c.vazio}" styleClass="dg-btn #{c.completo or c.vazio ? '' : 'green-btn'}" style="flex:1" outcome="#{c.outcome}" />
-								<p:button value="Por equipe" rendered="#{c.temEquipe}" styleClass="dg-btn" outcome="#{c.outcomeEquipe}" />
-							</div>
-						</div>
-					</ui:repeat>
-				</div>
+						</ui:repeat>
+					</div>
+				</h:form>
 			</div>
 
 			<!-- Seguidores por equipe -->
