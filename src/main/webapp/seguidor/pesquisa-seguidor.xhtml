@@ -90,11 +90,11 @@
 						<div class="ui-g">
 
 							<p:dataTable var="seguidor" id="datatable-seguidor"
-								value="#{pesquisaSeguidorBean.listaSeguidor}" reflow="true"
+								value="#{pesquisaSeguidorBean.modelo}" lazy="true" reflow="true"
 								selectionMode="single"
 								selection="#{pesquisaSeguidorBean.seguidor}"
-								rowKey="#{seguidor}" emptyMessage="Seguidor não encontrado!"
-								paginator="true" sortBy="#{seguidor.nome}"
+								rowKey="#{seguidor.id}" emptyMessage="Seguidor não encontrado!"
+								paginator="true"
 								paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
 								currentPageReportTemplate=" Exibindo de {startRecord} a {endRecord} no total de {totalRecords} - Página: {currentPage}/{totalPages} "
 								rows="25" rowsPerPageTemplate="25,50,100,150,200">

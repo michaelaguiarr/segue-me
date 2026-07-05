@@ -4,11 +4,15 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
+
+import org.primefaces.model.LazyDataModel;
+import org.primefaces.model.SortOrder;
 
 import com.segue.filter.SeguidorFilter;
 import com.segue.model.Circulo;
@@ -53,6 +57,7 @@ public class PesquisaSeguidorBean implements Serializable {
 	private SeguidorFilter filter;
 
 	private List<Seguidor> listaSeguidor;
+	private LazyDataModel<Seguidor> modelo;
 	private List<Paroquia> listaParoquia;
 	private List<SegueMe> listaSegueMe;
 	private List<Circulo> listaCirculo;
@@ -79,20 +84,38 @@ public class PesquisaSeguidorBean implements Serializable {
 			this.listaSegueMe = segueMeRepository.findByParoquia(filter.getParoquia());
 			filter.setSegueMe(this.usuarioLogado.getSegueMe());
 			listaCirculo = circuloRepository.findBySegueMe(filter.getSegueMe());
-			this.listaSeguidor = repository.filtrados(filter);
+			this.modelo = criarModelo();
 			this.novoSeguidor = false;
 		}
 
 	}
 
 	/**
+	 * Cria o modelo de paginação server-side: cada página é buscada sob demanda
+	 * ({@code repository.filtradosPaginado}) e o total via {@code repository.contar},
+	 * sempre com o filtro atual — só 25 linhas por vez vêm para a memória.
+	 */
+	private LazyDataModel<Seguidor> criarModelo() {
+		return new LazyDataModel<Seguidor>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public List<Seguidor> load(int first, int pageSize, String sortField, SortOrder sortOrder,
+					Map<String, Object> filters) {
+				setRowCount(repository.contar(filter).intValue());
+				boolean asc = sortOrder != SortOrder.DESCENDING;
+				return repository.filtradosPaginado(filter, first, pageSize, sortField, asc);
+			}
+		};
+	}
+
+	/**
 	 * Pesquisa usuario pelo nome, paroquia, Segue-me e Equipe
 	 */
 	public void pesquisar() {
-		listaSeguidor = repository.filtrados(this.filter);
-		if (listaSeguidor.isEmpty()) {
-			FacesUtil.addErrorMessage("Nenhum Resultado Encontrado!");
-		}
+		// Paginação server-side: recriar o modelo reinicia na 1ª página e
+		// re-consulta com o filtro atual. Lista vazia é tratada pelo emptyMessage.
+		this.modelo = criarModelo();
 	}
 
 	public void pesquisarPublic() {
@@ -213,6 +236,10 @@ public class PesquisaSeguidorBean implements Serializable {
 
 	public void setListaSeguidor(List<Seguidor> listaSeguidor) {
 		this.listaSeguidor = listaSeguidor;
+	}
+
+	public LazyDataModel<Seguidor> getModelo() {
+		return modelo;
 	}
 
 	public List<Circulo> getListaCirculo() {
