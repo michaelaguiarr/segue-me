@@ -61,6 +61,14 @@ public class PesquisaPadreBean implements Serializable {
 	}
 
 	/**
+	 * Carrega o padre completo (com a foto) sob demanda ao abrir o diálogo. A
+	 * listagem é projetada sem o blob por performance, então recarregamos pelo id.
+	 */
+	public void carregarFoto(Integer id) {
+		this.padre = repository.findById(id);
+	}
+
+	/**
 	 * Seleciona bairro na lista
 	 * 
 	 * @throws IOException

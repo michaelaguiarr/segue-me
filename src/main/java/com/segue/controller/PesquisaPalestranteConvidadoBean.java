@@ -56,6 +56,14 @@ public class PesquisaPalestranteConvidadoBean implements Serializable {
 	}
 
 	/**
+	 * Carrega o convidado completo (com a foto) sob demanda ao abrir o diálogo. A
+	 * listagem é projetada sem o blob por performance, então recarregamos pelo id.
+	 */
+	public void carregarFoto(Integer id) {
+		this.palestranteConvidado = repository.findById(id);
+	}
+
+	/**
 	 * Seleciona bairro na lista
 	 * 
 	 * @throws IOException

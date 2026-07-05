@@ -161,8 +161,32 @@ public class Seguidor implements Serializable {
 	private boolean ativo = true;
 
 	/**
+	 * Construtor padrão exigido pela JPA.
+	 */
+	public Seguidor() {
+	}
+
+	/**
+	 * Construtor de projeção usado na listagem da pesquisa. Carrega apenas os
+	 * campos exibidos na tabela, evitando trazer o blob {@code imagem} (foto) de
+	 * todos os seguidores — o que degradava a performance da pesquisa. A foto é
+	 * carregada sob demanda ao abrir o diálogo de foto.
+	 */
+	public Seguidor(Integer id, String nome, String apelido, String telefoneUm, Calendar timestamp, Sexo sexo,
+			SegueMe segueMe, Circulo circulo) {
+		this.id = id;
+		this.nome = nome;
+		this.apelido = apelido;
+		this.telefoneUm = telefoneUm;
+		this.timestamp = timestamp;
+		this.sexo = sexo;
+		this.segueMe = segueMe;
+		this.circulo = circulo;
+	}
+
+	/**
 	 * Exibe icone para sexo
-	 * 
+	 *
 	 * @return
 	 */
 	public String getIconeParaSexo() {

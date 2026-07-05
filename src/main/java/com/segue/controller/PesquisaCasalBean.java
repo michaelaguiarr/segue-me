@@ -112,6 +112,15 @@ public class PesquisaCasalBean implements Serializable {
 	}
 
 	/**
+	 * Carrega o casal completo (com as fotos) sob demanda ao abrir o diálogo de
+	 * foto. A listagem é projetada sem os blobs por performance, então aqui
+	 * recarregamos o registro pelo id.
+	 */
+	public void carregarFoto(Integer id) {
+		this.casal = repository.findById(id);
+	}
+
+	/**
 	 * Carregar Segue-me;
 	 */
 	public void onSegueMeChange() {

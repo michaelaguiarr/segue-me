@@ -3,6 +3,7 @@ package com.segue.repository;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -19,7 +20,10 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import com.segue.filter.SeguidorFilter;
+import com.segue.model.Circulo;
+import com.segue.model.SegueMe;
 import com.segue.model.Seguidor;
+import com.segue.model.Sexo;
 import com.segue.model.SituacaoSeguidor;
 import com.segue.service.NegocioException;
 import com.segue.util.StringExtended;
@@ -62,16 +66,20 @@ public class SeguidorRepository implements Serializable {
 
 	public List<Seguidor> filtrados(SeguidorFilter filtro) {
 		CriteriaBuilder builder = manager.getCriteriaBuilder();
-		CriteriaQuery<Seguidor> criteriaQuery = builder.createQuery(Seguidor.class);
+		CriteriaQuery<Object[]> criteriaQuery = builder.createQuery(Object[].class);
 		List<Predicate> predicates = new ArrayList<>();
 
 		Root<Seguidor> root = criteriaQuery.from(Seguidor.class);
-		From<?, ?> enderecoJoin = (From<?, ?>) root.fetch("endereco", JoinType.INNER);
-		From<?, ?> sexoJoin = (From<?, ?>) root.fetch("sexo", JoinType.INNER);
-		From<?, ?> paroquiaJoin = (From<?, ?>) root.fetch("paroquia", JoinType.LEFT);
-		From<?, ?> segueMeJoin = (From<?, ?>) root.fetch("segueMe", JoinType.INNER);
-		From<?, ?> numeroRomanoJoin = (From<?, ?>) segueMeJoin.fetch("numeroRomano", JoinType.INNER);
-		From<?, ?> circuloJoin = (From<?, ?>) root.fetch("circulo", JoinType.LEFT);
+		// Projeção da listagem: joins (não fetch) somente dos dados exibidos na
+		// tabela. Assim o blob "imagem" (foto) NÃO é carregado para todos os
+		// seguidores — a foto é buscada sob demanda ao abrir o diálogo. O join
+		// INNER de endereço é mantido apenas para preservar o mesmo conjunto de
+		// resultados da consulta original.
+		root.join("endereco", JoinType.INNER);
+		From<?, ?> sexoJoin = (From<?, ?>) root.join("sexo", JoinType.INNER);
+		From<?, ?> segueMeJoin = (From<?, ?>) root.join("segueMe", JoinType.INNER);
+		segueMeJoin.join("numeroRomano", JoinType.INNER);
+		From<?, ?> circuloJoin = (From<?, ?>) root.join("circulo", JoinType.LEFT);
 
 		if (filtro.getParoquia() != null) {
 			predicates.add(builder.equal(segueMeJoin.get("paroquia"), filtro.getParoquia()));
@@ -102,26 +110,29 @@ public class SeguidorRepository implements Serializable {
 		// Oculta registros inativados (duplicados consolidados).
 		predicates.add(builder.equal(root.get("ativo"), true));
 		// predicates.add(builder.isNotNull(root.get("imagem")));
-		criteriaQuery.select(root);
+		// Projeção por tupla (não construct): as associações são selecionadas como
+		// entidades hidratadas e remontadas via construtor de projeção do Seguidor,
+		// sem trazer o blob "imagem" da listagem.
+		criteriaQuery.multiselect(root.get("id"), root.get("nome"), root.get("apelido"), root.get("telefoneUm"),
+				root.get("timestamp"), sexoJoin, segueMeJoin, circuloJoin);
 		criteriaQuery.where(predicates.toArray(new Predicate[0]));
 		criteriaQuery.orderBy(builder.asc(root.get("nome")), builder.asc(root.get("segueMe")));
 
-		TypedQuery<Seguidor> query = manager.createQuery(criteriaQuery);
-		return query.getResultList();
+		return montarProjecao(manager.createQuery(criteriaQuery).getResultList());
 	}
 
 	public List<Seguidor> filtradosPublic(SeguidorFilter filtro) {
 		CriteriaBuilder builder = manager.getCriteriaBuilder();
-		CriteriaQuery<Seguidor> criteriaQuery = builder.createQuery(Seguidor.class);
+		CriteriaQuery<Object[]> criteriaQuery = builder.createQuery(Object[].class);
 		List<Predicate> predicates = new ArrayList<>();
 
 		Root<Seguidor> root = criteriaQuery.from(Seguidor.class);
-		From<?, ?> enderecoJoin = (From<?, ?>) root.fetch("endereco", JoinType.INNER);
-		From<?, ?> sexoJoin = (From<?, ?>) root.fetch("sexo", JoinType.INNER);
-		From<?, ?> paroquiaJoin = (From<?, ?>) root.fetch("paroquia", JoinType.LEFT);
-		From<?, ?> segueMeJoin = (From<?, ?>) root.fetch("segueMe", JoinType.INNER);
-		From<?, ?> numeroRomanoJoin = (From<?, ?>) segueMeJoin.fetch("numeroRomano", JoinType.INNER);
-		From<?, ?> circuloJoin = (From<?, ?>) root.fetch("circulo", JoinType.LEFT);
+		// Projeção da listagem (ver filtrados): não carrega o blob "imagem".
+		root.join("endereco", JoinType.INNER);
+		From<?, ?> sexoJoin = (From<?, ?>) root.join("sexo", JoinType.INNER);
+		From<?, ?> segueMeJoin = (From<?, ?>) root.join("segueMe", JoinType.INNER);
+		segueMeJoin.join("numeroRomano", JoinType.INNER);
+		From<?, ?> circuloJoin = (From<?, ?>) root.join("circulo", JoinType.LEFT);
 
 		if (filtro.getNome()!= null && filtro.getNome().length() > 4) {
 			predicates.add(
@@ -138,12 +149,27 @@ public class SeguidorRepository implements Serializable {
 		// Oculta registros inativados (duplicados consolidados).
 		predicates.add(builder.equal(root.get("ativo"), true));
 		// predicates.add(builder.isNotNull(root.get("imagem")));
-		criteriaQuery.select(root);
+		// Projeção por tupla (ver filtrados): não traz o blob "imagem".
+		criteriaQuery.multiselect(root.get("id"), root.get("nome"), root.get("apelido"), root.get("telefoneUm"),
+				root.get("timestamp"), sexoJoin, segueMeJoin, circuloJoin);
 		criteriaQuery.where(predicates.toArray(new Predicate[0]));
 		criteriaQuery.orderBy(builder.asc(root.get("nome")), builder.asc(root.get("segueMe")));
 
-		TypedQuery<Seguidor> query = manager.createQuery(criteriaQuery);
-		return query.getResultList();
+		return montarProjecao(manager.createQuery(criteriaQuery).getResultList());
+	}
+
+	/**
+	 * Remonta as linhas da projeção (tupla) da listagem em {@link Seguidor},
+	 * usando o construtor de projeção. Mantém o blob {@code imagem} fora da
+	 * listagem — a foto é carregada sob demanda em {@link #findById(Integer)}.
+	 */
+	private List<Seguidor> montarProjecao(List<Object[]> linhas) {
+		List<Seguidor> seguidores = new ArrayList<>(linhas.size());
+		for (Object[] l : linhas) {
+			seguidores.add(new Seguidor((Integer) l[0], (String) l[1], (String) l[2], (String) l[3], (Calendar) l[4],
+					(Sexo) l[5], (SegueMe) l[6], (Circulo) l[7]));
+		}
+		return seguidores;
 	}
 
 	/**

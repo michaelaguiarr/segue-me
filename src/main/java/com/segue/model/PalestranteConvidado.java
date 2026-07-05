@@ -78,8 +78,29 @@ public class PalestranteConvidado implements Serializable {
 	private boolean ativo = true;
 
 	/**
+	 * Construtor padrão exigido pela JPA.
+	 */
+	public PalestranteConvidado() {
+	}
+
+	/**
+	 * Construtor de projeção da listagem de pesquisa: só os campos exibidos na
+	 * tabela, sem o blob {@code imagem} (foto). A foto é carregada sob demanda ao
+	 * abrir o diálogo ({@code PesquisaPalestranteConvidadoBean.carregarFoto}).
+	 */
+	public PalestranteConvidado(Integer id, Calendar timestamp, String nome, String apelido, String telefoneUm,
+			Sexo sexo) {
+		this.id = id;
+		this.timestamp = timestamp;
+		this.nome = nome;
+		this.apelido = apelido;
+		this.telefoneUm = telefoneUm;
+		this.sexo = sexo;
+	}
+
+	/**
 	 * Exibe icone para sexo
-	 * 
+	 *
 	 * @return
 	 */
 	public String getIconeParaSexo() {
