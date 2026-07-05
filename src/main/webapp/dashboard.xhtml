@@ -2,53 +2,297 @@
 	xmlns:h="http://java.sun.com/jsf/html"
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
-	xmlns:jsf="http://xmlns.jcp.org/jsf" xmlns:p="http://primefaces.org/ui"
+	xmlns:p="http://primefaces.org/ui"
 	template="/WEB-INF/template.xhtml">
 
 	<ui:define name="title">Dashboard</ui:define>
 
+	<f:metadata>
+		<f:viewAction action="#{dashboardBean.inicializar()}" />
+	</f:metadata>
+
 	<ui:define name="head">
-		<script type="text/javascript">
-               //<![CDATA[
-               function skinBar() {
-                   this.cfg.shadow = false;
-                   this.cfg.title = '';
-                   this.cfg.seriesColors = ['#3984b8','#7e8dcd'];
-                   this.cfg.grid = {
-                       background: '#ffffff',
-                       borderColor: '#ffffff',
-                       gridLineColor: '#dee4e9',
-                       shadow: false
-                   };
-                   this.cfg.axesDefaults = {
-                       borderWidth: 0.1,
-                       borderColor: 'dce2e7',
-                       rendererOptions: {
-                           textColor: '#757575'
-                       }
-                   };
-                   this.cfg.seriesDefaults = {
-                       shadow: false,
-                       lineWidth: 1,
-                       renderer: $.jqplot.BarRenderer,
-                       markerOptions: {
-                           shadow: false,
-                           size: 7,
-                           style: 'circle'
-                       }
-                   }
-               }
-               //]]>  
-           </script>
 		<style type="text/css">
-.main-content {
-	padding: 0;
-}
-</style>
+			.main-content { padding: 0; }
+			.dg { padding: 22px 24px 60px; max-width: 1180px; margin: 0 auto; color: #2b2018; }
+			.dg h1,.dg h2,.dg h3 { margin: 0; }
+			.dg .dg-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #9c8d7e; margin: 0 0 12px; }
+			.dg-tnum { font-variant-numeric: tabular-nums; }
+
+			/* event header */
+			.dg-event { display: flex; align-items: flex-end; gap: 22px; flex-wrap: wrap; border-bottom: 1px solid #ebe3d6; padding-bottom: 20px; margin-bottom: 24px; }
+			.dg-event .t { flex: 1 1 320px; }
+			.dg-event h1 { font-size: 26px; font-weight: 700; line-height: 1.15; color: #2b2018; }
+			.dg-event .meta { color: #6e5f52; font-size: 13.5px; margin-top: 8px; display: flex; flex-wrap: wrap; gap: 6px 16px; }
+			.dg-event .meta i { color: #e0830b; margin-right: 5px; }
+
+			/* buttons */
+			.dg-btn { font-size: 13.5px !important; font-weight: 600 !important; border-radius: 9px !important; }
+			.dg-prep { background: #fff; border: 1px solid #ebe3d6; border-radius: 12px; padding: 13px 15px; max-width: 290px; }
+			.dg-prep p { margin: 0 0 10px; font-size: 12.5px; color: #6e5f52; }
+
+			/* section */
+			.dg-sec { margin-bottom: 28px; }
+			.dg-sec-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 14px; flex-wrap: wrap; }
+			.dg-sec-head h2 { font-size: 18px; font-weight: 700; }
+			.dg-sec-head .s { margin-left: auto; color: #6e5f52; font-size: 13px; }
+			.dg-sec-head .s b { color: #2b2018; }
+
+			/* deliverables */
+			.dg-deliver { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+			.dg-card { background: #fff; border: 1px solid #ebe3d6; border-radius: 14px; padding: 18px 20px; box-shadow: 0 1px 2px rgba(43,32,24,.05), 0 6px 18px rgba(43,32,24,.05); }
+			.dg-dhead { display: flex; align-items: center; gap: 12px; margin-bottom: 13px; }
+			.dg-dico { width: 42px; height: 42px; border-radius: 11px; background: #fbeed8; color: #b96c08; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+			.dg-dlabel { font-size: 19px; font-weight: 700; line-height: 1.1; }
+			.dg-dsub { font-size: 12.5px; color: #9c8d7e; }
+			.dg-pill { margin-left: auto; font-size: 11px; font-weight: 700; letter-spacing: .02em; text-transform: uppercase; padding: 4px 11px; border-radius: 999px; white-space: nowrap; }
+			.dg-pill.warn { color: #b96c08; background: #fbeed8; }
+			.dg-pill.ok { color: #1e7a48; background: #e4f4ea; }
+			.dg-big { font-size: 40px; font-weight: 700; color: #e0830b; line-height: 1; }
+			.dg-big.zero { color: #1e9e5a; }
+			.dg-u { font-size: 13.5px; color: #6e5f52; margin-left: 8px; }
+			.dg-mnum b { font-size: 24px; font-weight: 700; }
+			.dg-mnum span { color: #6e5f52; font-size: 13px; }
+			.dg-meter { height: 9px; border-radius: 99px; background: #f2ece2; overflow: hidden; margin: 9px 0 8px; }
+			.dg-meter > i { display: block; height: 100%; border-radius: 99px; background: #e0830b; }
+			.dg-meter > i.ok { background: #1e9e5a; }
+			.dg-mfoot { font-size: 12.5px; color: #6e5f52; }
+			.dg-mfoot .warn { color: #b96c08; font-weight: 600; }
+			.dg-dactions { margin-top: 14px; display: flex; flex-direction: column; gap: 10px; }
+			.dg-chips { display: flex; flex-wrap: wrap; gap: 7px; }
+			.dg-chip { font-size: 12.5px !important; border-radius: 999px !important; }
+			.dg-detail { font-size: 13px; color: #b96c08; text-decoration: none; font-weight: 600; }
+
+			/* cracha role cards */
+			.dg-roles { display: grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: 14px; }
+			.dg-role { background: #fff; border: 1px solid #ebe3d6; border-radius: 13px; padding: 16px; display: flex; flex-direction: column; gap: 11px; }
+			.dg-role .r { display: flex; align-items: center; gap: 10px; }
+			.dg-role .r .ic { width: 34px; height: 34px; border-radius: 9px; background: #f6f1e9; display: flex; align-items: center; justify-content: center; color: #6e5f52; }
+			.dg-role .r .nm { font-weight: 600; }
+			.dg-role .n { font-size: 30px; font-weight: 700; color: #e0830b; line-height: .95; }
+			.dg-role .n.zero { color: #1e9e5a; }
+			.dg-role .nu { font-size: 12px; color: #6e5f52; margin-left: 7px; }
+			.dg-role .foot { display: flex; justify-content: space-between; font-size: 12px; color: #6e5f52; }
+			.dg-role .foot .pct { color: #1e9e5a; font-weight: 600; }
+			.dg-role .acts { display: flex; gap: 7px; }
+			.dg-badge-done { color: #1e7a48; background: #e4f4ea; font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 999px; }
+
+			/* panels + table */
+			.dg-cols { display: grid; grid-template-columns: 1fr; gap: 20px; }
+			.dg-panel { background: #fff; border: 1px solid #ebe3d6; border-radius: 14px; overflow: hidden; }
+			.dg-phead { padding: 14px 18px 11px; border-bottom: 1px solid #ebe3d6; display: flex; align-items: flex-end; gap: 12px; }
+			.dg-phead h3 { font-size: 16px; font-weight: 700; }
+			.dg-phead .sub { font-size: 12.5px; color: #9c8d7e; }
+			.dg-pbody { padding: 12px 18px 18px; }
+			.dg-scroll { overflow-x: auto; }
+			.dg-tbl { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 540px; }
+			.dg-tbl th { text-align: left; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: #9c8d7e; font-weight: 700; padding: 2px 12px 9px; border-bottom: 1px solid #ebe3d6; white-space: nowrap; }
+			.dg-tbl th.n,.dg-tbl td.n { text-align: right; font-variant-numeric: tabular-nums; }
+			.dg-tbl td { padding: 9px 12px; border-bottom: 1px solid #ebe3d6; }
+			.dg-tbl tr:hover td { background: #faf7f2; }
+			.dg-tbl .team { font-weight: 600; }
+			.dg-mine { font-size: 10px; font-weight: 700; color: #b96c08; background: #fbeed8; padding: 2px 8px; border-radius: 999px; margin-left: 7px; text-transform: uppercase; }
+			.dg-gap { font-size: 11px; color: #9c8d7e; margin-left: 5px; }
+			.dg-pend { font-weight: 700; color: #e0830b; }
+			.dg-pend.done { color: #1e9e5a; font-weight: 600; }
+			.dg-tbl tfoot td { font-weight: 700; border-top: 2px solid #ebe3d6; padding: 11px 12px; font-variant-numeric: tabular-nums; }
+
+			/* status list */
+			.dg-stack { height: 12px; border-radius: 99px; overflow: hidden; display: flex; margin-bottom: 14px; background: #f2ece2; }
+			.dg-stack > i { height: 100%; }
+			.dg-st { display: flex; align-items: center; gap: 11px; padding: 7px 4px; }
+			.dg-sw { width: 11px; height: 11px; border-radius: 3px; }
+			.dg-st .lbl { font-size: 13.5px; }
+			.dg-st .ct { margin-left: auto; font-weight: 700; font-variant-numeric: tabular-nums; }
+			.dg-c-Green { background: #1e9e5a; } .dg-c-Yellow { background: #c99700; }
+			.dg-c-Blue { background: #2563eb; } .dg-c-Orange { background: #e27313; } .dg-c-Red { background: #dc2626; }
+
+			/* fluxo */
+			.dg-flow .step { display: flex; gap: 12px; padding: 11px 2px; }
+			.dg-flow .step + .step { border-top: 1px solid #ebe3d6; }
+			.dg-flow .num { width: 25px; height: 25px; border-radius: 50%; background: #fbeed8; color: #b96c08; font-weight: 700; font-size: 12.5px; display: flex; align-items: center; justify-content: center; flex: none; }
+			.dg-flow .ft { font-weight: 600; font-size: 14px; }
+			.dg-flow .fd { font-size: 12.5px; color: #9c8d7e; }
+
+			.dg-note { font-size: 12px; color: #9c8d7e; margin-top: 8px; }
+			@media (min-width: 820px) { .dg-cols { grid-template-columns: 1.2fr .8fr; } }
+			@media (max-width: 700px) { .dg-deliver { grid-template-columns: 1fr; } }
+		</style>
 	</ui:define>
 
 	<ui:define name="content">
-	
+		<p:growl id="dgGrowl" showDetail="true" life="4000" />
+
+		<!-- Sem evento associado -->
+		<h:panelGroup layout="block" styleClass="dg" rendered="#{dashboardBean.semEvento}">
+			<div class="dg-event"><div class="t"><h1>Bem-vindo ao Segue-Me</h1>
+				<div class="meta">Seu usuário não está vinculado a um Segue-Me — fale com a coordenação para liberar o painel do encontro.</div></div></div>
+		</h:panelGroup>
+
+		<h:panelGroup layout="block" styleClass="dg" rendered="#{not dashboardBean.semEvento}">
+
+			<!-- Cabeçalho do evento -->
+			<div class="dg-event">
+				<div class="t">
+					<p class="dg-eyebrow" rendered="#{dashboardBean.grafica}">Painel da Equipe Gráfica</p>
+					<h1>#{dashboardBean.segueMe.titulo} — #{dashboardBean.segueMe.numeroRomano.numeroRomano}</h1>
+					<div class="meta">
+						<span><i class="fa fa-map-marker"></i>#{dashboardBean.segueMe.paroquia.descricao}</span>
+						<h:panelGroup rendered="#{dashboardBean.segueMe.dtInicio != null}">
+							<span><i class="fa fa-calendar"></i>
+								<h:outputText value="#{dashboardBean.segueMe.dtInicio}"><f:convertDateTime pattern="dd/MM/yyyy" timeZone="America/Sao_Paulo" /></h:outputText>
+								<h:outputText rendered="#{dashboardBean.segueMe.dtFim != null}" value=" a "/>
+								<h:outputText rendered="#{dashboardBean.segueMe.dtFim != null}" value="#{dashboardBean.segueMe.dtFim}"><f:convertDateTime pattern="dd/MM/yyyy" timeZone="America/Sao_Paulo" /></h:outputText>
+							</span>
+						</h:panelGroup>
+						<span><b class="dg-tnum">#{dashboardBean.totalInscritos}</b> inscritos</span>
+					</div>
+				</div>
+				<div class="dg-prep">
+					<p>Antes de imprimir: prepare as imagens do retiro, equipes e círculos (regravadas em disco a cada atualização do sistema).</p>
+					<h:form>
+						<p:commandButton value="Preparar imagens" icon="fa fa-refresh" style="width:100%"
+							styleClass="dg-btn" action="#{dashboardBean.prepararImagens}" update="dgGrowl" />
+					</h:form>
+				</div>
+			</div>
+
+			<!-- ENTREGAS: quadrante + crachás -->
+			<div class="dg-sec">
+				<p class="dg-eyebrow">Entregas da Gráfica neste encontro</p>
+				<div class="dg-deliver">
+					<!-- Quadrante -->
+					<div class="dg-card">
+						<div class="dg-dhead">
+							<span class="dg-dico"><i class="fa fa-th"></i></span>
+							<div><div class="dg-dlabel">Quadrante</div><div class="dg-dsub">Escala de serviço do encontro</div></div>
+							<span class="dg-pill #{dashboardBean.montagemCompleta ? 'ok' : 'warn'}">#{dashboardBean.montagemCompleta ? 'Montagem completa' : 'Montagem em aberto'}</span>
+						</div>
+						<div class="dg-mnum dg-tnum"><b>#{dashboardBean.totalAlocados}</b> <span>de #{dashboardBean.totalPrevistos} alocados no quadrante</span></div>
+						<div class="dg-meter"><i style="width:#{dashboardBean.pctAlocacao}%"></i></div>
+						<div class="dg-mfoot">
+							<h:panelGroup rendered="#{dashboardBean.vagas gt 0}"><span class="warn">#{dashboardBean.vagas} vagas em aberto</span> · gere quando a montagem estiver fechada</h:panelGroup>
+							<h:outputText rendered="#{dashboardBean.montagemCompleta}" value="Montagem fechada — pronto para gerar." />
+							<h:outputText rendered="#{dashboardBean.totalPrevistos eq 0}" value="Quadrante ainda não montado." />
+						</div>
+						<div class="dg-dactions">
+							<p:button value="Gerar quadrante" icon="fa fa-th" styleClass="dg-btn green-btn" outcome="/evento-seguidor/relatorio-quadrante" />
+							<div class="dg-chips">
+								<p:button value="Por equipe" styleClass="dg-btn dg-chip" outcome="/evento-seguidor/relatorio-quadrante-equipe" />
+								<p:button value="Seguimistas" styleClass="dg-btn dg-chip" outcome="/evento-seguidor/relatorio-quadrante-seguimista" />
+								<p:button value="Palestrantes" styleClass="dg-btn dg-chip" outcome="/evento-seguidor/relatorio-quadrante-palestra" />
+							</div>
+						</div>
+					</div>
+					<!-- Crachás -->
+					<div class="dg-card">
+						<div class="dg-dhead">
+							<span class="dg-dico"><i class="fa fa-print"></i></span>
+							<div><div class="dg-dlabel">Crachás</div><div class="dg-dsub">Identificação de todos os participantes</div></div>
+							<span class="dg-pill #{dashboardBean.totalPendentes eq 0 and dashboardBean.totalCrachas gt 0 ? 'ok' : 'warn'}">#{dashboardBean.pctCrachas}% impressos</span>
+						</div>
+						<div><span class="dg-big dg-tnum #{dashboardBean.totalPendentes eq 0 ? 'zero' : ''}">#{dashboardBean.totalPendentes}</span><span class="dg-u">crachás a imprimir</span></div>
+						<div class="dg-meter"><i class="ok" style="width:#{dashboardBean.pctCrachas}%"></i></div>
+						<div class="dg-mfoot dg-tnum">#{dashboardBean.totalImpressos} de #{dashboardBean.totalCrachas} impressos</div>
+						<div class="dg-dactions">
+							<p:button value="Imprimir crachás" icon="fa fa-print" styleClass="dg-btn green-btn" outcome="/evento-seguidor/relatorio-cracha" />
+							<a class="dg-detail" href="#dgCrachas">Ver detalhe por papel e por equipe &#8595;</a>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- CRACHÁS por papel -->
+			<div class="dg-sec" id="dgCrachas">
+				<div class="dg-sec-head">
+					<h2>Crachás por papel</h2>
+					<div class="s"><b class="dg-tnum">#{dashboardBean.totalPendentes}</b> a imprimir · <b class="dg-tnum">#{dashboardBean.totalImpressos}</b> de <b class="dg-tnum">#{dashboardBean.totalCrachas}</b> impressos</div>
+				</div>
+				<div class="dg-roles">
+					<ui:repeat value="#{dashboardBean.crachas}" var="c">
+						<div class="dg-role">
+							<div class="r"><span class="ic"><i class="#{c.icone}"></i></span><span class="nm">#{c.rotulo}</span></div>
+							<div><span class="n dg-tnum #{c.completo ? 'zero' : ''}">#{c.pendentes}</span><span class="nu">a imprimir</span></div>
+							<div class="dg-meter"><i class="ok" style="width:#{c.pctImpresso}%"></i></div>
+							<div class="foot">
+								<h:panelGroup rendered="#{c.completo}"><span class="dg-badge-done">Tudo impresso</span></h:panelGroup>
+								<h:outputText rendered="#{not c.completo}" styleClass="dg-tnum" value="#{c.impressos} / #{c.total} impressos" />
+								<span class="pct dg-tnum">#{c.pctImpresso}%</span>
+							</div>
+							<div class="acts">
+								<p:button value="#{c.vazio ? 'Sem registros' : (c.completo ? 'Reimprimir' : 'Imprimir')}" disabled="#{c.vazio}" styleClass="dg-btn #{c.completo or c.vazio ? '' : 'green-btn'}" style="flex:1" outcome="#{c.outcome}" />
+								<p:button value="Por equipe" rendered="#{c.temEquipe}" styleClass="dg-btn" outcome="#{c.outcomeEquipe}" />
+							</div>
+						</div>
+					</ui:repeat>
+				</div>
+			</div>
+
+			<!-- Seguidores por equipe -->
+			<div class="dg-sec">
+				<div class="dg-panel">
+					<div class="dg-phead">
+						<div><h3>Seguidores por equipe</h3><div class="sub">Detalhe do quadrante · ordenado por crachás a imprimir</div></div>
+						<p:button value="Imprimir separado por equipe" icon="fa fa-print" styleClass="dg-btn" style="margin-left:auto"
+							outcome="/evento-seguidor/relatorio-cracha-equipe" />
+					</div>
+					<div class="dg-pbody dg-scroll">
+						<table class="dg-tbl">
+							<thead><tr><th>Equipe</th><th class="n">Previstos</th><th class="n">Alocados</th><th class="n">A imprimir</th><th class="n">Impressão</th></tr></thead>
+							<tbody>
+								<ui:repeat value="#{dashboardBean.equipes}" var="e">
+									<tr>
+										<td><span class="team">#{e.titulo}</span><h:outputText rendered="#{e.sua}" styleClass="dg-mine" value="Sua equipe" /></td>
+										<td class="n">#{e.previstos}</td>
+										<td class="n">#{e.alocados}<h:outputText rendered="#{e.faltam gt 0}" styleClass="dg-gap" value="· faltam #{e.faltam}" /></td>
+										<td class="n"><span class="dg-pend #{e.crachaCompleto ? 'done' : ''}">#{e.crachaCompleto ? '✓' : e.pendentes}</span></td>
+										<td class="n">#{e.pctImpresso}%</td>
+									</tr>
+								</ui:repeat>
+							</tbody>
+							<tfoot><tr>
+								<td>Total · #{dashboardBean.equipes.size()} equipes</td>
+								<td class="n">#{dashboardBean.totalPrevistos}</td>
+								<td class="n">#{dashboardBean.totalAlocados}</td>
+								<td class="n"><span class="dg-pend">#{dashboardBean.totalPendentes}</span></td>
+								<td class="n"></td>
+							</tr></tfoot>
+						</table>
+						<h:outputText rendered="#{empty dashboardBean.equipes}" styleClass="dg-note" value="Nenhum seguidor alocado no quadrante ainda." />
+					</div>
+				</div>
+			</div>
+
+			<!-- Inscritos + fluxo -->
+			<div class="dg-sec dg-cols">
+				<div class="dg-panel">
+					<div class="dg-phead"><div><h3>Inscritos por situação</h3><div class="sub">#{dashboardBean.totalInscritos} fichas neste encontro</div></div></div>
+					<div class="dg-pbody">
+						<div class="dg-stack">
+							<ui:repeat value="#{dashboardBean.situacoes}" var="s">
+								<h:panelGroup rendered="#{s.total gt 0}"><i class="dg-c-#{s.status.coresParaStyle}" style="width:#{s.pct}%"></i></h:panelGroup>
+							</ui:repeat>
+						</div>
+						<ui:repeat value="#{dashboardBean.situacoes}" var="s">
+							<div class="dg-st">
+								<span class="dg-sw dg-c-#{s.status.coresParaStyle}"></span>
+								<span class="lbl">#{s.status.nome}</span>
+								<span class="ct">#{s.total}</span>
+							</div>
+						</ui:repeat>
+					</div>
+				</div>
+				<div class="dg-panel">
+					<div class="dg-phead"><div><h3>Fluxo de impressão</h3><div class="sub">Do arquivo à entrega</div></div></div>
+					<div class="dg-pbody dg-flow">
+						<div class="step"><span class="num">1</span><div><div class="ft">Preparar imagens</div><div class="fd">Regrava as fotos do retiro, equipes e círculos em disco.</div></div></div>
+						<div class="step"><span class="num">2</span><div><div class="ft">Gerar o quadrante</div><div class="fd">Quando a montagem estiver fechada, sem vagas em aberto.</div></div></div>
+						<div class="step"><span class="num">3</span><div><div class="ft">Imprimir os crachás</div><div class="fd">Por papel, ou separados por equipe para distribuir.</div></div></div>
+					</div>
+				</div>
+			</div>
+
+		</h:panelGroup>
 	</ui:define>
 
 </ui:composition>

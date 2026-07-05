@@ -105,6 +105,74 @@ public class EventoRepository implements Serializable {
 				Evento.class).getResultList();
 	}
 
+	// ===== Dashboard da Equipe Gráfica: agregações por Segue-Me =====
+	// A flag e.cracha = true significa crachá PENDENTE de impressão.
+
+	/** Resumo de crachás [total, pendentes] de uma população de eventos do Segue-Me. */
+	private long[] resumoCracha(String jpqlFrom, SegueMe segueMe) {
+		Object[] r = (Object[]) manager
+				.createQuery("SELECT COUNT(e), COALESCE(SUM(CASE WHEN e.cracha = true THEN 1 ELSE 0 END), 0) "
+						+ jpqlFrom + " WHERE e.segueMe = :sm")
+				.setParameter("sm", segueMe).getSingleResult();
+		return new long[] { ((Number) r[0]).longValue(), ((Number) r[1]).longValue() };
+	}
+
+	/** [total, pendentes] dos crachás de seguidores de serviço (equipe/função). */
+	public long[] resumoCrachaSeguidores(SegueMe sm) {
+		return resumoCracha("FROM Evento e JOIN e.seguidor s JOIN e.equipe eq JOIN e.funcao f", sm);
+	}
+
+	/** [total, pendentes] dos crachás de seguimistas (inscrição aprovada). */
+	public long[] resumoCrachaSeguimistas(SegueMe sm) {
+		Object[] r = (Object[]) manager
+				.createQuery("SELECT COUNT(e), COALESCE(SUM(CASE WHEN e.cracha = true THEN 1 ELSE 0 END), 0) "
+						+ "FROM Evento e JOIN e.seguidor s JOIN e.inscricao i "
+						+ "WHERE e.segueMe = :sm AND i.statusInscricao = :aprovado")
+				.setParameter("sm", sm).setParameter("aprovado", StatusInscricao.APROVADO).getSingleResult();
+		return new long[] { ((Number) r[0]).longValue(), ((Number) r[1]).longValue() };
+	}
+
+	/** [total, pendentes] dos crachás de casais de serviço. */
+	public long[] resumoCrachaCasais(SegueMe sm) {
+		return resumoCracha("FROM Evento e JOIN e.casal c JOIN e.equipe eq JOIN e.funcao f", sm);
+	}
+
+	/** [total, pendentes] dos crachás de padres/bispos de serviço. */
+	public long[] resumoCrachaPadres(SegueMe sm) {
+		return resumoCracha("FROM Evento e JOIN e.padre p JOIN e.equipe eq JOIN e.funcao f", sm);
+	}
+
+	/** [total, pendentes] dos crachás de palestrantes convidados. */
+	public long[] resumoCrachaConvidados(SegueMe sm) {
+		Object[] r = (Object[]) manager
+				.createQuery("SELECT COUNT(e), COALESCE(SUM(CASE WHEN e.cracha = true THEN 1 ELSE 0 END), 0) "
+						+ "FROM Evento e JOIN e.palestranteConvidado pc JOIN e.palestra pl "
+						+ "WHERE e.segueMe = :sm AND e.equipe IS NULL AND e.funcao IS NULL")
+				.setParameter("sm", sm).getSingleResult();
+		return new long[] { ((Number) r[0]).longValue(), ((Number) r[1]).longValue() };
+	}
+
+	/**
+	 * Seguidores por equipe no quadrante: linhas [equipeId, titulo,
+	 * previstos(Equipe.pessoas), alocados, pendentes], ordenado por crachás a
+	 * imprimir (desc). Usado no Dashboard da Gráfica.
+	 */
+	public List<Object[]> resumoSeguidoresPorEquipe(SegueMe sm) {
+		return manager.createQuery("SELECT eq.id, eq.titulo, eq.pessoas, COUNT(e), "
+				+ "COALESCE(SUM(CASE WHEN e.cracha = true THEN 1 ELSE 0 END), 0) "
+				+ "FROM Evento e JOIN e.seguidor s JOIN e.equipe eq JOIN e.funcao f "
+				+ "WHERE e.segueMe = :sm GROUP BY eq.id, eq.titulo, eq.pessoas "
+				+ "ORDER BY COALESCE(SUM(CASE WHEN e.cracha = true THEN 1 ELSE 0 END), 0) DESC, COUNT(e) DESC",
+				Object[].class).setParameter("sm", sm).getResultList();
+	}
+
+	/** Inscritos por situação: linhas [StatusInscricao, total] do Segue-Me. */
+	public List<Object[]> resumoInscritosPorStatus(SegueMe sm) {
+		return manager.createQuery("SELECT i.statusInscricao, COUNT(i) FROM Evento e JOIN e.inscricao i "
+				+ "WHERE e.segueMe = :sm GROUP BY i.statusInscricao", Object[].class).setParameter("sm", sm)
+				.getResultList();
+	}
+
 	public List<Evento> filtradosInscricao(EventoFilter filtro) {
 		CriteriaBuilder builder = manager.getCriteriaBuilder();
 		CriteriaQuery<Tuple> criteriaQuery = builder.createTupleQuery();
