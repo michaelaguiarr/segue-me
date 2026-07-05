@@ -27,7 +27,6 @@ import com.segue.security.Seguranca;
 import com.segue.service.CadastroPalestraConvidadoService;
 import com.segue.service.CadastroPalestranteConvidadoService;
 import com.segue.service.NegocioException;
-import com.segue.util.NomeComInicialMaiscula;
 import com.segue.util.jsf.FacesUtil;
 
 @Named
@@ -143,15 +142,12 @@ public class CadastroPalestraConvidadoBean implements Serializable {
 	}
 
 	/**
-	 * AutoComplete Seguidor
+	 * AutoComplete do convidado: busca por nome, apelido ou telefone. O termo cru é
+	 * enviado ao repositório, que normaliza tanto o nome quanto os dígitos do
+	 * telefone.
 	 */
-	public List<PalestranteConvidado> buscaPessoas(String nome) {
-		return this.getSeguidorPorNome(nome);
-	}
-
-	private List<PalestranteConvidado> getSeguidorPorNome(String nome) {
-		List<PalestranteConvidado> seguidores = cadastroPalestranteConvidadoService.findByNome(NomeComInicialMaiscula.iniciaisMaiuscula(nome));
-		return seguidores;
+	public List<PalestranteConvidado> buscaPessoas(String termo) {
+		return cadastroPalestranteConvidadoService.findByNome(termo);
 	}
 
 	public boolean isEditando() {

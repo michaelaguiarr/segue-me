@@ -27,7 +27,6 @@ import com.segue.security.Seguranca;
 import com.segue.service.CadastroEventoPadreService;
 import com.segue.service.CadastroPadreService;
 import com.segue.service.NegocioException;
-import com.segue.util.NomeComInicialMaiscula;
 import com.segue.util.jsf.FacesUtil;
 
 @Named
@@ -157,15 +156,12 @@ public class CadastroEventoPadreBean implements Serializable {
 	}
 
 	/**
-	 * AutoComplete Seguidor
+	 * AutoComplete do padre: busca por nome, apelido ou telefone. O termo cru é
+	 * enviado ao repositório, que normaliza tanto o nome quanto os dígitos do
+	 * telefone.
 	 */
-	public List<Padre> buscaPessoas(String nome) {
-		return this.getPadrePorNome(nome);
-	}
-
-	private List<Padre> getPadrePorNome(String nome) {
-		List<Padre> seguidores = cadastroPadreService.findByNome(NomeComInicialMaiscula.iniciaisMaiuscula(nome));
-		return seguidores;
+	public List<Padre> buscaPessoas(String termo) {
+		return cadastroPadreService.findByNome(termo);
 	}
 
 	public boolean isEditando() {

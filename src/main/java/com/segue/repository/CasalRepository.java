@@ -197,15 +197,32 @@ public class CasalRepository implements Serializable {
 
 	public List<Casal> findByNome(String searchValue) {
 		try {
-			return manager
-					.createQuery("select distinct(c) from Casal c " + "where lower(c.nomeEleSemAcento) LIKE lower(:nomeEle) "
-							+ "OR lower(c.apelidoEle) LIKE lower(:apelidoEle) "
-							+ "OR lower(c.nomeEleSemAcento) LIKE lower(:nomeEla) "
-							+ "OR lower(c.apelidoEla) LIKE lower(:apelidoEla) ", Casal.class)
-					.setParameter("nomeEle", "%" + StringExtended.toASCII(searchValue.toUpperCase()) + "%")
-					.setParameter("apelidoEle", "%" + searchValue.toUpperCase() + "%")
-					.setParameter("nomeEla", "%" + StringExtended.toASCII(searchValue.toUpperCase()) + "%")
-					.setParameter("apelidoEla", "%" + searchValue.toUpperCase() + "%").setMaxResults(30).getResultList();
+			String nome = "%" + StringExtended.toASCII(searchValue.toUpperCase()) + "%";
+			String apelido = "%" + searchValue.toUpperCase() + "%";
+			// Busca também por telefone: só os dígitos do que foi digitado (tira a
+			// máscara) contra os telefones pessoais do casal, também normalizados no
+			// banco. LIKE parcial permite achar por trechos do número.
+			String digitos = searchValue.replaceAll("[^0-9]", "");
+			boolean buscaTelefone = digitos.length() >= 3;
+
+			StringBuilder jpql = new StringBuilder("select distinct(c) from Casal c where "
+					+ "lower(c.nomeEleSemAcento) LIKE lower(:nome) "
+					+ "OR lower(c.apelidoEle) LIKE lower(:apelido) "
+					+ "OR lower(c.nomeElaSemAcento) LIKE lower(:nome) "
+					+ "OR lower(c.apelidoEla) LIKE lower(:apelido) ");
+			if (buscaTelefone) {
+				jpql.append("OR function('regexp_replace', c.telefoneEleUm, '[^0-9]', '', 'g') LIKE :tel ");
+				jpql.append("OR function('regexp_replace', c.telefoneEleDois, '[^0-9]', '', 'g') LIKE :tel ");
+				jpql.append("OR function('regexp_replace', c.telefoneElaUm, '[^0-9]', '', 'g') LIKE :tel ");
+				jpql.append("OR function('regexp_replace', c.telefoneElaDois, '[^0-9]', '', 'g') LIKE :tel ");
+			}
+
+			TypedQuery<Casal> query = manager.createQuery(jpql.toString(), Casal.class)
+					.setParameter("nome", nome).setParameter("apelido", apelido);
+			if (buscaTelefone) {
+				query.setParameter("tel", "%" + digitos + "%");
+			}
+			return query.setMaxResults(30).getResultList();
 		} catch (NoResultException nr) {
 			return null;
 		}

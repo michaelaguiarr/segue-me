@@ -170,7 +170,8 @@
 									</div>
 
 									<div class="ui-g-12">
-										<p:outputLabel value="Nome Casal" for="casal" />
+										<p:outputLabel value="Casal (busque por nome, apelido ou telefone)"
+											for="casal" />
 									</div>
 
 									<div class="ui-g-12 ui-md-12 ui-lg-12">
@@ -180,7 +181,7 @@
 												value="#{cadastroEventoCasalBean.evento.casal}"
 												completeMethod="#{cadastroEventoCasalBean.buscaPessoas}"
 												var="casal"
-												itemLabel="#{casal.apelidoEle} e #{casal.apelidoEla}"
+												itemLabel="#{empty casal.apelidoEle and empty casal.apelidoEla ? '' : casal.apelidoEle}#{empty casal.apelidoEle and empty casal.apelidoEla ? '' : ' e '}#{empty casal.apelidoEle and empty casal.apelidoEla ? '' : casal.apelidoEla}"
 												itemValue="#{casal}" minQueryLength="3" maxResults="10"
 												forceSelection="true" emptyMessage="Casal não encontrado!">
 												<p:ajax event="itemSelect" update="@form" />
@@ -190,6 +191,14 @@
 
 												<p:column>
 													<p:outputLabel value="#{casal.apelidoEla}" />
+												</p:column>
+
+												<p:column>
+													<p:outputLabel value="#{casal.telefoneEleUm}" />
+												</p:column>
+
+												<p:column>
+													<p:outputLabel value="#{casal.telefoneElaUm}" />
 												</p:column>
 
 											</p:autoComplete>

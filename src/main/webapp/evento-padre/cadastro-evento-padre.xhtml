@@ -154,7 +154,9 @@
 									</div>
 
 									<div class="ui-g-12">
-										<p:outputLabel value="Nome Padre/Bispo" for="padre" />
+										<p:outputLabel
+												value="Padre/Bispo (busque por nome, apelido ou telefone)"
+												for="padre" />
 									</div>
 
 									<div class="ui-g-12 ui-md-12 ui-lg-12">
@@ -173,6 +175,10 @@
 
 												<p:column>
 													<p:outputLabel value="#{padre.apelido}" />
+												</p:column>
+
+												<p:column>
+													<p:outputLabel value="#{padre.telefoneUm}" />
 												</p:column>
 
 											</p:autoComplete>
