@@ -3,6 +3,7 @@ package com.segue.repository;
 
 import com.segue.filter.CasalFilter;
 import com.segue.model.Casal;
+import com.segue.model.Paroquia;
 import com.segue.service.NegocioException;
 import com.segue.util.StringExtended;
 import org.apache.commons.lang3.StringUtils;
@@ -11,10 +12,12 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceException;
+import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -83,14 +86,18 @@ public class CasalRepository implements Serializable {
 
 	public List<Casal> filtrados(CasalFilter filtro) {
 		CriteriaBuilder builder = manager.getCriteriaBuilder();
-		CriteriaQuery<Casal> criteriaQuery = builder.createQuery(Casal.class);
+		CriteriaQuery<Tuple> criteriaQuery = builder.createTupleQuery();
 		List<Predicate> predicates = new ArrayList<>();
 
 		Root<Casal> root = criteriaQuery.from(Casal.class);
-		From<?, ?> enderecoJoin = (From<?, ?>) root.fetch("endereco", JoinType.LEFT);
-		From<?, ?> paroquiaJoin = (From<?, ?>) root.fetch("paroquia", JoinType.LEFT);
-		From<?, ?> eccJoin = (From<?, ?>) root.fetch("ecc", JoinType.LEFT);
-		From<?, ?> numeroRomanoJoin = (From<?, ?>) eccJoin.fetch("numeroRomano", JoinType.INNER);
+		// Projeção da listagem: joins (não fetch) só do que a tabela exibe, SEM os
+		// blobs imagem_ele/imagem_ela (fotos). Mantém os mesmos joins/tipos da
+		// consulta original para preservar o conjunto de resultados (o INNER em
+		// ecc.numeroRomano excluía casais sem ECC).
+		root.join("endereco", JoinType.LEFT);
+		Join<Object, Object> paroquiaJoin = root.join("paroquia", JoinType.LEFT);
+		Join<Object, Object> eccJoin = root.join("ecc", JoinType.LEFT);
+		eccJoin.join("numeroRomano", JoinType.INNER);
 
 		if (filtro.getParoquia() != null) {
 			predicates.add(builder.equal(root.get("paroquia"), filtro.getParoquia()));
@@ -116,12 +123,29 @@ public class CasalRepository implements Serializable {
 		}
 		// Oculta registros inativados (duplicados consolidados).
 		predicates.add(builder.equal(root.get("ativo"), true));
-		criteriaQuery.select(root);
+		criteriaQuery.multiselect(root.get("id"), root.get("timestamp"), root.get("nomeEle"), root.get("apelidoEle"),
+				root.get("nomeEla"), root.get("apelidoEla"), root.get("telefoneEleUm"), root.get("telefoneElaUm"),
+				paroquiaJoin.get("descricao"));
 		criteriaQuery.where(predicates.toArray(new Predicate[0]));
 		criteriaQuery.orderBy(builder.asc(root.get("nomeEle")), builder.asc(root.get("paroquia")));
 
-		TypedQuery<Casal> query = manager.createQuery(criteriaQuery);
-		return query.getResultList();
+		return montarProjecao(manager.createQuery(criteriaQuery).getResultList());
+	}
+
+	/**
+	 * Remonta as linhas da projeção (tupla) da listagem em {@link Casal} leves,
+	 * via o construtor de projeção — sem os blobs de foto. A foto é carregada sob
+	 * demanda por id ({@code PesquisaCasalBean.carregarFoto} → {@link #findById}).
+	 */
+	private List<Casal> montarProjecao(List<Tuple> tuples) {
+		List<Casal> casais = new ArrayList<>(tuples.size());
+		for (Tuple t : tuples) {
+			Paroquia paroquia = new Paroquia();
+			paroquia.setDescricao((String) t.get(8));
+			casais.add(new Casal((Integer) t.get(0), (Calendar) t.get(1), (String) t.get(2), (String) t.get(3),
+					(String) t.get(4), (String) t.get(5), (String) t.get(6), (String) t.get(7), paroquia));
+		}
+		return casais;
 	}
 	
 	public List<Casal> filtradosPublic(CasalFilter filtro) {

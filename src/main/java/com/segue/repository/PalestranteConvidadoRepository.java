@@ -2,6 +2,7 @@ package com.segue.repository;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -9,10 +10,12 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceException;
+import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.From;
+import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
@@ -21,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.segue.filter.PalestranteConvidadoFilter;
 import com.segue.model.PalestranteConvidado;
+import com.segue.model.Sexo;
 import com.segue.service.NegocioException;
 
 public class PalestranteConvidadoRepository implements Serializable {
@@ -59,12 +63,15 @@ public class PalestranteConvidadoRepository implements Serializable {
 
 	public List<PalestranteConvidado> filtrados(PalestranteConvidadoFilter filtro) {
 		CriteriaBuilder builder = manager.getCriteriaBuilder();
-		CriteriaQuery<PalestranteConvidado> criteriaQuery = builder.createQuery(PalestranteConvidado.class);
+		CriteriaQuery<Tuple> criteriaQuery = builder.createTupleQuery();
 		List<Predicate> predicates = new ArrayList<>();
 
 		Root<PalestranteConvidado> root = criteriaQuery.from(PalestranteConvidado.class);
-		From<?, ?> enderecoJoin = (From<?, ?>) root.fetch("endereco", JoinType.INNER);
-		From<?, ?> sexoJoin = (From<?, ?>) root.fetch("sexo", JoinType.INNER);
+		// Projeção da listagem: joins (não fetch) só do que a tabela exibe, SEM o
+		// blob imagem (foto). INNER em endereco/sexo preserva o conjunto de
+		// resultados da consulta original.
+		root.join("endereco", JoinType.INNER);
+		Join<Object, Object> sexoJoin = root.join("sexo", JoinType.INNER);
 
 		if (StringUtils.isNotBlank(filtro.getNome())) {
 			predicates.add(builder.or(
@@ -73,11 +80,20 @@ public class PalestranteConvidadoRepository implements Serializable {
 		}
 		// Oculta registros inativados (duplicados consolidados).
 		predicates.add(builder.equal(root.get("ativo"), true));
-		criteriaQuery.select(root);
+		criteriaQuery.multiselect(root.get("id"), root.get("timestamp"), root.get("nome"), root.get("apelido"),
+				root.get("telefoneUm"), sexoJoin.get("cod"));
 		criteriaQuery.where(predicates.toArray(new Predicate[0]));
 		criteriaQuery.orderBy(builder.asc(root.get("nome")));
-		TypedQuery<PalestranteConvidado> query = manager.createQuery(criteriaQuery);
-		return query.getResultList();
+
+		List<Tuple> tuples = manager.createQuery(criteriaQuery).getResultList();
+		List<PalestranteConvidado> convidados = new ArrayList<>(tuples.size());
+		for (Tuple t : tuples) {
+			Integer sexoCod = (Integer) t.get(5);
+			Sexo sexo = sexoCod != null ? new Sexo(sexoCod) : null;
+			convidados.add(new PalestranteConvidado((Integer) t.get(0), (Calendar) t.get(1), (String) t.get(2),
+					(String) t.get(3), (String) t.get(4), sexo));
+		}
+		return convidados;
 	}
 
 	/**

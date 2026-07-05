@@ -10,10 +10,12 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceException;
+import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.From;
+import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
@@ -22,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.segue.filter.PadreFilter;
 import com.segue.model.Padre;
+import com.segue.model.Paroquia;
 import com.segue.service.NegocioException;
 
 public class PadreRepository implements Serializable {
@@ -103,12 +106,15 @@ public class PadreRepository implements Serializable {
 
 	public List<Padre> filtrados(PadreFilter filtro) {
 		CriteriaBuilder builder = manager.getCriteriaBuilder();
-		CriteriaQuery<Padre> criteriaQuery = builder.createQuery(Padre.class);
+		CriteriaQuery<Tuple> criteriaQuery = builder.createTupleQuery();
 		List<Predicate> predicates = new ArrayList<>();
 
 		Root<Padre> root = criteriaQuery.from(Padre.class);
-		From<?, ?> enderecoJoin = (From<?, ?>) root.fetch("endereco", JoinType.INNER);
-		From<?, ?> paroquiaJoin = (From<?, ?>) root.fetch("paroquia", JoinType.LEFT);
+		// Projeção da listagem: joins (não fetch) só do que a tabela exibe, SEM o
+		// blob imagem (foto). O INNER em endereco preserva o conjunto de resultados
+		// da consulta original.
+		root.join("endereco", JoinType.INNER);
+		Join<Object, Object> paroquiaJoin = root.join("paroquia", JoinType.LEFT);
 
 		if (filtro.getParoquia() != null) {
 			predicates.add(builder.equal(root.get("paroquia"), filtro.getParoquia()));
@@ -123,11 +129,17 @@ public class PadreRepository implements Serializable {
 					builder.like(builder.lower(root.get("apelido")), "%" + filtro.getApelido().toLowerCase() + "%"));
 		}
 
-		criteriaQuery.select(root);
+		criteriaQuery.multiselect(root.get("id"), root.get("nome"), root.get("apelido"), paroquiaJoin.get("descricao"));
 		criteriaQuery.where(predicates.toArray(new Predicate[0]));
 		criteriaQuery.orderBy(builder.asc(root.get("nome")), builder.asc(root.get("paroquia")));
 
-		TypedQuery<Padre> query = manager.createQuery(criteriaQuery);
-		return query.getResultList();
+		List<Tuple> tuples = manager.createQuery(criteriaQuery).getResultList();
+		List<Padre> padres = new ArrayList<>(tuples.size());
+		for (Tuple t : tuples) {
+			Paroquia paroquia = new Paroquia();
+			paroquia.setDescricao((String) t.get(3));
+			padres.add(new Padre((Integer) t.get(0), (String) t.get(1), (String) t.get(2), paroquia));
+		}
+		return padres;
 	}
 }

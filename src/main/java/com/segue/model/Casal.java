@@ -143,8 +143,33 @@ public class Casal implements Serializable {
 	private boolean ativo = true;
 
 	/**
+	 * Construtor padrão exigido pela JPA.
+	 */
+	public Casal() {
+	}
+
+	/**
+	 * Construtor de projeção da listagem de pesquisa: só os campos exibidos na
+	 * tabela, sem os blobs {@code imagemELE}/{@code imagemELA} (fotos), que
+	 * degradavam a performance. As fotos são carregadas sob demanda ao abrir o
+	 * diálogo (ver {@code PesquisaCasalBean.carregarFoto}).
+	 */
+	public Casal(Integer id, Calendar timestamp, String nomeEle, String apelidoEle, String nomeEla, String apelidoEla,
+			String telefoneEleUm, String telefoneElaUm, Paroquia paroquia) {
+		this.id = id;
+		this.timestamp = timestamp;
+		this.nomeEle = nomeEle;
+		this.apelidoEle = apelidoEle;
+		this.nomeEla = nomeEla;
+		this.apelidoEla = apelidoEla;
+		this.telefoneEleUm = telefoneEleUm;
+		this.telefoneElaUm = telefoneElaUm;
+		this.paroquia = paroquia;
+	}
+
+	/**
 	 * carregar foto
-	 * 
+	 *
 	 * @return
 	 */
 	public String carregarImagemEle() {

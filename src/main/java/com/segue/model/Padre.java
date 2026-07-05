@@ -77,8 +77,26 @@ public class Padre implements Serializable {
 	private boolean ativo;
 
 	/**
+	 * Construtor padrão exigido pela JPA.
+	 */
+	public Padre() {
+	}
+
+	/**
+	 * Construtor de projeção da listagem de pesquisa: só os campos exibidos na
+	 * tabela, sem o blob {@code imagem} (foto), que degradava a performance. A foto
+	 * é carregada sob demanda ao abrir o diálogo ({@code PesquisaPadreBean.carregarFoto}).
+	 */
+	public Padre(Integer id, String nome, String apelido, Paroquia paroquia) {
+		this.id = id;
+		this.nome = nome;
+		this.apelido = apelido;
+		this.paroquia = paroquia;
+	}
+
+	/**
 	 * carregar foto
-	 * 
+	 *
 	 * @return
 	 */
 	public String carregarImagem() {
