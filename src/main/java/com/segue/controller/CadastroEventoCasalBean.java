@@ -207,15 +207,12 @@ public class CadastroEventoCasalBean implements Serializable {
 	}
 
 	/**
-	 * AutoComplete Seguidor
+	 * AutoComplete do casal: busca por nome, apelido ou telefone. O termo cru é
+	 * enviado ao repositório, que normaliza tanto o nome quanto os dígitos do
+	 * telefone.
 	 */
-	public List<Casal> buscaPessoas(String nome) {
-		return this.getSeguidorPorNome(nome);
-	}
-
-	private List<Casal> getSeguidorPorNome(String nome) {
-		List<Casal> casais = cadastroCasalService.findByNome(NomeComInicialMaiscula.iniciaisMaiuscula(nome));
-		return casais;
+	public List<Casal> buscaPessoas(String termo) {
+		return cadastroCasalService.findByNome(termo);
 	}
 
 	public boolean isEditando() {

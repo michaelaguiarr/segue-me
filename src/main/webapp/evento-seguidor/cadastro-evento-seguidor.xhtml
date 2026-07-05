@@ -174,7 +174,9 @@
 									</div>
 
 									<div class="ui-g-12">
-										<p:outputLabel value="Nome Seguidor" for="seguidor" />
+										<p:outputLabel
+												value="Seguidor (busque por nome, apelido ou telefone)"
+												for="seguidor" />
 									</div>
 
 									<div class="ui-g-12 ui-md-12 ui-lg-12">
@@ -193,6 +195,14 @@
 
 												<p:column>
 													<p:outputLabel value="#{seguidor.apelido}" />
+												</p:column>
+
+												<p:column>
+													<p:outputLabel value="#{seguidor.telefoneUm}" />
+												</p:column>
+
+												<p:column>
+													<p:outputLabel value="#{seguidor.telefoneDois}" />
 												</p:column>
 
 											</p:autoComplete>

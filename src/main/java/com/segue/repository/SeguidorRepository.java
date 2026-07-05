@@ -172,14 +172,31 @@ public class SeguidorRepository implements Serializable {
 		}
 	}
 
-	public List<Seguidor> findByNome(String nome) {
+	public List<Seguidor> findByNome(String searchValue) {
 		try {
-			return manager
-					.createQuery("select distinct(s) from Seguidor s " + "where (s.nomeSemAcento LIKE :nome "
-							+ "OR s.apelido LIKE :nome) AND  s.situacaoSeguidor = :situacao  AND s.segueMe != NULL ",
-							Seguidor.class)
-					.setParameter("nome", "%" + StringExtended.toASCII(nome.toUpperCase()) + "%")
-					.setParameter("situacao", SituacaoSeguidor.ATIVO).setMaxResults(30).getResultList();
+			String nome = "%" + StringExtended.toASCII(searchValue.toUpperCase()) + "%";
+			// Busca também por telefone: só os dígitos do que foi digitado (tira a
+			// máscara) contra os telefones pessoais do seguidor, também normalizados no
+			// banco. LIKE parcial permite achar por trechos do número.
+			String digitos = searchValue.replaceAll("[^0-9]", "");
+			boolean buscaTelefone = digitos.length() >= 3;
+
+			StringBuilder jpql = new StringBuilder("select distinct(s) from Seguidor s where ("
+					+ "s.nomeSemAcento LIKE :nome OR s.apelido LIKE :nome ");
+			if (buscaTelefone) {
+				jpql.append("OR function('regexp_replace', s.telefoneUm, '[^0-9]', '', 'g') LIKE :tel ");
+				jpql.append("OR function('regexp_replace', s.telefoneDois, '[^0-9]', '', 'g') LIKE :tel ");
+				jpql.append("OR function('regexp_replace', s.telefoneTres, '[^0-9]', '', 'g') LIKE :tel ");
+				jpql.append("OR function('regexp_replace', s.telefoneQuatro, '[^0-9]', '', 'g') LIKE :tel ");
+			}
+			jpql.append(") AND s.situacaoSeguidor = :situacao AND s.segueMe != NULL");
+
+			TypedQuery<Seguidor> query = manager.createQuery(jpql.toString(), Seguidor.class)
+					.setParameter("nome", nome).setParameter("situacao", SituacaoSeguidor.ATIVO);
+			if (buscaTelefone) {
+				query.setParameter("tel", "%" + digitos + "%");
+			}
+			return query.setMaxResults(30).getResultList();
 		} catch (NoResultException nr) {
 			return null;
 		}

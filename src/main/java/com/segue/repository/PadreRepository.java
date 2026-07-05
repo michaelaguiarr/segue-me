@@ -75,12 +75,27 @@ public class PadreRepository implements Serializable {
 		}
 	}
 
-	public List<Padre> findByNome(String nome) {
+	public List<Padre> findByNome(String searchValue) {
 		try {
-			return manager
-					.createQuery("select distinct(s) from Padre s " + "where (s.nome LIKE :nome "
-							+ "OR s.apelido LIKE :nome) ", Padre.class)
-					.setParameter("nome", "%" + nome + "%").setMaxResults(30).getResultList();
+			String nome = "%" + searchValue + "%";
+			// Busca também por telefone: só os dígitos do que foi digitado (tira a
+			// máscara) contra o telefone do padre, também normalizado no banco.
+			String digitos = searchValue.replaceAll("[^0-9]", "");
+			boolean buscaTelefone = digitos.length() >= 3;
+
+			StringBuilder jpql = new StringBuilder("select distinct(s) from Padre s where ("
+					+ "lower(s.nome) LIKE lower(:nome) OR lower(s.apelido) LIKE lower(:nome) ");
+			if (buscaTelefone) {
+				jpql.append("OR function('regexp_replace', s.telefoneUm, '[^0-9]', '', 'g') LIKE :tel ");
+			}
+			jpql.append(")");
+
+			TypedQuery<Padre> query = manager.createQuery(jpql.toString(), Padre.class)
+					.setParameter("nome", nome);
+			if (buscaTelefone) {
+				query.setParameter("tel", "%" + digitos + "%");
+			}
+			return query.setMaxResults(30).getResultList();
 		} catch (NoResultException nr) {
 			return null;
 		}

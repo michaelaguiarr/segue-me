@@ -95,12 +95,27 @@ public class PalestranteConvidadoRepository implements Serializable {
 		}
 	}
 
-	public List<PalestranteConvidado> findByNome(String nome) {
+	public List<PalestranteConvidado> findByNome(String searchValue) {
 		try {
-			return manager
-					.createQuery("select distinct(s) from PalestranteConvidado s " + "where (s.nome LIKE :nome "
-							+ "OR s.apelido LIKE :nome)", PalestranteConvidado.class)
-					.setParameter("nome", "%" + nome + "%").setMaxResults(30).getResultList();
+			String nome = "%" + searchValue + "%";
+			// Busca também por telefone: só os dígitos do que foi digitado (tira a
+			// máscara) contra o telefone do convidado, também normalizado no banco.
+			String digitos = searchValue.replaceAll("[^0-9]", "");
+			boolean buscaTelefone = digitos.length() >= 3;
+
+			StringBuilder jpql = new StringBuilder("select distinct(s) from PalestranteConvidado s where ("
+					+ "lower(s.nome) LIKE lower(:nome) OR lower(s.apelido) LIKE lower(:nome) ");
+			if (buscaTelefone) {
+				jpql.append("OR function('regexp_replace', s.telefoneUm, '[^0-9]', '', 'g') LIKE :tel ");
+			}
+			jpql.append(")");
+
+			TypedQuery<PalestranteConvidado> query = manager.createQuery(jpql.toString(), PalestranteConvidado.class)
+					.setParameter("nome", nome);
+			if (buscaTelefone) {
+				query.setParameter("tel", "%" + digitos + "%");
+			}
+			return query.setMaxResults(30).getResultList();
 		} catch (NoResultException nr) {
 			return null;
 		}

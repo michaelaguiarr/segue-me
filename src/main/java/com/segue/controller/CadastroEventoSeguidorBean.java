@@ -198,18 +198,15 @@ public class CadastroEventoSeguidorBean implements Serializable {
 	}
 
 	/**
-	 * AutoComplete Seguidor
+	 * AutoComplete do seguidor: busca por nome, apelido ou telefone. O termo cru é
+	 * enviado ao repositório, que normaliza tanto o nome quanto os dígitos do
+	 * telefone.
 	 */
-	public List<Seguidor> buscaPessoas(String nome) {
-		return this.getSeguidorPorNome(nome);
+	public List<Seguidor> buscaPessoas(String termo) {
+		return cadastroSeguidorService.findByNome(termo);
 	}
 
-	private List<Seguidor> getSeguidorPorNome(String nome) {
-		List<Seguidor> seguidores = cadastroSeguidorService.findByNome(NomeComInicialMaiscula.iniciaisMaiuscula(nome));
-		return seguidores;
-	}
-	
-	
+
 	/**
 	 * AutoComplete Seguidor
 	 */
