@@ -129,7 +129,7 @@ public class DashboardBean implements Serializable {
 			long alocados = ((Number) r[3]).longValue();
 			long pendentes = ((Number) r[4]).longValue();
 			boolean sua = minhaEquipe != null && minhaEquipe.equals(equipeId);
-			equipes.add(new EquipeLinha(titulo, previstos, alocados, pendentes, sua));
+			equipes.add(new EquipeLinha(equipeId, titulo, previstos, alocados, pendentes, sua));
 			totalPrevistos += previstos;
 			totalAlocados += alocados;
 		}
@@ -224,6 +224,68 @@ public class DashboardBean implements Serializable {
 			ExecutorRelatorioDownload executor = new ExecutorRelatorioDownload(
 					"/jasper/" + nomeArquivo + tipo + ".jasper", response, parametros,
 					"Cracha" + tipo + segueMe.getNumeroRomano().getNumeroRomano() + ".pdf");
+			manager.unwrap(Session.class).doWork(executor);
+			if (executor.isRelatorioGerado()) {
+				facesContext.responseComplete();
+			}
+		} catch (Exception e) {
+			FacesUtil.addErrorMessage("A execução do relatório não retornou dados.");
+		}
+	}
+
+	/**
+	 * Gera e baixa o PDF dos crachás de seguidores de UMA equipe (mesma lógica de
+	 * {@code RelatorioCrachaSeguidorEquipe.emitir}) — modelo do retiro
+	 * ({@code segueMe.nomeArquivoCracha} + "SeguidorEquipe", ou "cracha..." quando
+	 * vazio). Acionado a partir da linha da equipe na tabela "Seguidores por
+	 * equipe". Botão NÃO-AJAX (escreve o PDF na resposta HTTP).
+	 */
+	public void gerarCrachaEquipe(Integer equipeId, String titulo) {
+		if (segueMe == null || equipeId == null) {
+			return;
+		}
+		try {
+			fotoService.materializarImagensSegueMe(segueMe);
+			fotoService.materializarImagensEquipe();
+			String nomeArquivo = segueMe.getNomeArquivoCracha() == null || segueMe.getNomeArquivoCracha().isEmpty()
+					? "cracha"
+					: segueMe.getNomeArquivoCracha();
+			Map<String, Object> parametros = new HashMap<>();
+			parametros.put(JRParameter.REPORT_LOCALE, new Locale("pt", "BR"));
+			parametros.put("segueMe", segueMe.getId());
+			parametros.put("equipe", equipeId);
+			ExecutorRelatorioDownload executor = new ExecutorRelatorioDownload(
+					"/jasper/" + nomeArquivo + "SeguidorEquipe.jasper", response, parametros,
+					"Cracha" + titulo + ".pdf");
+			manager.unwrap(Session.class).doWork(executor);
+			if (executor.isRelatorioGerado()) {
+				facesContext.responseComplete();
+			}
+		} catch (Exception e) {
+			FacesUtil.addErrorMessage("A execução do relatório não retornou dados.");
+		}
+	}
+
+	/**
+	 * Gera e baixa o PDF do quadrante de UMA equipe (mesma lógica de
+	 * {@code RelatorioQuadranteEquipe.emitir}). Acionado a partir da linha da
+	 * equipe na tabela "Seguidores por equipe". Botão NÃO-AJAX (escreve o PDF na
+	 * resposta HTTP).
+	 */
+	public void gerarQuadranteEquipe(Integer equipeId, String titulo) {
+		if (segueMe == null || equipeId == null) {
+			return;
+		}
+		try {
+			fotoService.materializarImagensSegueMe(segueMe);
+			Map<String, Object> parametros = new HashMap<>();
+			parametros.put(JRParameter.REPORT_LOCALE, new Locale("pt", "BR"));
+			parametros.put("pagina", 0);
+			parametros.put("segueMe", segueMe.getId());
+			parametros.put("equipe", equipeId);
+			ExecutorRelatorioDownload executor = new ExecutorRelatorioDownload(
+					"/jasper/quadranteSeguidorEquipe.jasper", response, parametros,
+					"Quadrante" + segueMe.getNumeroRomano().getNumeroRomano() + "-" + titulo + ".pdf");
 			manager.unwrap(Session.class).doWork(executor);
 			if (executor.isRelatorioGerado()) {
 				facesContext.responseComplete();
@@ -368,18 +430,24 @@ public class DashboardBean implements Serializable {
 
 	public static class EquipeLinha implements Serializable {
 		private static final long serialVersionUID = 1L;
+		private final Integer equipeId;
 		private final String titulo;
 		private final long previstos;
 		private final long alocados;
 		private final long pendentes;
 		private final boolean sua;
 
-		EquipeLinha(String titulo, long previstos, long alocados, long pendentes, boolean sua) {
+		EquipeLinha(Integer equipeId, String titulo, long previstos, long alocados, long pendentes, boolean sua) {
+			this.equipeId = equipeId;
 			this.titulo = titulo;
 			this.previstos = previstos;
 			this.alocados = alocados;
 			this.pendentes = pendentes;
 			this.sua = sua;
+		}
+
+		public Integer getEquipeId() {
+			return equipeId;
 		}
 
 		public String getTitulo() {

@@ -96,6 +96,11 @@
 			.dg-pend { font-weight: 700; color: #e0830b; }
 			.dg-pend.done { color: #1e9e5a; font-weight: 600; }
 			.dg-tbl tfoot td { font-weight: 700; border-top: 2px solid #ebe3d6; padding: 11px 12px; font-variant-numeric: tabular-nums; }
+			.dg-tbl td.acts { white-space: nowrap; text-align: right; }
+			.dg-rowbtns { display: inline-flex; gap: 6px; justify-content: flex-end; }
+			.dg-rowbtn.ui-button { padding: 5px 11px !important; font-size: 12px !important; font-weight: 600 !important; border-radius: 8px !important; }
+			.dg-rowbtn.ui-button .ui-button-text { padding: 0 !important; }
+			.dg-rowbtn.ui-button .fa { margin-right: 5px; }
 
 			/* status list */
 			.dg-stack { height: 12px; border-radius: 99px; overflow: hidden; display: flex; margin-bottom: 14px; background: #f2ece2; }
@@ -246,28 +251,43 @@
 							outcome="/evento-seguidor/relatorio-cracha-equipe" />
 					</div>
 					<div class="dg-pbody dg-scroll">
-						<table class="dg-tbl">
-							<thead><tr><th>Equipe</th><th class="n">Previstos</th><th class="n">Alocados</th><th class="n">A imprimir</th><th class="n">Impressão</th></tr></thead>
-							<tbody>
-								<ui:repeat value="#{dashboardBean.equipes}" var="e">
-									<tr>
-										<td><span class="team">#{e.titulo}</span><h:outputText rendered="#{e.sua}" styleClass="dg-mine" value="Sua equipe" /></td>
-										<td class="n">#{e.previstos}</td>
-										<td class="n">#{e.alocados}<h:outputText rendered="#{e.faltam gt 0}" styleClass="dg-gap" value="· faltam #{e.faltam}" /></td>
-										<td class="n"><span class="dg-pend #{e.crachaCompleto ? 'done' : ''}">#{e.crachaCompleto ? '✓' : e.pendentes}</span></td>
-										<td class="n">#{e.pctImpresso}%</td>
-									</tr>
-								</ui:repeat>
-							</tbody>
-							<tfoot><tr>
-								<td>Total · #{dashboardBean.equipes.size()} equipes</td>
-								<td class="n">#{dashboardBean.totalPrevistos}</td>
-								<td class="n">#{dashboardBean.totalAlocados}</td>
-								<td class="n"><span class="dg-pend">#{dashboardBean.totalPendentes}</span></td>
-								<td class="n"></td>
-							</tr></tfoot>
-						</table>
-						<h:outputText rendered="#{empty dashboardBean.equipes}" styleClass="dg-note" value="Nenhum seguidor alocado no quadrante ainda." />
+						<h:form>
+							<table class="dg-tbl">
+								<thead><tr><th>Equipe</th><th class="n">Previstos</th><th class="n">Alocados</th><th class="n">A imprimir</th><th class="n">Impressão</th><th class="acts">Imprimir só desta equipe</th></tr></thead>
+								<tbody>
+									<ui:repeat value="#{dashboardBean.equipes}" var="e">
+										<tr>
+											<td><span class="team">#{e.titulo}</span><h:outputText rendered="#{e.sua}" styleClass="dg-mine" value="Sua equipe" /></td>
+											<td class="n">#{e.previstos}</td>
+											<td class="n">#{e.alocados}<h:outputText rendered="#{e.faltam gt 0}" styleClass="dg-gap" value="· faltam #{e.faltam}" /></td>
+											<td class="n"><span class="dg-pend #{e.crachaCompleto ? 'done' : ''}">#{e.crachaCompleto ? '✓' : e.pendentes}</span></td>
+											<td class="n">#{e.pctImpresso}%</td>
+											<td class="acts">
+												<span class="dg-rowbtns">
+													<p:commandButton value="Crachá" icon="fa fa-id-card-o" ajax="false" disabled="#{e.alocados eq 0}"
+														styleClass="dg-rowbtn #{e.crachaCompleto or e.alocados eq 0 ? '' : 'green-btn'}"
+														title="Imprimir os crachás dos seguidores desta equipe"
+														action="#{dashboardBean.gerarCrachaEquipe(e.equipeId, e.titulo)}" />
+													<p:commandButton value="Quadrante" icon="fa fa-th-large" ajax="false" disabled="#{e.alocados eq 0}"
+														styleClass="dg-rowbtn"
+														title="Imprimir o quadrante desta equipe"
+														action="#{dashboardBean.gerarQuadranteEquipe(e.equipeId, e.titulo)}" />
+												</span>
+											</td>
+										</tr>
+									</ui:repeat>
+								</tbody>
+								<tfoot><tr>
+									<td>Total · #{dashboardBean.equipes.size()} equipes</td>
+									<td class="n">#{dashboardBean.totalPrevistos}</td>
+									<td class="n">#{dashboardBean.totalAlocados}</td>
+									<td class="n"><span class="dg-pend">#{dashboardBean.totalPendentes}</span></td>
+									<td class="n"></td>
+									<td class="acts"></td>
+								</tr></tfoot>
+							</table>
+							<h:outputText rendered="#{empty dashboardBean.equipes}" styleClass="dg-note" value="Nenhum seguidor alocado no quadrante ainda." />
+						</h:form>
 					</div>
 				</div>
 			</div>
