@@ -124,6 +124,15 @@ public class PesquisaSeguidorBean implements Serializable {
 	}
 
 	/**
+	 * Carrega o seguidor completo (com a foto) sob demanda ao abrir o diálogo de
+	 * foto. A listagem é projetada sem o blob {@code imagem} por performance, então
+	 * aqui recarregamos o registro pelo id para exibir a imagem.
+	 */
+	public void carregarFoto(Integer id) {
+		this.seguidor = repository.findById(id);
+	}
+
+	/**
 	 * Carregar Segue-me;
 	 */
 	public void onSegueMeChange() {
