@@ -70,6 +70,9 @@ public class CasalRepository implements Serializable {
 			predicates.add(builder.equal(root.get("segueMe"), filtro.getSegueMe()));
 		}
 
+		// Oculta registros inativados (duplicados consolidados).
+		predicates.add(builder.equal(root.get("ativo"), true));
+
 		criteriaQuery.select(root);
 		criteriaQuery.where(predicates.toArray(new Predicate[0]));
 		criteriaQuery.orderBy(builder.asc(root.get("nome")), builder.asc(root.get("segueMe")));
@@ -111,6 +114,8 @@ public class CasalRepository implements Serializable {
 			predicates.add(builder.like(builder.lower(root.get("apelidoEla")),
 					"%" + filtro.getApelidoEla().toLowerCase() + "%"));
 		}
+		// Oculta registros inativados (duplicados consolidados).
+		predicates.add(builder.equal(root.get("ativo"), true));
 		criteriaQuery.select(root);
 		criteriaQuery.where(predicates.toArray(new Predicate[0]));
 		criteriaQuery.orderBy(builder.asc(root.get("nomeEle")), builder.asc(root.get("paroquia")));
@@ -137,6 +142,9 @@ public class CasalRepository implements Serializable {
 			Predicate telefoneElaDoisPredicate = builder.equal(root.get("telefoneElaDois"), filtro.getTelefone());
 			predicates.add(builder.or(telefoneEleUmPredicate, telefoneEleDoisPredicate, telefoneElaUmPredicate, telefoneElaDoisPredicate));
 		}
+
+		// Oculta registros inativados (duplicados consolidados).
+		predicates.add(builder.equal(root.get("ativo"), true));
 
 //		Predicate orClause =
 //			    builder.or(
@@ -173,7 +181,7 @@ public class CasalRepository implements Serializable {
 		Casal casal = null;
 		try {
 			return manager.createQuery("SELECT c FROM Casal c "
-					+ "WHERE lower(c.nomeEleSemAcento) LIKE lower(:nomeEle)  AND c.dataNascimentoEle = :dataNascimentoEle",
+					+ "WHERE lower(c.nomeEleSemAcento) LIKE lower(:nomeEle)  AND c.dataNascimentoEle = :dataNascimentoEle AND c.ativo = true",
 					Casal.class).setParameter("nomeEle", StringExtended.toASCII(nomeEle.toUpperCase())).setParameter("dataNascimentoEle", dataNascimentoEle)
 					.getSingleResult();
 		} catch (NoResultException e) {
@@ -186,7 +194,7 @@ public class CasalRepository implements Serializable {
 		Casal casal = null;
 		try {
 			return manager.createQuery("SELECT c FROM Casal c "
-					+ "WHERE lower(c.nomeEleSemAcento) LIKE lower(:nomeEla)  AND c.dataNascimentoEla = :dataNascimentoEla",
+					+ "WHERE lower(c.nomeEleSemAcento) LIKE lower(:nomeEla)  AND c.dataNascimentoEla = :dataNascimentoEla AND c.ativo = true",
 					Casal.class).setParameter("nomeEla", StringExtended.toASCII(nomeEla.toUpperCase())).setParameter("dataNascimentoEla", dataNascimentoEla)
 					.getSingleResult();
 		} catch (NoResultException e) {
@@ -205,7 +213,7 @@ public class CasalRepository implements Serializable {
 			String digitos = searchValue.replaceAll("[^0-9]", "");
 			boolean buscaTelefone = digitos.length() >= 3;
 
-			StringBuilder jpql = new StringBuilder("select distinct(c) from Casal c where "
+			StringBuilder jpql = new StringBuilder("select distinct(c) from Casal c where ("
 					+ "lower(c.nomeEleSemAcento) LIKE lower(:nome) "
 					+ "OR lower(c.apelidoEle) LIKE lower(:apelido) "
 					+ "OR lower(c.nomeElaSemAcento) LIKE lower(:nome) "
@@ -216,6 +224,8 @@ public class CasalRepository implements Serializable {
 				jpql.append("OR function('regexp_replace', c.telefoneElaUm, '[^0-9]', '', 'g') LIKE :tel ");
 				jpql.append("OR function('regexp_replace', c.telefoneElaDois, '[^0-9]', '', 'g') LIKE :tel ");
 			}
+			// Fecha o grupo de OR e oculta registros inativados (duplicados consolidados).
+			jpql.append(") AND c.ativo = true");
 
 			TypedQuery<Casal> query = manager.createQuery(jpql.toString(), Casal.class)
 					.setParameter("nome", nome).setParameter("apelido", apelido);

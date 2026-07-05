@@ -54,8 +54,8 @@ public class Casal implements Serializable {
 	@Column(name = "apelido_ele")
 	private String apelidoEle;
 
-	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name = "dt_nascimento_ele", columnDefinition = "timestamp with time zone")
+	@Temporal(TemporalType.DATE)
+	@Column(name = "dt_nascimento_ele", columnDefinition = "date")
 	private Date dataNascimentoEle;
 
 	@Column(name = "naturalidade_ele")
@@ -86,8 +86,8 @@ public class Casal implements Serializable {
 	@Column(name = "apelido_ela")
 	private String apelidoEla;
 
-	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name = "dt_nascimento_ela", columnDefinition = "timestamp with time zone")
+	@Temporal(TemporalType.DATE)
+	@Column(name = "dt_nascimento_ela", columnDefinition = "date")
 	private Date dataNascimentoEla;
 
 	@Email
@@ -138,6 +138,9 @@ public class Casal implements Serializable {
 
 	@Column(name = "igreja_frequenta")
 	private String igrejaFrequenta;
+
+	@Column(columnDefinition = "BOOLEAN DEFAULT true", name = "ativo")
+	private boolean ativo = true;
 
 	/**
 	 * carregar foto
@@ -200,6 +203,14 @@ public class Casal implements Serializable {
 
 	public void setId(Integer id) {
 		this.id = id;
+	}
+
+	public boolean isAtivo() {
+		return ativo;
+	}
+
+	public void setAtivo(boolean ativo) {
+		this.ativo = ativo;
 	}
 
 	public Calendar getTimestamp() {

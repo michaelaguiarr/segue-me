@@ -71,6 +71,8 @@ public class PalestranteConvidadoRepository implements Serializable {
 					builder.like(builder.lower(root.get("nome")), "%" + filtro.getNome().toLowerCase() + "%"),
 					builder.like(builder.lower(root.get("apelido")), "%" + filtro.getNome().toLowerCase() + "%")));
 		}
+		// Oculta registros inativados (duplicados consolidados).
+		predicates.add(builder.equal(root.get("ativo"), true));
 		criteriaQuery.select(root);
 		criteriaQuery.where(predicates.toArray(new Predicate[0]));
 		criteriaQuery.orderBy(builder.asc(root.get("nome")));
@@ -88,7 +90,7 @@ public class PalestranteConvidadoRepository implements Serializable {
 		try {
 			return manager
 					.createQuery("SELECT distinct(s) FROM PalestranteConvidado s " + "WHERE s.nome like :nome "
-							+ "AND s.dataNascimento = :dtnascimento", PalestranteConvidado.class)
+							+ "AND s.dataNascimento = :dtnascimento AND s.ativo = true", PalestranteConvidado.class)
 					.setParameter("dtnascimento", dtnascimento).setParameter("nome", nome).getSingleResult();
 		} catch (NoResultException nr) {
 			return null;
@@ -108,7 +110,8 @@ public class PalestranteConvidadoRepository implements Serializable {
 			if (buscaTelefone) {
 				jpql.append("OR function('regexp_replace', s.telefoneUm, '[^0-9]', '', 'g') LIKE :tel ");
 			}
-			jpql.append(")");
+			// Fecha o grupo de OR e oculta registros inativados (duplicados consolidados).
+			jpql.append(") AND s.ativo = true");
 
 			TypedQuery<PalestranteConvidado> query = manager.createQuery(jpql.toString(), PalestranteConvidado.class)
 					.setParameter("nome", nome);
