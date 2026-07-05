@@ -98,6 +98,9 @@ public class SeguidorRepository implements Serializable {
 		} else {
 			predicates.add(builder.equal(root.get("situacaoSeguidor"), SituacaoSeguidor.INATIVO));
 		}
+
+		// Oculta registros inativados (duplicados consolidados).
+		predicates.add(builder.equal(root.get("ativo"), true));
 		// predicates.add(builder.isNotNull(root.get("imagem")));
 		criteriaQuery.select(root);
 		criteriaQuery.where(predicates.toArray(new Predicate[0]));
@@ -132,7 +135,8 @@ public class SeguidorRepository implements Serializable {
 			predicates.add(builder.or(telefonePredicate, telefoneDoisPredicate));
 		}
 
-		
+		// Oculta registros inativados (duplicados consolidados).
+		predicates.add(builder.equal(root.get("ativo"), true));
 		// predicates.add(builder.isNotNull(root.get("imagem")));
 		criteriaQuery.select(root);
 		criteriaQuery.where(predicates.toArray(new Predicate[0]));
@@ -152,7 +156,7 @@ public class SeguidorRepository implements Serializable {
 		try {
 			return manager
 					.createQuery("SELECT distinct(s) FROM Seguidor s " + "WHERE upper(s.nomeSemAcento) like :nome "
-							+ "AND s.dataNascimento = :dtnascimento", Seguidor.class)
+							+ "AND s.dataNascimento = :dtnascimento AND s.ativo = true", Seguidor.class)
 					.setParameter("dtnascimento", dtnascimento).setParameter("nome", nome.toUpperCase())
 					.getSingleResult();
 		} catch (NoResultException nr) {
@@ -164,7 +168,7 @@ public class SeguidorRepository implements Serializable {
 		try {
 			return manager
 					.createQuery("SELECT distinct(s) FROM Seguidor s " + "WHERE upper(s.nome) like :nome "
-							+ "AND s.dataNascimento = :dtnascimento", Seguidor.class)
+							+ "AND s.dataNascimento = :dtnascimento AND s.ativo = true", Seguidor.class)
 					.setParameter("dtnascimento", dtnascimento).setParameter("nome", nome.toUpperCase())
 					.getSingleResult();
 		} catch (NoResultException nr) {
@@ -189,7 +193,7 @@ public class SeguidorRepository implements Serializable {
 				jpql.append("OR function('regexp_replace', s.telefoneTres, '[^0-9]', '', 'g') LIKE :tel ");
 				jpql.append("OR function('regexp_replace', s.telefoneQuatro, '[^0-9]', '', 'g') LIKE :tel ");
 			}
-			jpql.append(") AND s.situacaoSeguidor = :situacao AND s.segueMe != NULL");
+			jpql.append(") AND s.situacaoSeguidor = :situacao AND s.segueMe != NULL AND s.ativo = true");
 
 			TypedQuery<Seguidor> query = manager.createQuery(jpql.toString(), Seguidor.class)
 					.setParameter("nome", nome).setParameter("situacao", SituacaoSeguidor.ATIVO);
@@ -205,7 +209,7 @@ public class SeguidorRepository implements Serializable {
 	public List<Seguidor> findByNomeFicha(String nome) {
 		try {
 			return manager.createQuery("select distinct(s) from Seguidor s " + "where (s.nomeSemAcento LIKE :nome "
-					+ "OR s.apelido LIKE :nome) AND  (s.situacaoSeguidor = :situacao  OR s.situacaoSeguidor = NULL)",
+					+ "OR s.apelido LIKE :nome) AND  (s.situacaoSeguidor = :situacao  OR s.situacaoSeguidor = NULL) AND s.ativo = true",
 					Seguidor.class).setParameter("nome", "%" + StringExtended.toASCII(nome.toUpperCase()) + "%")
 					.setParameter("situacao", SituacaoSeguidor.ATIVO).setMaxResults(30).getResultList();
 		} catch (NoResultException nr) {

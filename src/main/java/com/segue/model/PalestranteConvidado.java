@@ -74,6 +74,9 @@ public class PalestranteConvidado implements Serializable {
 	@Column(columnDefinition = "BOOLEAN DEFAULT false", name = "exibir_imagem")
 	private boolean exibirImagem;
 
+	@Column(columnDefinition = "BOOLEAN DEFAULT true", name = "ativo")
+	private boolean ativo = true;
+
 	/**
 	 * Exibe icone para sexo
 	 * 
@@ -211,6 +214,14 @@ public class PalestranteConvidado implements Serializable {
 
 	public void setExibirImagem(boolean exibirImagem) {
 		this.exibirImagem = exibirImagem;
+	}
+
+	public boolean isAtivo() {
+		return ativo;
+	}
+
+	public void setAtivo(boolean ativo) {
+		this.ativo = ativo;
 	}
 
 	@Override

@@ -139,6 +139,9 @@ public class Casal implements Serializable {
 	@Column(name = "igreja_frequenta")
 	private String igrejaFrequenta;
 
+	@Column(columnDefinition = "BOOLEAN DEFAULT true", name = "ativo")
+	private boolean ativo = true;
+
 	/**
 	 * carregar foto
 	 * 
@@ -200,6 +203,14 @@ public class Casal implements Serializable {
 
 	public void setId(Integer id) {
 		this.id = id;
+	}
+
+	public boolean isAtivo() {
+		return ativo;
+	}
+
+	public void setAtivo(boolean ativo) {
+		this.ativo = ativo;
 	}
 
 	public Calendar getTimestamp() {

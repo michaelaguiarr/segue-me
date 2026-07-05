@@ -157,6 +157,9 @@ public class Seguidor implements Serializable {
 	@Column(name = "igreja_frequenta")
 	private String igrejaFrequenta;
 
+	@Column(columnDefinition = "BOOLEAN DEFAULT true", name = "ativo")
+	private boolean ativo = true;
+
 	/**
 	 * Exibe icone para sexo
 	 * 
@@ -568,6 +571,14 @@ public class Seguidor implements Serializable {
 
 	public void setNomeSemAcento(String nomeSemAcento) {
 		this.nomeSemAcento = StringExtended.toASCII(nomeSemAcento.toUpperCase());
+	}
+
+	public boolean isAtivo() {
+		return ativo;
+	}
+
+	public void setAtivo(boolean ativo) {
+		this.ativo = ativo;
 	}
 
 	@Override
