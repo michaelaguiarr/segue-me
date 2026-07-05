@@ -69,7 +69,7 @@ public class Seguidor implements Serializable {
 	private String email;
 
 	@Temporal(TemporalType.DATE)
-	@Column(name = "dt_nascimento")
+	@Column(name = "dt_nascimento", columnDefinition = "date")
 	private Date dataNascimento;
 
 	private String naturalidade;

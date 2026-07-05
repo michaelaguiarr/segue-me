@@ -53,8 +53,8 @@ public class PalestranteConvidado implements Serializable {
 	@Email
 	private String email;
 
-	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name = "dt_nascimento", columnDefinition = "timestamp with time zone")
+	@Temporal(TemporalType.DATE)
+	@Column(name = "dt_nascimento", columnDefinition = "date")
 	private Date dataNascimento;
 
 	private String naturalidade;
