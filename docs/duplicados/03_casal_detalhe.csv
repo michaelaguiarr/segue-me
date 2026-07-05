@@ -1,0 +1,50 @@
+grupo,id,nome_ele,nome_ela,casamento,n_eventos,retiros_participou,cadastrado_em,acao,motivo
+amarildo de brito sombra + elisangela macedo braga sombra,48,Amarildo De Brito Sombra,Elisangela Macedo Braga Sombra,1996-12-28,2,6|48,2018-07-09,MANTER,canonico (mais participacao); consolidar os demais aqui
+amarildo de brito sombra + elisangela macedo braga sombra,188,Amarildo De Brito Sombra,Elisangela Macedo Braga Sombra,1996-12-28,2,49|51,2024-10-16,MERGE,merge: participacao em retiros distintos do canonico
+andre ericles freitas + raissa akemy de almeida,159,André Ericles Freitas,Raissa Akemy De Almeida,2020-08-26,1,48,2023-09-20,MANTER,canonico (mais participacao); consolidar os demais aqui
+andre ericles freitas + raissa akemy de almeida,214,André Ericles Freitas,Raissa Akemy De Almeida,2024-12-13,1,49,2024-10-17,MERGE,merge: participacao em retiros distintos do canonico
+andre felicio goncalves + giselle sandrini de andrade goncalves,20,André Felício Gonçalves,Giselle Sandrini De Andrade Gonçalves,2008-04-26,3,6|42|51,2018-06-14,MANTER,canonico (mais participacao); consolidar os demais aqui
+andre felicio goncalves + giselle sandrini de andrade goncalves,137,Andre Felicio Goncalves,Giselle Sandrini De Andrade Gonçalves,2008-04-25,1,48,2022-11-03,MERGE,merge: participacao em retiros distintos do canonico
+antonio jandre albuquerque teles + katiuscia carvalho albuquerque teles,125,Antônio Jandre Albuquerque Teles,Katiúscia Carvalho Albuquerque Teles,2000-01-07,4,42|48|51|54,2022-11-03,MANTER,canonico (mais participacao); consolidar os demais aqui
+antonio jandre albuquerque teles + katiuscia carvalho albuquerque teles,197,Antonio Jandre Albuquerque Teles,Katiúscia Carvalho Albuquerque Teles,2000-01-07,1,49,2024-10-16,MERGE,merge: participacao em retiros distintos do canonico
+artur chaves de farias + edna paula marcelino magalhaes,90,Artur Chaves De Farias,Edna Paula Marcelino Magalhães,2015-09-04,2,41|42,2018-08-21,MANTER,canonico (mais participacao); consolidar os demais aqui
+artur chaves de farias + edna paula marcelino magalhaes,149,Artur Chaves De Farias,Edna Paula Marcelino Magalhães,2015-09-05,0,,2022-11-04,INATIVAR,casca sem participacao (historico no canonico)
+claudio ramos + claudete correa de brito,164,Cláudio Ramos,Claudete Corrêa De Brito,2005-06-11,1,48,2023-09-20,MANTER,canonico (mais participacao); consolidar os demais aqui
+claudio ramos + claudete correa de brito,192,Claudio Ramos,Claudete Corrêa De Brito,2005-06-11,1,49,2024-10-16,MERGE,merge: participacao em retiros distintos do canonico
+dyego jonny costa cavalcante + poliany ferreira dos santos,178,Dyego Jonny Costa Cavalcante,Poliany Ferreira Dos Santos,2022-11-09,1,48,2023-09-22,MANTER,canonico (mais participacao); consolidar os demais aqui
+dyego jonny costa cavalcante + poliany ferreira dos santos,227,Dyego Jonny Costa Cavalcante,Poliany Ferreira Dos Santos,2022-11-04,1,51,2025-05-25,MERGE,merge: participacao em retiros distintos do canonico
+eduardo leitao wandemberg + laura rayanne teles rocha,27,Eduardo Leitão Wandemberg,Laura Rayanne Teles Rocha,2016-10-26,6,6|41|42|48|51,2018-07-03,MANTER,canonico (mais participacao); consolidar os demais aqui
+eduardo leitao wandemberg + laura rayanne teles rocha,64,Eduardo Leitao Wandemberg,Laura Rayanne Teles Rocha,2022-10-29,1,49,2018-08-16,MERGE,merge: participacao em retiros distintos do canonico
+francisco marques de sousa neto + venina reboucas peres marques,153,Francisco Marques De Sousa Neto,Venina Rebouças Peres Marques,2010-07-01,2,42|51,2022-11-05,MANTER,canonico (mais participacao); consolidar os demais aqui
+francisco marques de sousa neto + venina reboucas peres marques,237,Francisco Marques De Sousa Neto,Venina Rebouças Peres Marques,2025-05-30,0,,2025-05-30,INATIVAR,casca sem participacao (historico no canonico)
+francisco ronaldo neves da silva + gilsara rocha da silva,187,Francisco Ronaldo Neves Da Silva,Gilsara Rocha Da Silva,2016-09-10,2,49|51,2024-10-16,MANTER,canonico (mais participacao); consolidar os demais aqui
+francisco ronaldo neves da silva + gilsara rocha da silva,136,Francisco Ronaldo Neves Da Silva,Gilsara Rocha Da Silva,2016-09-10,1,42,2022-11-03,MERGE,merge: participacao em retiros distintos do canonico
+joao paulo peixoto silva + thais mariana herculano peixoto cordeiro,47,João Paulo Peixoto Silva,Thais Mariana Herculano Peixoto Cordeiro,2016-09-24,1,6,2018-07-09,MANTER,canonico (mais participacao); consolidar os demais aqui
+joao paulo peixoto silva + thais mariana herculano peixoto cordeiro,185,João Paulo Peixoto Silva,Thaís Mariana Herculano Peixoto Cordeiro,2016-09-24,1,49,2024-10-16,MERGE,merge: participacao em retiros distintos do canonico
+jose aecio ribeiro + maria jesuleide de lima ribeiro,31,José Aécio Ribeiro,Maria Jesuleide De Lima Ribeiro,1993-07-31,2,6|42,2018-07-04,MANTER,canonico (mais participacao); consolidar os demais aqui
+jose aecio ribeiro + maria jesuleide de lima ribeiro,147,José Aécio Ribeiro,Maria Jesuleide De Lima Ribeiro,1993-07-31,0,,2022-11-04,INATIVAR,casca sem participacao (historico no canonico)
+jose ferreira do nascimento + katia pereira almeida,52,José Ferreira Do Nascimento,Katia Pereira Almeida,2001-11-23,4,6|41|42|54,2018-07-15,MANTER,canonico (mais participacao); consolidar os demais aqui
+jose ferreira do nascimento + katia pereira almeida,128,José Ferreira Do Nascimento,Kátia Pereira Almeida,2001-11-24,1,48,2022-11-03,MERGE,merge: participacao em retiros distintos do canonico
+jose reinaldo pereira silva + maria odete mayer,216,José Reinaldo Pereira Silva,Maria Odete Mayer,1988-07-14,1,49,2024-10-17,MANTER,canonico (mais participacao); consolidar os demais aqui
+jose reinaldo pereira silva + maria odete mayer,126,José Reinaldo Pereira Silva,Maria Odete Mayer,1969-09-02,0,,2022-11-03,INATIVAR,casca sem participacao (historico no canonico)
+jose rosa terceiro + alexsandra mongacas faray dos reis,162,José Rosa Terceiro,Alexsandra Mongaças Faray Dos Reis,2016-07-30,1,48,2023-09-20,MANTER,canonico (mais participacao); consolidar os demais aqui
+jose rosa terceiro + alexsandra mongacas faray dos reis,7,José Rosa Terceiro,Alexsandra Mongaças Faray Dos Reis,2016-07-30,0,,2018-06-11,INATIVAR,casca sem participacao (historico no canonico)
+jullyerme patrick veloso + renata maria laranjeira dos santos,36,Jullyerme Patrick Veloso,Renata Maria Laranjeira Dos Santos,2011-09-27,5,6|42|48|51|54,2018-07-04,MANTER,canonico (mais participacao); consolidar os demais aqui
+jullyerme patrick veloso + renata maria laranjeira dos santos,158,Jullyerme Patrick Veloso,Renata Maria Laranjeira Dos Santos,2011-09-25,1,49,2023-09-20,MERGE,merge: participacao em retiros distintos do canonico
+leonardo mariusso + ieda cardoso rodrigues mariusso,175,Leonardo Mariusso,Ieda Cardoso Rodrigues Mariusso,2010-09-03,3,48|49|51,2023-09-21,MANTER,canonico (mais participacao); consolidar os demais aqui
+leonardo mariusso + ieda cardoso rodrigues mariusso,122,Leonardo Mariusso,Ieda Cardoso Rodrigues Mariusso,2010-09-03,1,42,2022-11-03,MERGE,merge: participacao em retiros distintos do canonico
+marcos pereira da silva + sevilha santos silva,38,Marcos Pereira Da Silva,Sevilha Santos Silva,1980-05-30,2,6|54,2018-07-07,MANTER,canonico (mais participacao); consolidar os demais aqui
+marcos pereira da silva + sevilha santos silva,205,Marcos Pereira Da Silva,Sevilha Santos Silva,1980-05-30,2,49|51,2024-10-16,MERGE,merge: participacao em retiros distintos do canonico
+marcos pereira da silva + sevilha santos silva,305,Marcos Pereira Da Silva,Sevilha Santos Silva,1980-05-30,0,,2025-07-30,INATIVAR,casca sem participacao (historico no canonico)
+miguel luiz giordani + maria de lourdes picao giordani,42,Miguel Luiz Giordani,Maria De Lourdes Picão Giordani,1989-01-06,2,6|48,2018-07-09,MANTER,canonico (mais participacao); consolidar os demais aqui
+miguel luiz giordani + maria de lourdes picao giordani,206,Miguel Luiz Giordani,Maria De Lourdes Picão Giordani,1989-01-06,1,49,2024-10-16,MERGE,merge: participacao em retiros distintos do canonico
+nazir gomes da silva + maria noelia de oliveira gomes da silva,160,Nazir Gomes Da Silva,Maria Noelia De Oliveira Gomes Da Silva,1994-12-15,2,48|54,2023-09-20,MANTER,canonico (mais participacao); consolidar os demais aqui
+nazir gomes da silva + maria noelia de oliveira gomes da silva,199,Nazir Gomes Da Silva,Maria Noélia De Oliveira Gomes Da Silva,1994-12-15,1,49,2024-10-16,MERGE,merge: participacao em retiros distintos do canonico
+paulo sergio pinheiro mendes + edna maria chagas mendes,18,Paulo Sérgio Pinheiro Mendes,Edna Maria Chagas Mendes,2017-08-18,2,6|42,2018-06-13,MANTER,canonico (mais participacao); consolidar os demais aqui
+paulo sergio pinheiro mendes + edna maria chagas mendes,138,Paulo Sérgio Pinheiro Mendes,Edna Maria Chagas Mendes,1989-08-13,1,49,2022-11-03,MERGE,merge: participacao em retiros distintos do canonico
+romes jose dias + gessyca mickaelly gomes,156,Romes José Dias,Gessyca Mickaelly Gomes,2013-12-21,2,42|48,2022-11-11,MANTER,canonico (mais participacao); consolidar os demais aqui
+romes jose dias + gessyca mickaelly gomes,13,Rômes José Dias,Gessyca Mickaelly Gomes,2013-12-21,1,6,2018-06-12,MERGE,merge: participacao em retiros distintos do canonico
+simao pedro dutra ribeiro + renata peres dutra,6,Simão Pedro Dutra Ribeiro,Renata Peres Dutra,2011-11-26,3,6|48|51,2018-06-11,MANTER,canonico (mais participacao); consolidar os demais aqui
+simao pedro dutra ribeiro + renata peres dutra,165,Simão Pedro Dutra Ribeiro,Renata Peres Dutra,2011-11-26,1,49,2023-09-20,MERGE,merge: participacao em retiros distintos do canonico
+washington luiz feitosa da silva + yanna kenya pinheiro vieira da silva,196,Washington Luiz Feitosa Da Silva,Yanna Kenya Pinheiro Vieira Da Silva,2006-12-22,2,49|51,2024-10-16,MANTER,canonico (mais participacao); consolidar os demais aqui
+washington luiz feitosa da silva + yanna kenya pinheiro vieira da silva,176,Washington Luiz Feitosa Da Silva,Yanna Kenya Pinheiro Vieira Da Silva,2006-12-22,1,48,2023-09-21,MERGE,merge: participacao em retiros distintos do canonico

@@ -1,0 +1,81 @@
+tabela,grupo,qtd,manter,merge,inativar,acao_grupo
+seguidor,beatriz de souza reis margoti,3,1,2,0,MERGE (consolidar historico)
+seguidor,thiago melo ferreira,3,1,2,0,MERGE (consolidar historico)
+casal,marcos pereira da silva + sevilha santos silva,3,1,1,1,MERGE (consolidar historico)
+casal,amarildo de brito sombra + elisangela macedo braga sombra,2,1,1,0,MERGE (consolidar historico)
+casal,andre ericles freitas + raissa akemy de almeida,2,1,1,0,MERGE (consolidar historico)
+casal,andre felicio goncalves + giselle sandrini de andrade goncalves,2,1,1,0,MERGE (consolidar historico)
+casal,antonio jandre albuquerque teles + katiuscia carvalho albuquerque teles,2,1,1,0,MERGE (consolidar historico)
+casal,claudio ramos + claudete correa de brito,2,1,1,0,MERGE (consolidar historico)
+casal,dyego jonny costa cavalcante + poliany ferreira dos santos,2,1,1,0,MERGE (consolidar historico)
+casal,eduardo leitao wandemberg + laura rayanne teles rocha,2,1,1,0,MERGE (consolidar historico)
+casal,francisco ronaldo neves da silva + gilsara rocha da silva,2,1,1,0,MERGE (consolidar historico)
+casal,joao paulo peixoto silva + thais mariana herculano peixoto cordeiro,2,1,1,0,MERGE (consolidar historico)
+casal,jose ferreira do nascimento + katia pereira almeida,2,1,1,0,MERGE (consolidar historico)
+casal,jullyerme patrick veloso + renata maria laranjeira dos santos,2,1,1,0,MERGE (consolidar historico)
+casal,leonardo mariusso + ieda cardoso rodrigues mariusso,2,1,1,0,MERGE (consolidar historico)
+casal,miguel luiz giordani + maria de lourdes picao giordani,2,1,1,0,MERGE (consolidar historico)
+casal,nazir gomes da silva + maria noelia de oliveira gomes da silva,2,1,1,0,MERGE (consolidar historico)
+casal,paulo sergio pinheiro mendes + edna maria chagas mendes,2,1,1,0,MERGE (consolidar historico)
+casal,romes jose dias + gessyca mickaelly gomes,2,1,1,0,MERGE (consolidar historico)
+casal,simao pedro dutra ribeiro + renata peres dutra,2,1,1,0,MERGE (consolidar historico)
+casal,washington luiz feitosa da silva + yanna kenya pinheiro vieira da silva,2,1,1,0,MERGE (consolidar historico)
+seguidor,ana gabriela amaral rossi,2,1,1,0,MERGE (consolidar historico)
+seguidor,ana julia barbosa carvalho,2,1,1,0,MERGE (consolidar historico)
+seguidor,aniel lopes de oliveira,2,1,1,0,MERGE (consolidar historico)
+seguidor,bianca raisa alves de oliveira,2,1,1,0,MERGE (consolidar historico)
+seguidor,gabriel ferreira reboucas,2,1,1,0,MERGE (consolidar historico)
+seguidor,gabriella bentes marques,2,1,1,0,MERGE (consolidar historico)
+seguidor,isabelle alves amorim da silva,2,1,1,0,MERGE (consolidar historico)
+seguidor,jeane lima paixao,2,1,1,0,MERGE (consolidar historico)
+seguidor,juliana carvalho b. de sousa,2,1,1,0,MERGE (consolidar historico)
+seguidor,juliana m. queiroz,2,1,1,0,MERGE (consolidar historico)
+seguidor,lucas aristeu anghinoni dos santos,2,1,1,0,MERGE (consolidar historico)
+seguidor,mainne paixao dos santos,2,1,1,0,MERGE (consolidar historico)
+seguidor,marcelly miranda,2,1,1,0,MERGE (consolidar historico)
+seguidor,maria clara silva de souza,2,1,1,0,MERGE (consolidar historico)
+seguidor,pietra evelim cabral,2,1,1,0,MERGE (consolidar historico)
+seguidor,rodrigo silva ferreira,2,1,1,0,MERGE (consolidar historico)
+seguidor,sofia dos santos salviano,2,1,1,0,MERGE (consolidar historico)
+seguidor,victor gabriel da silva uchoa,2,1,1,0,MERGE (consolidar historico)
+seguidor,vitoria da costa faustino,2,1,1,0,MERGE (consolidar historico)
+seguidor,leticia trindade burlamaqui bendahan,3,1,0,2,INATIVACAO SEGURA
+seguidor,maria luiza arruda coelho,3,1,0,2,INATIVACAO SEGURA
+casal,artur chaves de farias + edna paula marcelino magalhaes,2,1,0,1,INATIVACAO SEGURA
+casal,francisco marques de sousa neto + venina reboucas peres marques,2,1,0,1,INATIVACAO SEGURA
+casal,jose aecio ribeiro + maria jesuleide de lima ribeiro,2,1,0,1,INATIVACAO SEGURA
+casal,jose reinaldo pereira silva + maria odete mayer,2,1,0,1,INATIVACAO SEGURA
+casal,jose rosa terceiro + alexsandra mongacas faray dos reis,2,1,0,1,INATIVACAO SEGURA
+palestrante_convidado,josiane de souza horta,2,1,0,1,INATIVACAO SEGURA
+seguidor,adan richard medeiros bastos,2,1,0,1,INATIVACAO SEGURA
+seguidor,ana clara piuco barbosa,2,1,0,1,INATIVACAO SEGURA
+seguidor,andrey vinicius da costa medeiros,2,1,0,1,INATIVACAO SEGURA
+seguidor,ane elen da cruz rodrigues,2,1,0,1,INATIVACAO SEGURA
+seguidor,aycha aparecida do nascimento pimentel,2,1,0,1,INATIVACAO SEGURA
+seguidor,barbara aparecida moura do nascimento,2,1,0,1,INATIVACAO SEGURA
+seguidor,bianca aparecida moura do nascimento,2,1,0,1,INATIVACAO SEGURA
+seguidor,eduarda mesquita cordeiro,2,1,0,1,INATIVACAO SEGURA
+seguidor,eduardo nattrodt melo,2,1,0,1,INATIVACAO SEGURA
+seguidor,eduardo quirino dos santos neto,2,1,0,1,INATIVACAO SEGURA
+seguidor,felipe da silva tomaz de oliveira,2,1,0,1,INATIVACAO SEGURA
+seguidor,george ferreira,2,1,0,1,INATIVACAO SEGURA
+seguidor,geovanni da silva nascimento,2,1,0,1,INATIVACAO SEGURA
+seguidor,gustavo dinelly santana,2,1,0,1,INATIVACAO SEGURA
+seguidor,gustavo dos reis moreira,2,1,0,1,INATIVACAO SEGURA
+seguidor,henrique mendes nascimento,2,1,0,1,INATIVACAO SEGURA
+seguidor,iasmin wanderley cavalcante,2,1,0,1,INATIVACAO SEGURA
+seguidor,isaac gabriel saraiva da silva,2,1,0,1,INATIVACAO SEGURA
+seguidor,isabelle de andrade goncalves,2,1,0,1,INATIVACAO SEGURA
+seguidor,jonathan allicock mainardes,2,1,0,1,INATIVACAO SEGURA
+seguidor,leandro conceicao barreto,2,1,0,1,INATIVACAO SEGURA
+seguidor,lucas tavora minotto,2,1,0,1,INATIVACAO SEGURA
+seguidor,marcella rayane bezerra,2,1,0,1,INATIVACAO SEGURA
+seguidor,maria eduarda da nobrega mendonca,2,1,0,1,INATIVACAO SEGURA
+seguidor,maria isabel da silva,2,1,0,1,INATIVACAO SEGURA
+seguidor,maria yasmim nobrega santana,2,1,0,1,INATIVACAO SEGURA
+seguidor,mateus vinicius fernandes silva,2,1,0,1,INATIVACAO SEGURA
+seguidor,michael douglas gomes rocha,2,1,0,1,INATIVACAO SEGURA
+seguidor,natalia camacho,2,1,0,1,INATIVACAO SEGURA
+seguidor,nathalia aquino gondim,2,1,0,1,INATIVACAO SEGURA
+seguidor,pedro paulo trovao da silva,2,1,0,1,INATIVACAO SEGURA
+seguidor,wendell silva damasceno,2,1,0,1,INATIVACAO SEGURA
