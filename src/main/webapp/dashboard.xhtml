@@ -136,6 +136,22 @@
 			.dg-flow .ft { font-weight: 600; font-size: 14px; }
 			.dg-flow .fd { font-size: 12.5px; color: #9c8d7e; }
 
+			/* FAQ */
+			.dg-faq { display: flex; flex-direction: column; gap: 10px; }
+			.dg-faq-item { background: #fff; border: 1px solid #ebe3d6; border-radius: 12px; overflow: hidden; }
+			.dg-faq-item > summary { cursor: pointer; padding: 15px 18px; font-weight: 600; font-size: 15px; color: #4a3f34; list-style: none; display: flex; align-items: center; gap: 11px; }
+			.dg-faq-item > summary::-webkit-details-marker { display: none; }
+			.dg-faq-item > summary > i { color: #b96c08; width: 20px; text-align: center; }
+			.dg-faq-item > summary::after { content: "+"; margin-left: auto; font-size: 21px; line-height: 1; color: #b96c08; font-weight: 700; }
+			.dg-faq-item[open] > summary::after { content: "\2212"; }
+			.dg-faq-item[open] > summary { border-bottom: 1px solid #f0e9dd; }
+			.dg-faq-body { padding: 10px 18px 16px 49px; }
+			.dg-faq-body ol { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 7px; }
+			.dg-faq-body li { font-size: 14px; color: #5a4f43; line-height: 1.5; }
+			.dg-faq-body b { color: #3a3229; }
+			.dg-faq-path { background: #f6f1e9; border-radius: 6px; padding: 1px 7px; font-weight: 600; color: #6e5f52; white-space: nowrap; }
+			.dg-faq-note { font-size: 13.5px; color: #6e5f52; line-height: 1.5; margin: 0; }
+
 			.dg-note { font-size: 12px; color: #9c8d7e; margin-top: 8px; }
 			@media (min-width: 820px) { .dg-cols { grid-template-columns: 1.2fr .8fr; } }
 			@media (max-width: 700px) { .dg-deliver { grid-template-columns: 1fr; } }
@@ -144,6 +160,11 @@
 
 	<ui:define name="content">
 		<p:growl id="dgGrowl" showDetail="true" life="4000" />
+
+		<p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+			<p:commandButton value="Sim, marcar" type="button" styleClass="ui-confirmdialog-yes dg-btn green-btn" icon="fa fa-check" />
+			<p:commandButton value="Cancelar" type="button" styleClass="ui-confirmdialog-no dg-btn" icon="fa fa-times" />
+		</p:confirmDialog>
 
 		<!-- Sem evento associado -->
 		<h:panelGroup layout="block" styleClass="dg" rendered="#{dashboardBean.semEvento}">
@@ -256,6 +277,13 @@
 										styleClass="dg-btn #{c.completo or c.vazio ? '' : 'green-btn'}" style="flex:1" action="#{dashboardBean.gerarCracha(c.jasperTipo)}" />
 									<p:button value="Por equipe" rendered="#{c.temEquipe}" styleClass="dg-btn" outcome="#{c.outcomeEquipe}" />
 								</div>
+								<h:panelGroup layout="block" styleClass="acts" rendered="#{c.pendentes gt 0}">
+									<p:commandButton value="Marcar impresso" icon="fa fa-check" style="flex:1"
+										styleClass="dg-btn" action="#{dashboardBean.marcarImpresso(c.jasperTipo)}"
+										title="Dá baixa nos #{c.pendentes} crachá(s) pendente(s) — use após confirmar a impressão">
+										<p:confirm header="Marcar como impresso" message="Confirmar baixa dos #{c.pendentes} crachá(s) de #{c.rotulo}? Eles somem da lista de pendentes." icon="fa fa-check" />
+									</p:commandButton>
+								</h:panelGroup>
 							</div>
 						</ui:repeat>
 					</div>
@@ -292,6 +320,12 @@
 														styleClass="dg-rowbtn"
 														title="Imprimir o quadrante desta equipe"
 														action="#{dashboardBean.gerarQuadranteEquipe(e.equipeId, e.titulo)}" />
+													<p:commandButton value="Impresso" icon="fa fa-check" rendered="#{e.pendentes gt 0}"
+														styleClass="dg-rowbtn"
+														title="Marcar como impressos os #{e.pendentes} crachá(s) de seguidor desta equipe"
+														action="#{dashboardBean.marcarImpressoEquipe(e.equipeId, e.titulo)}">
+														<p:confirm header="Marcar como impresso" message="Confirmar baixa dos #{e.pendentes} crachá(s) da #{e.titulo}?" icon="fa fa-check" />
+													</p:commandButton>
 												</span>
 											</td>
 										</tr>
@@ -446,32 +480,92 @@
 				</div>
 			</div>
 
-			<!-- Inscritos + fluxo -->
-			<div class="dg-sec dg-cols">
-				<div class="dg-panel">
-					<div class="dg-phead"><div><h3>Inscritos por situação</h3><div class="sub">#{dashboardBean.totalInscritos} fichas neste encontro</div></div></div>
-					<div class="dg-pbody">
-						<div class="dg-stack">
-							<ui:repeat value="#{dashboardBean.situacoes}" var="s">
-								<h:panelGroup rendered="#{s.total gt 0}"><i class="dg-c-#{s.status.coresParaStyle}" style="width:#{s.pct}%"></i></h:panelGroup>
-							</ui:repeat>
-						</div>
-						<ui:repeat value="#{dashboardBean.situacoes}" var="s">
-							<div class="dg-st">
-								<span class="dg-sw dg-c-#{s.status.coresParaStyle}"></span>
-								<span class="lbl">#{s.status.nome}</span>
-								<span class="ct">#{s.total}</span>
-							</div>
-						</ui:repeat>
-					</div>
+			<!-- FAQ -->
+			<div class="dg-sec">
+				<div class="dg-sec-head">
+					<h2>Dúvidas frequentes</h2>
+					<div class="s">Como escalar cada pessoa no encontro</div>
 				</div>
-				<div class="dg-panel">
-					<div class="dg-phead"><div><h3>Fluxo de impressão</h3><div class="sub">Do arquivo à entrega</div></div></div>
-					<div class="dg-pbody dg-flow">
-						<div class="step"><span class="num">1</span><div><div class="ft">Preparar imagens</div><div class="fd">Regrava as fotos do retiro, equipes e círculos em disco.</div></div></div>
-						<div class="step"><span class="num">2</span><div><div class="ft">Gerar o quadrante</div><div class="fd">Quando a montagem estiver fechada, sem vagas em aberto.</div></div></div>
-						<div class="step"><span class="num">3</span><div><div class="ft">Imprimir os crachás</div><div class="fd">Por papel, ou separados por equipe para distribuir.</div></div></div>
-					</div>
+				<div class="dg-faq">
+
+					<details class="dg-faq-item">
+						<summary><i class="fa fa-users"></i> Como escalar um seguidor numa equipe?</summary>
+						<div class="dg-faq-body">
+							<ol>
+								<li>No menu, abra <span class="dg-faq-path">Evento › Seguidor</span> e clique em <b>Novo</b>.</li>
+								<li>Selecione a <b>Paróquia</b> e o <b>Segue-Me</b>.</li>
+								<li>Escolha a <b>Equipe</b> e a <b>Função</b>. O <b>Círculo</b> só habilita quando a função é de círculo.</li>
+								<li>No campo <b>Seguidor</b>, digite 3+ letras (nome, apelido ou telefone) e selecione da lista. Não existe? Use o botão <b>+</b> ao lado para cadastrar.</li>
+								<li>Defina <b>Situação</b> e <b>Imprimir Crachá? (Sim/Não)</b> se quiser.</li>
+								<li>Clique em <b>Salvar</b>.</li>
+							</ol>
+						</div>
+					</details>
+
+					<details class="dg-faq-item">
+						<summary><i class="fa fa-heart"></i> Como escalar um casal numa equipe?</summary>
+						<div class="dg-faq-body">
+							<ol>
+								<li>No menu, abra <span class="dg-faq-path">Evento › Casal</span> e clique em <b>Novo</b>.</li>
+								<li>Selecione <b>Paróquia</b> › <b>Segue-Me</b> › <b>Equipe</b> › <b>Função</b> › <b>Círculo</b>.</li>
+								<li>No campo <b>Casal</b>, digite 3+ letras e selecione da lista (ou <b>+</b> para cadastrar um casal novo).</li>
+								<li>Preencha a <b>Situação</b> (obrigatória) e <b>Imprimir Crachá?</b>.</li>
+								<li>Clique em <b>Salvar</b>.</li>
+							</ol>
+						</div>
+					</details>
+
+					<details class="dg-faq-item">
+						<summary><i class="fa fa-institution"></i> Como adicionar um padre / bispo?</summary>
+						<div class="dg-faq-body">
+							<ol>
+								<li>No menu, abra <span class="dg-faq-path">Evento › Padre/Bispo</span> e clique em <b>Novo</b>.</li>
+								<li>Selecione <b>Paróquia</b> › <b>Segue-Me</b> › <b>Equipe</b> › <b>Função</b> (padre não tem círculo).</li>
+								<li>No campo <b>Padre/Bispo</b>, digite 3+ letras e selecione (ou <b>+</b> para cadastrar).</li>
+								<li>Confira o <b>Apelido (Nome no Crachá)</b> e a <b>Data de Ordenação</b> — ambos obrigatórios.</li>
+								<li>Clique em <b>Salvar</b>.</li>
+							</ol>
+						</div>
+					</details>
+
+					<details class="dg-faq-item">
+						<summary><i class="fa fa-microphone"></i> Como adicionar um palestrante / convidado numa palestra?</summary>
+						<div class="dg-faq-body">
+							<ol>
+								<li>No menu, abra <span class="dg-faq-path">Evento › Palestras › Convidado</span> e clique em <b>Novo</b>.</li>
+								<li>Selecione <b>Paróquia</b> › <b>Segue-Me</b> › <b>Palestra</b> (aqui o vínculo é por palestra, não por equipe/função).</li>
+								<li>No campo <b>Convidado</b>, digite 3+ letras e selecione (ou <b>+</b> para cadastrar).</li>
+								<li>Defina <b>Situação</b> e <b>Imprimir Crachá?</b>.</li>
+								<li>Clique em <b>Salvar</b>.</li>
+							</ol>
+							<p class="dg-faq-note">Seguidor, casal e padre também podem ser ligados a uma palestra em <span class="dg-faq-path">Evento › Palestras</span>. A palestra (o tema) é cadastrada antes em <span class="dg-faq-path">Gerenciamento › Palestra</span>.</p>
+						</div>
+					</details>
+
+					<details class="dg-faq-item">
+						<summary><i class="fa fa-print"></i> Como imprimir e dar baixa nos crachás?</summary>
+						<div class="dg-faq-body">
+							<ol>
+								<li>Prepare as imagens do retiro no botão <b>Preparar imagens</b> (topo) — elas são regravadas a cada atualização do sistema.</li>
+								<li>Gere o PDF pelo botão <b>Imprimir</b> (por papel) ou <b>Crachá</b> (por equipe / por círculo) aqui no dashboard.</li>
+								<li>Depois de conferir que a impressão saiu certa, clique em <b>Marcar impresso</b> para dar baixa — os crachás somem da lista de pendentes.</li>
+							</ol>
+							<p class="dg-faq-note">A baixa também pode ser feita nas telas de <span class="dg-faq-path">Relatórios › Crachá</span>.</p>
+						</div>
+					</details>
+
+					<details class="dg-faq-item">
+						<summary><i class="fa fa-lightbulb-o"></i> Dicas rápidas</summary>
+						<div class="dg-faq-body">
+							<p class="dg-faq-note">
+								• Os campos de pessoa (seguidor, casal, padre, convidado) exigem <b>3+ letras</b> e <b>seleção da lista</b> — não basta digitar.<br />
+								• O botão <b>+</b> ao lado do campo cria a pessoa na hora, sem sair da tela.<br />
+								• Campos extras (telefones, endereço, crachá) só aparecem <b>depois</b> de selecionar uma pessoa válida.<br />
+								• Paróquia e Segue-Me podem vir travados conforme seu perfil de acesso.
+							</p>
+						</div>
+					</details>
+
 				</div>
 			</div>
 
