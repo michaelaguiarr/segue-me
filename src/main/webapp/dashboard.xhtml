@@ -177,6 +177,8 @@
 			.dg-tbl td.acts { white-space: nowrap; text-align: right; }
 			.dg-rowbtns { display: inline-flex; gap: 6px; justify-content: flex-end; }
 			.dg-rowbtn.ui-button { font-size: 12px !important; font-weight: 600 !important; border-radius: 8px !important; }
+			.dg-rowbtn-undo.ui-button { background: #fff !important; border: 1px solid #e3d4c0 !important; color: #a06a2c !important; box-shadow: none !important; }
+			.dg-rowbtn-undo.ui-button:hover { background: #fbf3e8 !important; }
 			.dg-dot { display: inline-block; width: 11px; height: 11px; border-radius: 50%; margin-right: 9px; vertical-align: middle; box-shadow: inset 0 0 0 1px rgba(0,0,0,.12); }
 
 			/* aniversariantes */
@@ -493,19 +495,25 @@
 											<td class="n">#{e.pctImpresso}%</td>
 											<td class="acts">
 												<span class="dg-rowbtns">
-													<p:commandButton value="Crachá" icon="fa fa-id-card-o" ajax="false" disabled="#{e.alocados eq 0}"
-														styleClass="dg-rowbtn #{e.crachaCompleto or e.alocados eq 0 ? '' : 'green-btn'}"
-														title="Imprimir os crachás dos seguidores desta equipe"
+													<p:commandButton value="Crachá" icon="fa fa-id-card-o" ajax="false" disabled="#{e.alocadosPessoas eq 0}"
+														styleClass="dg-rowbtn #{e.crachaCompleto or e.alocadosPessoas eq 0 ? '' : 'green-btn'}"
+														title="Imprimir todos os crachás desta equipe (seguidores + casais)"
 														action="#{dashboardBean.gerarCrachaEquipe(e.equipeId, e.titulo)}" />
 													<p:commandButton value="Quadrante" icon="fa fa-th-large" ajax="false" disabled="#{e.alocados eq 0}"
 														styleClass="dg-rowbtn"
-														title="Imprimir o quadrante desta equipe"
+														title="#{e.alocados eq 0 ? 'Sem seguidores nesta equipe (o quadrante por equipe é de seguidores)' : 'Imprimir o quadrante de seguidores desta equipe'}"
 														action="#{dashboardBean.gerarQuadranteEquipe(e.equipeId, e.titulo)}" />
 													<p:commandButton value="Impresso" icon="fa fa-check" rendered="#{e.pendentes gt 0}"
 														styleClass="dg-rowbtn"
-														title="Marcar como impressos os #{e.pendentes} crachá(s) de seguidor desta equipe"
+														title="Marcar como impressos os #{e.pendentes} crachá(s) desta equipe (seguidores + casais)"
 														action="#{dashboardBean.marcarImpressoEquipe(e.equipeId, e.titulo)}">
 														<p:confirm header="Marcar como impresso" message="Confirmar baixa dos #{e.pendentes} crachá(s) da #{e.titulo}?" icon="fa fa-check" />
+													</p:commandButton>
+													<p:commandButton value="Não impresso" icon="fa fa-undo" rendered="#{e.impressos gt 0}"
+														styleClass="dg-rowbtn dg-rowbtn-undo"
+														title="Desfazer a baixa: voltar #{e.impressos} crachá(s) desta equipe para a lista de impressão"
+														action="#{dashboardBean.marcarNaoImpressoEquipe(e.equipeId, e.titulo)}">
+														<p:confirm header="Marcar como não impresso" message="Voltar os #{e.impressos} crachá(s) já impressos da #{e.titulo} para a lista de impressão?" icon="fa fa-undo" />
 													</p:commandButton>
 												</span>
 											</td>
@@ -552,6 +560,18 @@
 													<p:commandButton value="Quadrante" icon="fa fa-th-large" ajax="false" styleClass="dg-rowbtn"
 														title="Imprimir o quadrante deste círculo"
 														action="#{dashboardBean.gerarQuadranteCirculo(c.circuloId, c.corLabel)}" />
+													<p:commandButton value="Impresso" icon="fa fa-check" rendered="#{c.pendentes gt 0}"
+														styleClass="dg-rowbtn"
+														title="Marcar como impressos os #{c.pendentes} crachá(s) de seguimista deste círculo"
+														action="#{dashboardBean.marcarImpressoCirculo(c.circuloId, c.corLabel)}">
+														<p:confirm header="Marcar como impresso" message="Confirmar baixa dos #{c.pendentes} crachá(s) do círculo #{c.corLabel}?" icon="fa fa-check" />
+													</p:commandButton>
+													<p:commandButton value="Não impresso" icon="fa fa-undo" rendered="#{c.impressos gt 0}"
+														styleClass="dg-rowbtn dg-rowbtn-undo"
+														title="Desfazer a baixa: voltar #{c.impressos} crachá(s) deste círculo para a lista de impressão"
+														action="#{dashboardBean.marcarNaoImpressoCirculo(c.circuloId, c.corLabel)}">
+														<p:confirm header="Marcar como não impresso" message="Voltar os #{c.impressos} crachá(s) já impressos do círculo #{c.corLabel} para a lista de impressão?" icon="fa fa-undo" />
+													</p:commandButton>
 												</span>
 											</td>
 										</tr>

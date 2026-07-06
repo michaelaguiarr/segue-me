@@ -192,6 +192,24 @@ public class EventoRepository implements Serializable {
 				.setParameter("sm", sm).setParameter("equipeId", equipeId).getResultList();
 	}
 
+	/** Crachás de seguidor JÁ IMPRESSOS (cracha=false) de UMA equipe (para desmarcar/reimprimir). */
+	public List<Long> idsCrachaImpressoSeguidoresEquipe(SegueMe sm, Integer equipeId) {
+		return manager.createQuery("SELECT e.id FROM Evento e JOIN e.seguidor s JOIN e.equipe eq JOIN e.funcao f "
+				+ "WHERE e.segueMe = :sm AND eq.id = :equipeId AND e.cracha = false", Long.class)
+				.setParameter("sm", sm).setParameter("equipeId", equipeId).getResultList();
+	}
+
+	/**
+	 * Crachás de seguimista de UM círculo por estado: {@code pendente=true} devolve
+	 * os pendentes (cracha=true), {@code pendente=false} os já impressos (cracha=false).
+	 */
+	public List<Long> idsCrachaSeguimistasCirculo(SegueMe sm, Integer circuloId, boolean pendente) {
+		return manager.createQuery("SELECT e.id FROM Evento e JOIN e.seguidor s JOIN e.inscricao i JOIN e.circulo c "
+				+ "WHERE e.segueMe = :sm AND i.statusInscricao = :aprovado AND c.id = :circuloId AND e.cracha = :cracha",
+				Long.class).setParameter("sm", sm).setParameter("aprovado", StatusInscricao.APROVADO)
+				.setParameter("circuloId", circuloId).setParameter("cracha", pendente).getResultList();
+	}
+
 	/**
 	 * Seguidores por equipe no quadrante: linhas [equipeId, titulo,
 	 * previstos(Equipe.pessoas), alocados, pendentes], ordenado por crachás a
@@ -214,10 +232,18 @@ public class EventoRepository implements Serializable {
 	 * planeja seguidores + casais.
 	 */
 	public List<Object[]> resumoCasaisPorEquipe(SegueMe sm) {
-		return manager.createQuery("SELECT eq.id, eq.titulo, eq.pessoas, COUNT(e) "
+		return manager.createQuery("SELECT eq.id, eq.titulo, eq.pessoas, COUNT(e), "
+				+ "COALESCE(SUM(CASE WHEN e.cracha = true THEN 1 ELSE 0 END), 0) "
 				+ "FROM Evento e JOIN e.casal c JOIN e.equipe eq JOIN e.funcao f "
 				+ "WHERE e.segueMe = :sm GROUP BY eq.id, eq.titulo, eq.pessoas", Object[].class)
 				.setParameter("sm", sm).getResultList();
+	}
+
+	/** Crachás de casal de UMA equipe por estado ({@code pendente=true} → cracha=true; impresso → false). */
+	public List<Long> idsCrachaCasaisEquipe(SegueMe sm, Integer equipeId, boolean pendente) {
+		return manager.createQuery("SELECT e.id FROM Evento e JOIN e.casal c JOIN e.equipe eq JOIN e.funcao f "
+				+ "WHERE e.segueMe = :sm AND eq.id = :equipeId AND e.cracha = :cracha", Long.class)
+				.setParameter("sm", sm).setParameter("equipeId", equipeId).setParameter("cracha", pendente).getResultList();
 	}
 
 	/**
