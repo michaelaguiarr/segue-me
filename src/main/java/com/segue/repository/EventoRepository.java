@@ -152,6 +152,46 @@ public class EventoRepository implements Serializable {
 		return new long[] { ((Number) r[0]).longValue(), ((Number) r[1]).longValue() };
 	}
 
+	// ===== Ids de crachás PENDENTES (cracha = true) por papel, para o botão
+	// "Marcar como impresso" do Dashboard. Mesma condição de papel dos
+	// resumoCracha* — o que é contado é o que é marcado. =====
+
+	private List<Long> idsCrachaPendente(String jpqlFrom, SegueMe sm) {
+		return manager.createQuery("SELECT e.id " + jpqlFrom + " WHERE e.segueMe = :sm AND e.cracha = true", Long.class)
+				.setParameter("sm", sm).getResultList();
+	}
+
+	public List<Long> idsCrachaPendenteSeguidores(SegueMe sm) {
+		return idsCrachaPendente("FROM Evento e JOIN e.seguidor s JOIN e.equipe eq JOIN e.funcao f", sm);
+	}
+
+	public List<Long> idsCrachaPendenteCasais(SegueMe sm) {
+		return idsCrachaPendente("FROM Evento e JOIN e.casal c JOIN e.equipe eq JOIN e.funcao f", sm);
+	}
+
+	public List<Long> idsCrachaPendentePadres(SegueMe sm) {
+		return idsCrachaPendente("FROM Evento e JOIN e.padre p JOIN e.equipe eq JOIN e.funcao f", sm);
+	}
+
+	public List<Long> idsCrachaPendenteSeguimistas(SegueMe sm) {
+		return manager.createQuery("SELECT e.id FROM Evento e JOIN e.seguidor s JOIN e.inscricao i "
+				+ "WHERE e.segueMe = :sm AND i.statusInscricao = :aprovado AND e.cracha = true", Long.class)
+				.setParameter("sm", sm).setParameter("aprovado", StatusInscricao.APROVADO).getResultList();
+	}
+
+	public List<Long> idsCrachaPendenteConvidados(SegueMe sm) {
+		return manager.createQuery("SELECT e.id FROM Evento e JOIN e.palestranteConvidado pc JOIN e.palestra pl "
+				+ "WHERE e.segueMe = :sm AND e.equipe IS NULL AND e.funcao IS NULL AND e.cracha = true", Long.class)
+				.setParameter("sm", sm).getResultList();
+	}
+
+	/** Crachás de seguidor PENDENTES de UMA equipe (para marcar impresso por equipe). */
+	public List<Long> idsCrachaPendenteSeguidoresEquipe(SegueMe sm, Integer equipeId) {
+		return manager.createQuery("SELECT e.id FROM Evento e JOIN e.seguidor s JOIN e.equipe eq JOIN e.funcao f "
+				+ "WHERE e.segueMe = :sm AND eq.id = :equipeId AND e.cracha = true", Long.class)
+				.setParameter("sm", sm).setParameter("equipeId", equipeId).getResultList();
+	}
+
 	/**
 	 * Seguidores por equipe no quadrante: linhas [equipeId, titulo,
 	 * previstos(Equipe.pessoas), alocados, pendentes], ordenado por crachás a

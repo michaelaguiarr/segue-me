@@ -25,6 +25,10 @@ import com.segue.model.StatusInscricao;
 import com.segue.model.Usuario;
 import com.segue.repository.EventoRepository;
 import com.segue.security.Seguranca;
+import com.segue.service.CadastroEventoCasalService;
+import com.segue.service.CadastroEventoPadreService;
+import com.segue.service.CadastroEventoSeguidorService;
+import com.segue.service.CadastroPalestraConvidadoService;
 import com.segue.service.FotoService;
 import com.segue.util.jsf.FacesUtil;
 import com.segue.util.report.ExecutorRelatorioDownload;
@@ -54,6 +58,18 @@ public class DashboardBean implements Serializable {
 
 	@Inject
 	private FotoService fotoService;
+
+	@Inject
+	private CadastroEventoSeguidorService seguidorService;
+
+	@Inject
+	private CadastroEventoCasalService casalService;
+
+	@Inject
+	private CadastroEventoPadreService padreService;
+
+	@Inject
+	private CadastroPalestraConvidadoService convidadoService;
 
 	@Inject
 	private EntityManager manager;
@@ -552,6 +568,74 @@ public class DashboardBean implements Serializable {
 		} catch (Exception e) {
 			FacesUtil.addErrorMessage("A execução do relatório não retornou dados.");
 		}
+	}
+
+	/**
+	 * Marca como IMPRESSOS (cracha = false) os crachás pendentes de um papel do
+	 * retiro inteiro. Deve ser acionado só depois de confirmar que a impressão
+	 * física saiu certa. Redireciona para o dashboard (o {@code viewAction}
+	 * recarrega os contadores). {@code tipo} ∈ {Seguidor, Seguimista, Casal,
+	 * Padre, Convidado}.
+	 */
+	public String marcarImpresso(String tipo) {
+		if (segueMe == null || tipo == null) {
+			return null;
+		}
+		try {
+			List<Long> ids;
+			int n;
+			switch (tipo) {
+			case "Seguidor":
+				ids = eventoRepository.idsCrachaPendenteSeguidores(segueMe);
+				n = seguidorService.atualizarCracha(ids, false);
+				break;
+			case "Seguimista":
+				ids = eventoRepository.idsCrachaPendenteSeguimistas(segueMe);
+				n = seguidorService.atualizarCracha(ids, false);
+				break;
+			case "Casal":
+				ids = eventoRepository.idsCrachaPendenteCasais(segueMe);
+				n = casalService.atualizarCracha(ids, false);
+				break;
+			case "Padre":
+				ids = eventoRepository.idsCrachaPendentePadres(segueMe);
+				n = padreService.atualizarCracha(ids, false);
+				break;
+			case "Convidado":
+				ids = eventoRepository.idsCrachaPendenteConvidados(segueMe);
+				n = convidadoService.atualizarCracha(ids, false);
+				break;
+			default:
+				return null;
+			}
+			mensagemFlash(n + " crachá(s) marcado(s) como impresso(s).");
+		} catch (Exception e) {
+			FacesUtil.addErrorMessage("Não foi possível marcar os crachás como impressos.");
+			return null;
+		}
+		return "/dashboard.xhtml?faces-redirect=true";
+	}
+
+	/** Marca como impressos os crachás de seguidor pendentes de UMA equipe. */
+	public String marcarImpressoEquipe(Integer equipeId, String titulo) {
+		if (segueMe == null || equipeId == null) {
+			return null;
+		}
+		try {
+			List<Long> ids = eventoRepository.idsCrachaPendenteSeguidoresEquipe(segueMe, equipeId);
+			int n = seguidorService.atualizarCracha(ids, false);
+			mensagemFlash(n + " crachá(s) da " + titulo + " marcado(s) como impresso(s).");
+		} catch (Exception e) {
+			FacesUtil.addErrorMessage("Não foi possível marcar os crachás como impressos.");
+			return null;
+		}
+		return "/dashboard.xhtml?faces-redirect=true";
+	}
+
+	/** Mantém a mensagem viva através do redirect (flash scope). */
+	private void mensagemFlash(String msg) {
+		facesContext.getExternalContext().getFlash().setKeepMessages(true);
+		FacesUtil.addInfoMessage(msg);
 	}
 
 	public boolean isMontagemCompleta() {
