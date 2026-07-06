@@ -460,7 +460,21 @@
 						<div class="dg-dactions">
 							<h:form>
 								<p:commandButton value="Imprimir crachás" icon="fa fa-print" style="width:100%"
-									styleClass="dg-btn green-btn" ajax="false" action="#{dashboardBean.gerarCracha('Seguidor')}" />
+									styleClass="dg-btn green-btn" ajax="false" action="#{dashboardBean.gerarCrachaTodos}"
+									title="Todos os crachás num PDF: seguidores, seguimistas, casais, padres e palestrantes" />
+								<div class="dg-chips-label">Depois de imprimir, dê a baixa</div>
+								<div class="dg-chips">
+									<p:commandButton value="Marcar impresso" icon="fa fa-check" rendered="#{dashboardBean.totalPendentes gt 0}"
+										styleClass="dg-btn dg-chip" action="#{dashboardBean.marcarImpressoTodos}"
+										title="Dar baixa em todos os #{dashboardBean.totalPendentes} crachás pendentes">
+										<p:confirm header="Marcar como impresso" message="Confirmar baixa dos #{dashboardBean.totalPendentes} crachá(s) pendentes (todos os papéis)?" icon="fa fa-check" />
+									</p:commandButton>
+									<p:commandButton value="Não impresso" icon="fa fa-undo" rendered="#{dashboardBean.totalImpressos gt 0}"
+										styleClass="dg-btn dg-chip dg-rowbtn-undo" action="#{dashboardBean.marcarNaoImpressoTodos}"
+										title="Voltar todos os #{dashboardBean.totalImpressos} crachás impressos para a lista">
+										<p:confirm header="Marcar como não impresso" message="Voltar os #{dashboardBean.totalImpressos} crachá(s) já impressos (todos os papéis) para a lista de impressão?" icon="fa fa-undo" />
+									</p:commandButton>
+								</div>
 							</h:form>
 							<a class="dg-detail" href="#dgCrachas">Ver detalhe por papel e por equipe &#8595;</a>
 						</div>

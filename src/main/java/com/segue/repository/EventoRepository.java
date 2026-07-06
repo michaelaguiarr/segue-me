@@ -156,33 +156,40 @@ public class EventoRepository implements Serializable {
 	// "Marcar como impresso" do Dashboard. Mesma condição de papel dos
 	// resumoCracha* — o que é contado é o que é marcado. =====
 
-	private List<Long> idsCrachaPendente(String jpqlFrom, SegueMe sm) {
-		return manager.createQuery("SELECT e.id " + jpqlFrom + " WHERE e.segueMe = :sm AND e.cracha = true", Long.class)
-				.setParameter("sm", sm).getResultList();
+	// cracha=true → PENDENTES (a imprimir); cracha=false → JÁ IMPRESSOS (para desmarcar).
+	private List<Long> idsCracha(String jpqlFrom, SegueMe sm, boolean cracha) {
+		return manager.createQuery("SELECT e.id " + jpqlFrom + " WHERE e.segueMe = :sm AND e.cracha = :cracha", Long.class)
+				.setParameter("sm", sm).setParameter("cracha", cracha).getResultList();
 	}
 
-	public List<Long> idsCrachaPendenteSeguidores(SegueMe sm) {
-		return idsCrachaPendente("FROM Evento e JOIN e.seguidor s JOIN e.equipe eq JOIN e.funcao f", sm);
-	}
+	private static final String FROM_SEGUIDOR = "FROM Evento e JOIN e.seguidor s JOIN e.equipe eq JOIN e.funcao f";
+	private static final String FROM_CASAL = "FROM Evento e JOIN e.casal c JOIN e.equipe eq JOIN e.funcao f";
+	private static final String FROM_PADRE = "FROM Evento e JOIN e.padre p JOIN e.equipe eq JOIN e.funcao f";
 
-	public List<Long> idsCrachaPendenteCasais(SegueMe sm) {
-		return idsCrachaPendente("FROM Evento e JOIN e.casal c JOIN e.equipe eq JOIN e.funcao f", sm);
-	}
+	public List<Long> idsCrachaPendenteSeguidores(SegueMe sm) { return idsCracha(FROM_SEGUIDOR, sm, true); }
+	public List<Long> idsCrachaImpressoSeguidores(SegueMe sm) { return idsCracha(FROM_SEGUIDOR, sm, false); }
+	public List<Long> idsCrachaPendenteCasais(SegueMe sm) { return idsCracha(FROM_CASAL, sm, true); }
+	public List<Long> idsCrachaImpressoCasais(SegueMe sm) { return idsCracha(FROM_CASAL, sm, false); }
+	public List<Long> idsCrachaPendentePadres(SegueMe sm) { return idsCracha(FROM_PADRE, sm, true); }
+	public List<Long> idsCrachaImpressoPadres(SegueMe sm) { return idsCracha(FROM_PADRE, sm, false); }
 
-	public List<Long> idsCrachaPendentePadres(SegueMe sm) {
-		return idsCrachaPendente("FROM Evento e JOIN e.padre p JOIN e.equipe eq JOIN e.funcao f", sm);
-	}
+	public List<Long> idsCrachaPendenteSeguimistas(SegueMe sm) { return idsCrachaSeguimistas(sm, true); }
+	public List<Long> idsCrachaImpressoSeguimistas(SegueMe sm) { return idsCrachaSeguimistas(sm, false); }
 
-	public List<Long> idsCrachaPendenteSeguimistas(SegueMe sm) {
+	private List<Long> idsCrachaSeguimistas(SegueMe sm, boolean cracha) {
 		return manager.createQuery("SELECT e.id FROM Evento e JOIN e.seguidor s JOIN e.inscricao i "
-				+ "WHERE e.segueMe = :sm AND i.statusInscricao = :aprovado AND e.cracha = true", Long.class)
-				.setParameter("sm", sm).setParameter("aprovado", StatusInscricao.APROVADO).getResultList();
+				+ "WHERE e.segueMe = :sm AND i.statusInscricao = :aprovado AND e.cracha = :cracha", Long.class)
+				.setParameter("sm", sm).setParameter("aprovado", StatusInscricao.APROVADO).setParameter("cracha", cracha)
+				.getResultList();
 	}
 
-	public List<Long> idsCrachaPendenteConvidados(SegueMe sm) {
+	public List<Long> idsCrachaPendenteConvidados(SegueMe sm) { return idsCrachaConvidados(sm, true); }
+	public List<Long> idsCrachaImpressoConvidados(SegueMe sm) { return idsCrachaConvidados(sm, false); }
+
+	private List<Long> idsCrachaConvidados(SegueMe sm, boolean cracha) {
 		return manager.createQuery("SELECT e.id FROM Evento e JOIN e.palestranteConvidado pc JOIN e.palestra pl "
-				+ "WHERE e.segueMe = :sm AND e.equipe IS NULL AND e.funcao IS NULL AND e.cracha = true", Long.class)
-				.setParameter("sm", sm).getResultList();
+				+ "WHERE e.segueMe = :sm AND e.equipe IS NULL AND e.funcao IS NULL AND e.cracha = :cracha", Long.class)
+				.setParameter("sm", sm).setParameter("cracha", cracha).getResultList();
 	}
 
 	/** Crachás de seguidor PENDENTES de UMA equipe (para marcar impresso por equipe). */

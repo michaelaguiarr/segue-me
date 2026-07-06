@@ -675,6 +675,44 @@ public class DashboardBean implements Serializable {
 	}
 
 	/**
+	 * Gera e baixa TODOS os crachás do encontro num único PDF, unindo os relatórios
+	 * de cada papel: seguidor, seguimista, casal, padre e palestrante (convidado).
+	 * Cada papel que voltar vazio é pulado. Botão NÃO-AJAX.
+	 */
+	public void gerarCrachaTodos() {
+		if (segueMe == null) {
+			return;
+		}
+		try {
+			fotoService.materializarImagensSegueMe(segueMe);
+			fotoService.materializarImagensCirculo(segueMe); // seguimista usa a imagem do círculo
+			fotoService.materializarImagensEquipe(); // demais usam a imagem das equipes
+			String nomeArquivo = segueMe.getNomeArquivoCracha() == null || segueMe.getNomeArquivoCracha().isEmpty()
+					? "cracha"
+					: segueMe.getNomeArquivoCracha();
+			Map<String, Object> parametros = new HashMap<>();
+			parametros.put(JRParameter.REPORT_LOCALE, new Locale("pt", "BR"));
+			parametros.put("segueMe", segueMe.getId());
+			List<String> relatorios = java.util.Arrays.asList(
+					"/jasper/" + nomeArquivo + "Seguidor.jasper",
+					"/jasper/" + nomeArquivo + "Seguimista.jasper",
+					"/jasper/" + nomeArquivo + "Casal.jasper",
+					"/jasper/" + nomeArquivo + "Padre.jasper",
+					"/jasper/" + nomeArquivo + "Convidado.jasper");
+			ExecutorCrachaEquipe executor = new ExecutorCrachaEquipe(relatorios, parametros, response,
+					"Crachas" + segueMe.getNumeroRomano().getNumeroRomano() + ".pdf");
+			manager.unwrap(Session.class).doWork(executor);
+			if (executor.isRelatorioGerado()) {
+				facesContext.responseComplete();
+			} else {
+				FacesUtil.addErrorMessage("Nenhum crachá para imprimir.");
+			}
+		} catch (Exception e) {
+			FacesUtil.addErrorMessage("A execução do relatório não retornou dados.");
+		}
+	}
+
+	/**
 	 * Gera e baixa o PDF dos crachás de UMA equipe — TODOS os participantes: une num
 	 * único PDF o crachá de seguidor ({@code <modelo>SeguidorEquipe}) e o de casal
 	 * ({@code <modelo>CasalEquipe}). Cada relatório que voltar vazio é pulado (ex.:
@@ -839,6 +877,44 @@ public class DashboardBean implements Serializable {
 			mensagemFlash(n + " crachá(s) marcado(s) como impresso(s).");
 		} catch (Exception e) {
 			FacesUtil.addErrorMessage("Não foi possível marcar os crachás como impressos.");
+			return null;
+		}
+		return "/dashboard.xhtml?faces-redirect=true";
+	}
+
+	/** Marca como impressos TODOS os crachás pendentes (todos os papéis) do encontro. */
+	public String marcarImpressoTodos() {
+		if (segueMe == null) {
+			return null;
+		}
+		try {
+			int n = seguidorService.atualizarCracha(eventoRepository.idsCrachaPendenteSeguidores(segueMe), false);
+			n += seguidorService.atualizarCracha(eventoRepository.idsCrachaPendenteSeguimistas(segueMe), false);
+			n += casalService.atualizarCracha(eventoRepository.idsCrachaPendenteCasais(segueMe), false);
+			n += padreService.atualizarCracha(eventoRepository.idsCrachaPendentePadres(segueMe), false);
+			n += convidadoService.atualizarCracha(eventoRepository.idsCrachaPendenteConvidados(segueMe), false);
+			mensagemFlash(n + " crachá(s) marcado(s) como impresso(s).");
+		} catch (Exception e) {
+			FacesUtil.addErrorMessage("Não foi possível marcar os crachás como impressos.");
+			return null;
+		}
+		return "/dashboard.xhtml?faces-redirect=true";
+	}
+
+	/** Desfaz a baixa: volta a PENDENTE TODOS os crachás já impressos (todos os papéis). */
+	public String marcarNaoImpressoTodos() {
+		if (segueMe == null) {
+			return null;
+		}
+		try {
+			int n = seguidorService.atualizarCracha(eventoRepository.idsCrachaImpressoSeguidores(segueMe), true);
+			n += seguidorService.atualizarCracha(eventoRepository.idsCrachaImpressoSeguimistas(segueMe), true);
+			n += casalService.atualizarCracha(eventoRepository.idsCrachaImpressoCasais(segueMe), true);
+			n += padreService.atualizarCracha(eventoRepository.idsCrachaImpressoPadres(segueMe), true);
+			n += convidadoService.atualizarCracha(eventoRepository.idsCrachaImpressoConvidados(segueMe), true);
+			mensagemFlash(n + " crachá(s) voltaram para a lista de impressão.");
+		} catch (Exception e) {
+			FacesUtil.addErrorMessage("Não foi possível desmarcar os crachás.");
 			return null;
 		}
 		return "/dashboard.xhtml?faces-redirect=true";
