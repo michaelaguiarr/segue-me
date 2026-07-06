@@ -166,6 +166,50 @@ public class CadastroSegueMeBean implements Serializable {
 		imagemRoda = null;
 	}
 
+	// ===== Livro do Encontro: capa e história em PDF (bytes crus, sem normalizar) =====
+
+	public void uploadCapa(FileUploadEvent event) {
+		byte[] bytes = event.getFile().getContents();
+		if (!ehPdf(bytes)) {
+			FacesUtil.addErrorMessage("O arquivo da capa precisa ser um PDF.");
+			return;
+		}
+		segueMe.setArquivoCapa(bytes);
+		FacesUtil.addInfoMessage("Capa enviada. Clique em Salvar para gravar.");
+	}
+
+	public void removerCapa() {
+		segueMe.setArquivoCapa(null);
+	}
+
+	public void uploadHistoria(FileUploadEvent event) {
+		byte[] bytes = event.getFile().getContents();
+		if (!ehPdf(bytes)) {
+			FacesUtil.addErrorMessage("O arquivo da história precisa ser um PDF.");
+			return;
+		}
+		segueMe.setArquivoHistoria(bytes);
+		FacesUtil.addInfoMessage("História enviada. Clique em Salvar para gravar.");
+	}
+
+	public void removerHistoria() {
+		segueMe.setArquivoHistoria(null);
+	}
+
+	/** Confere a assinatura %PDF para barrar upload que não é PDF. */
+	private boolean ehPdf(byte[] bytes) {
+		return bytes != null && bytes.length > 4 && bytes[0] == '%' && bytes[1] == 'P' && bytes[2] == 'D'
+				&& bytes[3] == 'F';
+	}
+
+	public boolean isCapaEnviada() {
+		return segueMe.getArquivoCapa() != null && segueMe.getArquivoCapa().length > 0;
+	}
+
+	public boolean isHistoriaEnviada() {
+		return segueMe.getArquivoHistoria() != null && segueMe.getArquivoHistoria().length > 0;
+	}
+
 	public Estados[] getEstados() {
 		return Estados.values();
 	}

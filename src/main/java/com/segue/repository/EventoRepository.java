@@ -192,6 +192,24 @@ public class EventoRepository implements Serializable {
 				.setParameter("sm", sm).setParameter("equipeId", equipeId).getResultList();
 	}
 
+	/** Crachás de seguidor JÁ IMPRESSOS (cracha=false) de UMA equipe (para desmarcar/reimprimir). */
+	public List<Long> idsCrachaImpressoSeguidoresEquipe(SegueMe sm, Integer equipeId) {
+		return manager.createQuery("SELECT e.id FROM Evento e JOIN e.seguidor s JOIN e.equipe eq JOIN e.funcao f "
+				+ "WHERE e.segueMe = :sm AND eq.id = :equipeId AND e.cracha = false", Long.class)
+				.setParameter("sm", sm).setParameter("equipeId", equipeId).getResultList();
+	}
+
+	/**
+	 * Crachás de seguimista de UM círculo por estado: {@code pendente=true} devolve
+	 * os pendentes (cracha=true), {@code pendente=false} os já impressos (cracha=false).
+	 */
+	public List<Long> idsCrachaSeguimistasCirculo(SegueMe sm, Integer circuloId, boolean pendente) {
+		return manager.createQuery("SELECT e.id FROM Evento e JOIN e.seguidor s JOIN e.inscricao i JOIN e.circulo c "
+				+ "WHERE e.segueMe = :sm AND i.statusInscricao = :aprovado AND c.id = :circuloId AND e.cracha = :cracha",
+				Long.class).setParameter("sm", sm).setParameter("aprovado", StatusInscricao.APROVADO)
+				.setParameter("circuloId", circuloId).setParameter("cracha", pendente).getResultList();
+	}
+
 	/**
 	 * Seguidores por equipe no quadrante: linhas [equipeId, titulo,
 	 * previstos(Equipe.pessoas), alocados, pendentes], ordenado por crachás a
@@ -214,10 +232,44 @@ public class EventoRepository implements Serializable {
 	 * planeja seguidores + casais.
 	 */
 	public List<Object[]> resumoCasaisPorEquipe(SegueMe sm) {
-		return manager.createQuery("SELECT eq.id, eq.titulo, eq.pessoas, COUNT(e) "
+		return manager.createQuery("SELECT eq.id, eq.titulo, eq.pessoas, COUNT(e), "
+				+ "COALESCE(SUM(CASE WHEN e.cracha = true THEN 1 ELSE 0 END), 0) "
 				+ "FROM Evento e JOIN e.casal c JOIN e.equipe eq JOIN e.funcao f "
 				+ "WHERE e.segueMe = :sm GROUP BY eq.id, eq.titulo, eq.pessoas", Object[].class)
 				.setParameter("sm", sm).getResultList();
+	}
+
+	/** Crachás de casal de UMA equipe por estado ({@code pendente=true} → cracha=true; impresso → false). */
+	public List<Long> idsCrachaCasaisEquipe(SegueMe sm, Integer equipeId, boolean pendente) {
+		return manager.createQuery("SELECT e.id FROM Evento e JOIN e.casal c JOIN e.equipe eq JOIN e.funcao f "
+				+ "WHERE e.segueMe = :sm AND eq.id = :equipeId AND e.cracha = :cracha", Long.class)
+				.setParameter("sm", sm).setParameter("equipeId", equipeId).setParameter("cracha", pendente).getResultList();
+	}
+
+	/**
+	 * [temCapa, temHistoria] do Segue-Me — consulta leve (só checa IS NULL, não
+	 * transfere os blobs de PDF). Usado no Dashboard para o aviso do livro e para
+	 * refletir o estado ATUAL do banco (o SegueMe do usuário logado é snapshot do
+	 * login e pode não ter os arquivos enviados depois).
+	 */
+	public boolean[] segueMeTemArquivos(Long segueMeId) {
+		Object[] r = (Object[]) manager
+				.createQuery("SELECT CASE WHEN s.arquivoCapa IS NULL THEN false ELSE true END, "
+						+ "CASE WHEN s.arquivoHistoria IS NULL THEN false ELSE true END FROM SegueMe s WHERE s.id = :id")
+				.setParameter("id", segueMeId).getSingleResult();
+		return new boolean[] { (Boolean) r[0], (Boolean) r[1] };
+	}
+
+	/** Bytes do PDF da capa (fresco do banco), ou null. */
+	public byte[] arquivoCapa(Long segueMeId) {
+		return (byte[]) manager.createQuery("SELECT s.arquivoCapa FROM SegueMe s WHERE s.id = :id")
+				.setParameter("id", segueMeId).getSingleResult();
+	}
+
+	/** Bytes do PDF da história (fresco do banco), ou null. */
+	public byte[] arquivoHistoria(Long segueMeId) {
+		return (byte[]) manager.createQuery("SELECT s.arquivoHistoria FROM SegueMe s WHERE s.id = :id")
+				.setParameter("id", segueMeId).getSingleResult();
 	}
 
 	/** Inscritos por situação: linhas [StatusInscricao, total] do Segue-Me. */

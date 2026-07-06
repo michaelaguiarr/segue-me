@@ -43,6 +43,8 @@ public class SegueMe implements Serializable {
 	private byte[] imagemRoda;
 	@Column(name = "nome_cracha")
 	private String nomeArquivoCracha;
+	private byte[] arquivoCapa;
+	private byte[] arquivoHistoria;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -164,6 +166,26 @@ public class SegueMe implements Serializable {
 
 	public void setNomeArquivoCracha(String nomeArquivoCracha) {
 		this.nomeArquivoCracha = nomeArquivoCracha;
+	}
+
+	/** PDF externo da capa do livro do encontro (bytes crus, por retiro). */
+	@Column(name = "arquivo_capa")
+	public byte[] getArquivoCapa() {
+		return arquivoCapa;
+	}
+
+	public void setArquivoCapa(byte[] arquivoCapa) {
+		this.arquivoCapa = arquivoCapa;
+	}
+
+	/** PDF externo da história (padroeiro/segue-me) do livro do encontro. */
+	@Column(name = "arquivo_historia")
+	public byte[] getArquivoHistoria() {
+		return arquivoHistoria;
+	}
+
+	public void setArquivoHistoria(byte[] arquivoHistoria) {
+		this.arquivoHistoria = arquivoHistoria;
 	}
 
 	@Override

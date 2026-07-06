@@ -24,13 +24,19 @@ import com.segue.model.SegueMe;
 import com.segue.model.StatusInscricao;
 import com.segue.model.Usuario;
 import com.segue.repository.EventoRepository;
+import com.segue.repository.SegueMeRepository;
 import com.segue.security.Seguranca;
+import com.segue.service.CadastroEjcService;
 import com.segue.service.CadastroEventoCasalService;
 import com.segue.service.CadastroEventoPadreService;
 import com.segue.service.CadastroEventoSeguidorService;
 import com.segue.service.CadastroPalestraConvidadoService;
 import com.segue.service.FotoService;
 import com.segue.util.jsf.FacesUtil;
+import org.primefaces.event.FileUploadEvent;
+
+import com.segue.util.report.ExecutorCrachaEquipe;
+import com.segue.util.report.ExecutorLivroEncontro;
 import com.segue.util.report.ExecutorRelatorioDownload;
 
 import net.sf.jasperreports.engine.JRParameter;
@@ -55,6 +61,12 @@ public class DashboardBean implements Serializable {
 
 	@Inject
 	private EventoRepository eventoRepository;
+
+	@Inject
+	private SegueMeRepository segueMeRepository;
+
+	@Inject
+	private CadastroEjcService cadastroEjcService;
 
 	@Inject
 	private FotoService fotoService;
@@ -84,6 +96,13 @@ public class DashboardBean implements Serializable {
 	private SegueMe segueMe;
 	private boolean grafica;
 	private boolean semEvento;
+	private boolean temCapa;
+	private boolean temHistoria;
+	private boolean temImagem;
+	/** Caminho web da imagem do padroeiro já materializada em disco (para exibir no cabeçalho). */
+	private String imagemPadroeiroPath;
+	/** Cópia FRESCA do Segue-Me (por id) usada só nos diálogos de edição — não o snapshot do login. */
+	private SegueMe editSegueMe;
 
 	private List<Cracha> crachas = new ArrayList<>();
 	private long totalCrachas;
@@ -130,10 +149,22 @@ public class DashboardBean implements Serializable {
 		}
 		this.grafica = usuarioLogado.getEquipe() != null && usuarioLogado.getEquipe().getId() != null
 				&& usuarioLogado.getEquipe().getId() == EQUIPE_GRAFICA;
-		this.segueMe = usuarioLogado.getSegueMe();
-		if (segueMe == null) {
+		SegueMe snap = usuarioLogado.getSegueMe();
+		if (snap == null || snap.getId() == null) {
 			this.semEvento = true;
 			return;
+		}
+		// Recarrega FRESCO por id para o cabeçalho refletir as edições (o snapshot do login é estático)
+		this.segueMe = segueMeRepository.porId(snap.getId());
+		this.temCapa = segueMe.getArquivoCapa() != null && segueMe.getArquivoCapa().length > 0;
+		this.temHistoria = segueMe.getArquivoHistoria() != null && segueMe.getArquivoHistoria().length > 0;
+		this.temImagem = segueMe.getImagem() != null && segueMe.getImagem().length > 0;
+		if (temImagem) {
+			// Grava a imagem fresca em disco (sobrescreve) e monta o caminho relativo à
+			// raiz do contexto (o dashboard não fica em subpasta). O ?v= com o tamanho do
+			// arquivo quebra o cache do navegador quando a imagem é trocada.
+			fotoService.materializarImagensSegueMe(segueMe);
+			this.imagemPadroeiroPath = "resources/temp/segueMe/" + segueMe.getId() + ".jpg?v=" + segueMe.getImagem().length;
 		}
 		carregarCrachas();
 		carregarEquipes();
@@ -180,7 +211,7 @@ public class DashboardBean implements Serializable {
 		Integer minhaEquipe = usuarioLogado.getEquipe() != null ? usuarioLogado.getEquipe().getId() : null;
 		// Une seguidores + casais por equipe. Preserva a ordem dos seguidores (por
 		// crachás a imprimir); equipes só de casais entram depois. Cada valor é
-		// [previstos, seguidores, casais, pendentesSeguidor].
+		// [previstos, seguidores, casais, pendentesSeguidor, pendentesCasal].
 		Map<Integer, long[]> dados = new LinkedHashMap<>();
 		Map<Integer, String> titulos = new HashMap<>();
 		for (Object[] r : eventoRepository.resumoSeguidoresPorEquipe(segueMe)) {
@@ -189,29 +220,31 @@ public class DashboardBean implements Serializable {
 			long previstos = r[2] != null ? ((Number) r[2]).longValue() : 0;
 			long seguidores = ((Number) r[3]).longValue();
 			long pendentes = ((Number) r[4]).longValue();
-			dados.put(equipeId, new long[] { previstos, seguidores, 0, pendentes });
+			dados.put(equipeId, new long[] { previstos, seguidores, 0, pendentes, 0 });
 		}
 		for (Object[] r : eventoRepository.resumoCasaisPorEquipe(segueMe)) {
 			Integer equipeId = (Integer) r[0];
 			long casais = ((Number) r[3]).longValue();
+			long casaisPendentes = ((Number) r[4]).longValue();
 			long[] d = dados.get(equipeId);
 			if (d != null) {
 				d[2] = casais;
+				d[4] = casaisPendentes;
 			} else {
 				titulos.put(equipeId, (String) r[1]);
 				long previstos = r[2] != null ? ((Number) r[2]).longValue() : 0;
-				dados.put(equipeId, new long[] { previstos, 0, casais, 0 });
+				dados.put(equipeId, new long[] { previstos, 0, casais, 0, casaisPendentes });
 			}
 		}
 		for (Map.Entry<Integer, long[]> entry : dados.entrySet()) {
 			Integer equipeId = entry.getKey();
 			long[] d = entry.getValue();
 			boolean sua = minhaEquipe != null && minhaEquipe.equals(equipeId);
-			equipes.add(new EquipeLinha(equipeId, titulos.get(equipeId), d[0], d[1], d[2], d[3], sua));
+			equipes.add(new EquipeLinha(equipeId, titulos.get(equipeId), d[0], d[1], d[2], d[3], d[4], sua));
 			totalPrevistos += d[0];
 			totalAlocados += d[1];
 			totalAlocadosPessoas += d[1] + d[2] * 2;
-			totalPendentesEquipes += d[3];
+			totalPendentesEquipes += d[3] + d[4];
 		}
 	}
 
@@ -414,6 +447,191 @@ public class DashboardBean implements Serializable {
 	}
 
 	/**
+	 * Gera e baixa o "Livro do Encontro": um único PDF unindo capa + história
+	 * (PDFs externos enviados no cadastro do Segue-Me) + relação de seguimistas +
+	 * quadrante de seguidores + quadrante de palestrantes. Botão NÃO-AJAX.
+	 */
+	public void gerarLivroEncontro() {
+		if (segueMe == null) {
+			return;
+		}
+		try {
+			fotoService.materializarImagensSegueMe(segueMe);
+			fotoService.materializarImagensCirculo(segueMe);
+			ExecutorLivroEncontro executor = new ExecutorLivroEncontro(segueMe.getId(), response,
+					"Encontro" + segueMe.getNumeroRomano().getNumeroRomano() + ".pdf");
+			manager.unwrap(Session.class).doWork(executor);
+			if (executor.isRelatorioGerado()) {
+				facesContext.responseComplete();
+			}
+		} catch (Exception e) {
+			FacesUtil.addErrorMessage("Não foi possível gerar o livro do encontro.");
+		}
+	}
+
+	/** Baixa o PDF da capa enviada no cadastro do Segue-Me (fresco do banco). */
+	public void baixarCapa() {
+		if (segueMe == null) {
+			return;
+		}
+		baixarArquivo(eventoRepository.arquivoCapa(segueMe.getId()), "application/pdf",
+				"Capa" + segueMe.getNumeroRomano().getNumeroRomano() + ".pdf");
+	}
+
+	/** Baixa o PDF da história enviada no cadastro do Segue-Me (fresco do banco). */
+	public void baixarHistoria() {
+		if (segueMe == null) {
+			return;
+		}
+		baixarArquivo(eventoRepository.arquivoHistoria(segueMe.getId()), "application/pdf",
+				"Historia" + segueMe.getNumeroRomano().getNumeroRomano() + ".pdf");
+	}
+
+	/** Baixa a imagem (JPEG) do padroeiro do encontro. */
+	public void baixarImagem() {
+		if (segueMe == null) {
+			return;
+		}
+		baixarArquivo(segueMe.getImagem(), "image/jpeg",
+				"Padroeiro" + segueMe.getNumeroRomano().getNumeroRomano() + ".jpg");
+	}
+
+	private void baixarArquivo(byte[] bytes, String contentType, String nomeArquivo) {
+		if (bytes == null || bytes.length == 0) {
+			FacesUtil.addErrorMessage("Arquivo não encontrado.");
+			return;
+		}
+		try {
+			response.setContentType(contentType);
+			response.setHeader("Content-Disposition", "attachment; filename=\"" + nomeArquivo + "\"");
+			response.getOutputStream().write(bytes);
+			response.getOutputStream().flush();
+			facesContext.responseComplete();
+		} catch (Exception e) {
+			FacesUtil.addErrorMessage("Não foi possível baixar o arquivo.");
+		}
+	}
+
+	// ===== Editar / anexar o encontro pelo dashboard =====
+
+	/** Carrega uma cópia FRESCA do Segue-Me (por id) para o modal — não o snapshot do login. */
+	public void abrirEdicao() {
+		if (segueMe != null) {
+			this.editSegueMe = segueMeRepository.porId(segueMe.getId());
+		}
+	}
+
+	/** Anexa a imagem do padroeiro direto (sem modal): normaliza, grava e recarrega. */
+	public void anexarImagem(FileUploadEvent event) {
+		try {
+			byte[] jpg = fotoService.normalizarImagemJpeg(event.getFile().getContents());
+			aplicarAnexo(s -> s.setImagem(jpg), "Imagem do padroeiro atualizada.");
+		} catch (Exception e) {
+			flashErro("Imagem inválida — envie um JPG.");
+		}
+	}
+
+	/** Anexa a capa (PDF) direto: valida, grava e recarrega. */
+	public void anexarCapa(FileUploadEvent event) {
+		byte[] bytes = event.getFile().getContents();
+		if (!ehPdf(bytes)) {
+			flashErro("A capa precisa ser um PDF.");
+			return;
+		}
+		aplicarAnexo(s -> s.setArquivoCapa(bytes), "Capa anexada.");
+	}
+
+	/** Anexa a história (PDF) direto: valida, grava e recarrega. */
+	public void anexarHistoria(FileUploadEvent event) {
+		byte[] bytes = event.getFile().getContents();
+		if (!ehPdf(bytes)) {
+			flashErro("A história precisa ser um PDF.");
+			return;
+		}
+		aplicarAnexo(s -> s.setArquivoHistoria(bytes), "História anexada.");
+	}
+
+	/**
+	 * Carrega o Segue-Me FRESCO por id (não o snapshot do login), aplica só o anexo
+	 * alterado e persiste. A mensagem sobrevive ao reload da tela (flash) que o
+	 * upload dispara em {@code oncomplete}, para o cabeçalho/chips refletirem.
+	 */
+	private void aplicarAnexo(java.util.function.Consumer<SegueMe> mutacao, String msg) {
+		if (segueMe == null) {
+			return;
+		}
+		try {
+			SegueMe fresco = segueMeRepository.porId(segueMe.getId());
+			mutacao.accept(fresco);
+			cadastroEjcService.salvar(fresco);
+			mensagemFlash(msg);
+		} catch (Exception e) {
+			flashErro("Não foi possível anexar: " + e.getMessage());
+		}
+	}
+
+	private void flashErro(String msg) {
+		facesContext.getExternalContext().getFlash().setKeepMessages(true);
+		FacesUtil.addErrorMessage(msg);
+	}
+
+	/** Remove a imagem do padroeiro do encontro (confirmar antes). */
+	public String removerImagem() {
+		return removerAnexo(s -> s.setImagem(null), "Imagem removida.");
+	}
+
+	/** Remove a capa (PDF) do encontro (confirmar antes). */
+	public String removerCapa() {
+		return removerAnexo(s -> s.setArquivoCapa(null), "Capa removida.");
+	}
+
+	/** Remove a história (PDF) do encontro (confirmar antes). */
+	public String removerHistoria() {
+		return removerAnexo(s -> s.setArquivoHistoria(null), "História removida.");
+	}
+
+	/** Zera um anexo no Segue-Me FRESCO por id, persiste e recarrega o dashboard. */
+	private String removerAnexo(java.util.function.Consumer<SegueMe> mutacao, String msg) {
+		if (segueMe == null) {
+			return null;
+		}
+		try {
+			SegueMe fresco = segueMeRepository.porId(segueMe.getId());
+			mutacao.accept(fresco);
+			cadastroEjcService.salvar(fresco);
+			mensagemFlash(msg);
+		} catch (Exception e) {
+			FacesUtil.addErrorMessage("Não foi possível remover: " + e.getMessage());
+			return null;
+		}
+		return "/dashboard.xhtml?faces-redirect=true";
+	}
+
+	/** Persiste as edições/anexos e recarrega o dashboard (redirect → viewAction). */
+	public String salvarEdicao() {
+		if (editSegueMe == null) {
+			return null;
+		}
+		try {
+			cadastroEjcService.salvar(editSegueMe);
+			mensagemFlash("Encontro atualizado.");
+		} catch (Exception e) {
+			FacesUtil.addErrorMessage("Não foi possível salvar: " + e.getMessage());
+			return null;
+		}
+		return "/dashboard.xhtml?faces-redirect=true";
+	}
+
+	private boolean ehPdf(byte[] bytes) {
+		return bytes != null && bytes.length > 4 && bytes[0] == '%' && bytes[1] == 'P' && bytes[2] == 'D'
+				&& bytes[3] == 'F';
+	}
+
+	public SegueMe getEditSegueMe() {
+		return editSegueMe;
+	}
+
+	/**
 	 * Gera e baixa o PDF dos crachás de um papel direto do dashboard, usando o
 	 * MESMO modelo configurado no retiro que a tela de relatório
 	 * ({@code segueMe.nomeArquivoCracha}, ou "cracha" quando vazio) — cada retiro
@@ -451,11 +669,11 @@ public class DashboardBean implements Serializable {
 	}
 
 	/**
-	 * Gera e baixa o PDF dos crachás de seguidores de UMA equipe (mesma lógica de
-	 * {@code RelatorioCrachaSeguidorEquipe.emitir}) — modelo do retiro
-	 * ({@code segueMe.nomeArquivoCracha} + "SeguidorEquipe", ou "cracha..." quando
-	 * vazio). Acionado a partir da linha da equipe na tabela "Seguidores por
-	 * equipe". Botão NÃO-AJAX (escreve o PDF na resposta HTTP).
+	 * Gera e baixa o PDF dos crachás de UMA equipe — TODOS os participantes: une num
+	 * único PDF o crachá de seguidor ({@code <modelo>SeguidorEquipe}) e o de casal
+	 * ({@code <modelo>CasalEquipe}). Cada relatório que voltar vazio é pulado (ex.:
+	 * seguidor numa equipe só de casais, como a Visitação). Acionado a partir da
+	 * linha da equipe na tabela "Pessoas por equipe". Botão NÃO-AJAX.
 	 */
 	public void gerarCrachaEquipe(Integer equipeId, String titulo) {
 		if (segueMe == null || equipeId == null) {
@@ -471,12 +689,16 @@ public class DashboardBean implements Serializable {
 			parametros.put(JRParameter.REPORT_LOCALE, new Locale("pt", "BR"));
 			parametros.put("segueMe", segueMe.getId());
 			parametros.put("equipe", equipeId);
-			ExecutorRelatorioDownload executor = new ExecutorRelatorioDownload(
-					"/jasper/" + nomeArquivo + "SeguidorEquipe.jasper", response, parametros,
+			List<String> relatorios = java.util.Arrays.asList(
+					"/jasper/" + nomeArquivo + "SeguidorEquipe.jasper",
+					"/jasper/" + nomeArquivo + "CasalEquipe.jasper");
+			ExecutorCrachaEquipe executor = new ExecutorCrachaEquipe(relatorios, parametros, response,
 					"Cracha" + titulo + ".pdf");
 			manager.unwrap(Session.class).doWork(executor);
 			if (executor.isRelatorioGerado()) {
 				facesContext.responseComplete();
+			} else {
+				FacesUtil.addErrorMessage("Nenhum crachá para imprimir nesta equipe.");
 			}
 		} catch (Exception e) {
 			FacesUtil.addErrorMessage("A execução do relatório não retornou dados.");
@@ -616,17 +838,67 @@ public class DashboardBean implements Serializable {
 		return "/dashboard.xhtml?faces-redirect=true";
 	}
 
-	/** Marca como impressos os crachás de seguidor pendentes de UMA equipe. */
+	/** Marca como impressos os crachás (seguidor + casal) pendentes de UMA equipe. */
 	public String marcarImpressoEquipe(Integer equipeId, String titulo) {
 		if (segueMe == null || equipeId == null) {
 			return null;
 		}
 		try {
-			List<Long> ids = eventoRepository.idsCrachaPendenteSeguidoresEquipe(segueMe, equipeId);
-			int n = seguidorService.atualizarCracha(ids, false);
+			int n = seguidorService.atualizarCracha(eventoRepository.idsCrachaPendenteSeguidoresEquipe(segueMe, equipeId),
+					false);
+			n += casalService.atualizarCracha(eventoRepository.idsCrachaCasaisEquipe(segueMe, equipeId, true), false);
 			mensagemFlash(n + " crachá(s) da " + titulo + " marcado(s) como impresso(s).");
 		} catch (Exception e) {
 			FacesUtil.addErrorMessage("Não foi possível marcar os crachás como impressos.");
+			return null;
+		}
+		return "/dashboard.xhtml?faces-redirect=true";
+	}
+
+	/** Desfaz a baixa: volta a PENDENTE (a imprimir) os crachás (seguidor + casal) de UMA equipe. */
+	public String marcarNaoImpressoEquipe(Integer equipeId, String titulo) {
+		if (segueMe == null || equipeId == null) {
+			return null;
+		}
+		try {
+			int n = seguidorService.atualizarCracha(eventoRepository.idsCrachaImpressoSeguidoresEquipe(segueMe, equipeId),
+					true);
+			n += casalService.atualizarCracha(eventoRepository.idsCrachaCasaisEquipe(segueMe, equipeId, false), true);
+			mensagemFlash(n + " crachá(s) da " + titulo + " voltaram para a lista de impressão.");
+		} catch (Exception e) {
+			FacesUtil.addErrorMessage("Não foi possível desmarcar os crachás.");
+			return null;
+		}
+		return "/dashboard.xhtml?faces-redirect=true";
+	}
+
+	/** Marca como impressos os crachás de seguimista pendentes de UM círculo. */
+	public String marcarImpressoCirculo(Integer circuloId, String corLabel) {
+		if (segueMe == null || circuloId == null) {
+			return null;
+		}
+		try {
+			List<Long> ids = eventoRepository.idsCrachaSeguimistasCirculo(segueMe, circuloId, true);
+			int n = seguidorService.atualizarCracha(ids, false);
+			mensagemFlash(n + " crachá(s) do círculo " + corLabel + " marcado(s) como impresso(s).");
+		} catch (Exception e) {
+			FacesUtil.addErrorMessage("Não foi possível marcar os crachás como impressos.");
+			return null;
+		}
+		return "/dashboard.xhtml?faces-redirect=true";
+	}
+
+	/** Desfaz a baixa: volta a PENDENTE os crachás de seguimista de UM círculo. */
+	public String marcarNaoImpressoCirculo(Integer circuloId, String corLabel) {
+		if (segueMe == null || circuloId == null) {
+			return null;
+		}
+		try {
+			List<Long> ids = eventoRepository.idsCrachaSeguimistasCirculo(segueMe, circuloId, false);
+			int n = seguidorService.atualizarCracha(ids, true);
+			mensagemFlash(n + " crachá(s) do círculo " + corLabel + " voltaram para a lista de impressão.");
+		} catch (Exception e) {
+			FacesUtil.addErrorMessage("Não foi possível desmarcar os crachás.");
 			return null;
 		}
 		return "/dashboard.xhtml?faces-redirect=true";
@@ -656,6 +928,22 @@ public class DashboardBean implements Serializable {
 
 	public boolean isSemEvento() {
 		return semEvento;
+	}
+
+	public boolean isTemCapa() {
+		return temCapa;
+	}
+
+	public boolean isTemHistoria() {
+		return temHistoria;
+	}
+
+	public boolean isTemImagem() {
+		return temImagem;
+	}
+
+	public String getImagemPadroeiroPath() {
+		return imagemPadroeiroPath;
 	}
 
 	public List<Cracha> getCrachas() {
@@ -850,17 +1138,19 @@ public class DashboardBean implements Serializable {
 		private final long previstos;
 		private final long alocados;
 		private final long casais;
-		private final long pendentes;
+		private final long pendentesSeguidor;
+		private final long pendentesCasal;
 		private final boolean sua;
 
-		EquipeLinha(Integer equipeId, String titulo, long previstos, long alocados, long casais, long pendentes,
-				boolean sua) {
+		EquipeLinha(Integer equipeId, String titulo, long previstos, long alocados, long casais, long pendentesSeguidor,
+				long pendentesCasal, boolean sua) {
 			this.equipeId = equipeId;
 			this.titulo = titulo;
 			this.previstos = previstos;
 			this.alocados = alocados;
 			this.casais = casais;
-			this.pendentes = pendentes;
+			this.pendentesSeguidor = pendentesSeguidor;
+			this.pendentesCasal = pendentesCasal;
 			this.sua = sua;
 		}
 
@@ -895,12 +1185,18 @@ public class DashboardBean implements Serializable {
 			return alocados + casais * 2;
 		}
 
+		/** Total de crachás da equipe = seguidores + casais (1 crachá por casal). */
+		public long getCrachaTotal() {
+			return alocados + casais;
+		}
+
+		/** Crachás a imprimir = pendentes de seguidor + de casal. */
 		public long getPendentes() {
-			return pendentes;
+			return pendentesSeguidor + pendentesCasal;
 		}
 
 		public long getImpressos() {
-			return alocados - pendentes;
+			return getCrachaTotal() - getPendentes();
 		}
 
 		/** Vagas em aberto na equipe, já descontando os casais (2 por casal). */
@@ -913,11 +1209,11 @@ public class DashboardBean implements Serializable {
 		}
 
 		public boolean isCrachaCompleto() {
-			return pendentes == 0;
+			return getCrachaTotal() > 0 && getPendentes() == 0;
 		}
 
 		public int getPctImpresso() {
-			return alocados > 0 ? (int) Math.round(getImpressos() * 100.0 / alocados) : 0;
+			return getCrachaTotal() > 0 ? (int) Math.round(getImpressos() * 100.0 / getCrachaTotal()) : 0;
 		}
 
 		public boolean isSua() {
