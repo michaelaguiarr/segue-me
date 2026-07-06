@@ -132,6 +132,8 @@ public class DashboardBean implements Serializable {
 	private long totalSeguimistasPendentes;
 	private List<String> seguimistasSemCirculo = new ArrayList<>();
 
+		private List<PalestraLinha> palestras = new ArrayList<>();
+
 	private List<Aniversariante> aniversariantesSeguimistas = new ArrayList<>();
 	private List<Aniversariante> aniversariantesServico = new ArrayList<>();
 	private List<Aniversariante> aniversariantesHoje = new ArrayList<>();
@@ -171,6 +173,7 @@ public class DashboardBean implements Serializable {
 		carregarEquipes();
 		carregarSituacoes();
 		carregarCirculos();
+		carregarPalestras();
 		carregarAniversariantes();
 		carregarAniversariantesCasais();
 		this.seguidoresServindo = totalAlocados;
@@ -284,6 +287,44 @@ public class DashboardBean implements Serializable {
 			String apelido = (String) r[1];
 			seguimistasSemCirculo.add(apelido != null && !apelido.trim().isEmpty() ? nome + " (" + apelido + ")" : nome);
 		}
+	}
+
+	private void carregarPalestras() {
+		Map<Long, PalestraLinha> mapa = new LinkedHashMap<>();
+		for (Object[] r : eventoRepository.palestrasDoEncontro(segueMe)) {
+			Long id = ((Number) r[0]).longValue();
+			PalestraLinha pl = mapa.get(id);
+			if (pl == null) {
+				Integer ordem = r[1] != null ? ((Number) r[1]).intValue() : null;
+				pl = new PalestraLinha(id, ordem, (String) r[2], (String) r[3]);
+				mapa.put(id, pl);
+			}
+			String nome = nomePalestrante((String) r[4], (String) r[5], (String) r[6], (String) r[7], (String) r[8]);
+			if (nome != null) {
+				pl.addPalestrante(nome);
+			}
+		}
+		palestras.addAll(mapa.values());
+	}
+
+	/**
+	 * Escolhe o nome do palestrante conforme o tipo presente no Evento (convidado,
+	 * seguidor, casal ou padre). Devolve null se a linha não tiver pessoa vinculada.
+	 */
+	private String nomePalestrante(String convidado, String seguidor, String casalEle, String casalEla, String padre) {
+		if (convidado != null) {
+			return convidado;
+		}
+		if (seguidor != null) {
+			return seguidor;
+		}
+		if (casalEle != null || casalEla != null) {
+			return (casalEle != null ? casalEle : "") + " e " + (casalEla != null ? casalEla : "");
+		}
+		if (padre != null) {
+			return padre;
+		}
+		return null;
 	}
 
 	private void carregarAniversariantes() {
@@ -1120,6 +1161,14 @@ public class DashboardBean implements Serializable {
 		return totalSeguimistasPendentes;
 	}
 
+	public List<PalestraLinha> getPalestras() {
+		return palestras;
+	}
+
+	public int getTotalPalestras() {
+		return palestras.size();
+	}
+
 	public List<Aniversariante> getAniversariantesSeguimistas() {
 		return aniversariantesSeguimistas;
 	}
@@ -1392,6 +1441,50 @@ public class DashboardBean implements Serializable {
 
 		public int getPctImpresso() {
 			return total > 0 ? (int) Math.round(getImpressos() * 100.0 / total) : 0;
+		}
+	}
+
+	public static class PalestraLinha implements Serializable {
+		private static final long serialVersionUID = 1L;
+		private final Long id;
+		private final Integer ordem;
+		private final String nome;
+		private final String duracao;
+		private final List<String> palestrantes = new ArrayList<>();
+
+		PalestraLinha(Long id, Integer ordem, String nome, String duracao) {
+			this.id = id;
+			this.ordem = ordem;
+			this.nome = nome;
+			this.duracao = duracao;
+		}
+
+		void addPalestrante(String nome) {
+			palestrantes.add(nome);
+		}
+
+		public Long getId() {
+			return id;
+		}
+
+		public Integer getOrdem() {
+			return ordem;
+		}
+
+		public String getNome() {
+			return nome;
+		}
+
+		public String getDuracao() {
+			return duracao;
+		}
+
+		public List<String> getPalestrantes() {
+			return palestrantes;
+		}
+
+		public boolean isTemPalestrante() {
+			return !palestrantes.isEmpty();
 		}
 	}
 

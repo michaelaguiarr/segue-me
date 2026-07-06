@@ -318,6 +318,26 @@ public class EventoRepository implements Serializable {
 	}
 
 	/**
+	 * Palestras do encontro (grade), na ordem definida em {@code Palestra.ordem}, com
+	 * QUEM as ministra. O palestrante vem de um {@code Evento} ligado à palestra e pode
+	 * ser convidado, seguidor, casal ou padre — devolvo os nomes crus de cada tipo para
+	 * o bean montar o rótulo. Uma palestra pode ter mais de um palestrante (linhas
+	 * repetidas por palestra); o bean agrupa por {@code pl.id}.
+	 * Linhas: [palestraId, ordem, nome, duracao, convidadoNome, seguidorNome,
+	 * casalEle, casalEla, padreNome].
+	 */
+	public List<Object[]> palestrasDoEncontro(SegueMe sm) {
+		return manager.createQuery("SELECT pl.id, pl.ordem, pl.nome, pl.duracao, "
+				+ "pc.nome, s.nome, c.nomeEle, c.nomeEla, p.nome "
+				+ "FROM Evento e JOIN e.palestra pl "
+				+ "LEFT JOIN e.palestranteConvidado pc LEFT JOIN e.seguidor s "
+				+ "LEFT JOIN e.casal c LEFT JOIN e.padre p "
+				+ "WHERE e.segueMe = :sm "
+				+ "ORDER BY pl.ordem, pl.nome", Object[].class)
+				.setParameter("sm", sm).getResultList();
+	}
+
+	/**
 	 * Seguimistas com data de nascimento preenchida: linhas [nome, dataNascimento,
 	 * corCirculo(CorCirculo), circuloNome]. O filtro por mês/dia é feito no bean
 	 * (volume pequeno, evita função de data específica do banco). "Seguimista" =
