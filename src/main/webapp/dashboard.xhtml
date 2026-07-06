@@ -168,7 +168,7 @@
 			.dg-phead { padding: 14px 18px 11px; border-bottom: 1px solid #ebe3d6; display: flex; align-items: flex-end; gap: 12px; }
 			.dg-phead h3 { font-size: 16px; font-weight: 700; }
 			.dg-phead .sub { font-size: 12.5px; color: #9c8d7e; }
-			.dg-circ-head { margin-left: auto; display: inline-flex; align-items: center; gap: 8px; }
+			.dg-circ-head { margin-left: auto; display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
 			.dg-warn-badge { color: #fff; background: #e74c3c; font-size: 12px; font-weight: 700; padding: 4px 11px; border-radius: 999px; white-space: nowrap; }
 			.dg-ok-badge { color: #1e7a48; background: #e4f4ea; font-size: 12px; font-weight: 600; padding: 4px 11px; border-radius: 999px; white-space: nowrap; }
 			.dg-semcirc { padding: 11px 18px; background: #fdf0ee; border-bottom: 1px solid #f3d9d4; color: #8a2e22; font-size: 13px; display: flex; gap: 6px 14px; align-items: baseline; flex-wrap: wrap; }
@@ -190,6 +190,10 @@
 			.dg-tbl .team { font-weight: 600; }
 			.dg-mine { font-size: 10px; font-weight: 700; color: #b96c08; background: #fbeed8; padding: 2px 8px; border-radius: 999px; margin-left: 7px; text-transform: uppercase; }
 			.dg-gap { font-size: 11px; color: #9c8d7e; margin-left: 5px; }
+			.dg-palz-label { font-size: 12.5px; color: #6e5f52; font-weight: 600; margin-right: 2px; }
+			.dg-btn-sm { font-size: 12.5px !important; padding: 5px 10px !important; }
+			.dg-palz-link { color: #b96c08; text-decoration: none; border-bottom: 1px dotted #d8b98a; }
+			.dg-palz-link:hover { color: #8f5406; border-bottom-color: #b96c08; }
 			.dg-sub2 { font-size: 11.5px; color: #9c8d7e; font-weight: 500; }
 			.dg-pend { font-weight: 700; color: #e0830b; }
 			.dg-pend.done { color: #1e9e5a; font-weight: 600; }
@@ -664,32 +668,33 @@
 			<div class="dg-sec">
 				<div class="dg-panel">
 					<div class="dg-phead">
-						<div><h3>Palestras do encontro</h3><div class="sub">#{dashboardBean.totalPalestras} palestras · na ordem do encontro</div></div>
+						<div><h3>Palestras do encontro</h3><div class="sub">#{dashboardBean.totalPalestras} palestras · clique no palestrante para editá-lo em Evento › Palestras</div></div>
 						<h:panelGroup layout="block" styleClass="dg-circ-head">
-							<p:button value="Nova palestra" icon="fa fa-plus" styleClass="dg-btn"
-								outcome="/palestra/cadastro-palestra" title="Cadastrar uma nova palestra (tema, ordem e duração)" />
-							<p:button value="Quadrante de palestrantes" icon="fa fa-th-large" styleClass="dg-btn"
+							<span class="dg-palz-label">+ Palestrante:</span>
+							<p:button value="Casal" icon="fa fa-venus-mars" styleClass="dg-btn dg-btn-sm"
+								outcome="/evento-casal/pesquisa-palestra" title="Palestrantes casais — adicionar/editar (Evento › Palestras)" />
+							<p:button value="Seguidor" icon="fa fa-users" styleClass="dg-btn dg-btn-sm"
+								outcome="/evento-seguidor/pesquisa-palestra" title="Palestrantes seguidores — adicionar/editar (Evento › Palestras)" />
+							<p:button value="Padre" icon="fa fa-user-o" styleClass="dg-btn dg-btn-sm"
+								outcome="/evento-padre/pesquisa-palestra" title="Palestrantes padres/bispos — adicionar/editar (Evento › Palestras)" />
+							<p:button value="Convidado" icon="fa fa-street-view" styleClass="dg-btn dg-btn-sm"
+								outcome="/evento-convidado/pesquisa-palestra" title="Palestrantes convidados — adicionar/editar (Evento › Palestras)" />
+							<p:button value="Quadrante" icon="fa fa-th-large" styleClass="dg-btn"
 								outcome="/evento-seguidor/relatorio-quadrante-palestra" title="Imprimir o quadrante (grade) dos palestrantes" />
 						</h:panelGroup>
 					</div>
 					<div class="dg-pbody dg-scroll">
 						<table class="dg-tbl">
-							<thead><tr><th class="n">Ordem</th><th>Palestra</th><th class="n">Duração</th><th>Palestrante(s)</th><th class="acts">Ações</th></tr></thead>
+							<thead><tr><th class="n">Ordem</th><th>Palestra</th><th class="n">Duração</th><th>Palestrante(s)</th></tr></thead>
 							<tbody>
 								<ui:repeat value="#{dashboardBean.palestras}" var="pl">
 									<tr>
 										<td class="n">#{pl.ordem}</td>
 										<td><span class="team">#{pl.nome}</span></td>
 										<td class="n"><h:outputText rendered="#{not empty pl.duracao}" value="#{pl.duracao} min" /><h:outputText rendered="#{empty pl.duracao}" value="—" /></td>
-										<td>
-											<ui:repeat value="#{pl.palestrantes}" var="pn" varStatus="st"><h:outputText value="#{pn}" /><h:outputText rendered="#{not st.last}" value=", " /></ui:repeat>
+										<td class="dg-palz">
+											<ui:repeat value="#{pl.palestrantes}" var="pn" varStatus="st"><h:link styleClass="dg-palz-link" outcome="/evento-#{pn.tipo}/cadastro-evento-palestra" value="#{pn.nome}" title="Editar este palestrante em Evento › Palestras"><f:param name="#{pn.tipo}" value="#{pn.eventoId}" /></h:link><h:outputText rendered="#{not st.last}" value=", " /></ui:repeat>
 											<h:outputText rendered="#{not pl.temPalestrante}" styleClass="dg-gap" value="(sem palestrante)" />
-										</td>
-										<td class="acts">
-											<span class="dg-rowbtns">
-												<p:button value="Editar" icon="fa fa-pencil" styleClass="dg-rowbtn"
-													outcome="/palestra/cadastro-palestra" title="Editar o tema, a ordem e a duração desta palestra"><f:param name="palestra" value="#{pl.id}" /></p:button>
-											</span>
 										</td>
 									</tr>
 								</ui:repeat>
@@ -699,11 +704,10 @@
 								<td>Total · #{dashboardBean.totalPalestras} palestras</td>
 								<td class="n"></td>
 								<td></td>
-								<td class="acts"></td>
 							</tr></tfoot>
 						</table>
 						<h:outputText rendered="#{empty dashboardBean.palestras}" styleClass="dg-note"
-							value="Nenhuma palestra com palestrante neste encontro ainda. Cadastre a palestra em Nova palestra e vincule os palestrantes em Evento › Palestras." />
+							value="Nenhuma palestra com palestrante neste encontro ainda. Adicione os palestrantes em Evento › Palestras (por tipo de pessoa)." />
 					</div>
 				</div>
 			</div>

@@ -299,30 +299,36 @@ public class DashboardBean implements Serializable {
 				pl = new PalestraLinha(id, ordem, (String) r[2], (String) r[3]);
 				mapa.put(id, pl);
 			}
-			String nome = nomePalestrante((String) r[4], (String) r[5], (String) r[6], (String) r[7], (String) r[8]);
-			if (nome != null) {
-				pl.addPalestrante(nome);
+			Long eventoId = r[4] != null ? ((Number) r[4]).longValue() : null;
+			Palestrante palestrante = montarPalestrante(eventoId, (String) r[5], (String) r[6], (String) r[7],
+					(String) r[8], (String) r[9]);
+			if (palestrante != null) {
+				pl.addPalestrante(palestrante);
 			}
 		}
 		palestras.addAll(mapa.values());
 	}
 
 	/**
-	 * Escolhe o nome do palestrante conforme o tipo presente no Evento (convidado,
-	 * seguidor, casal ou padre). Devolve null se a linha não tiver pessoa vinculada.
+	 * Monta o palestrante conforme o tipo presente no Evento (convidado, seguidor,
+	 * casal ou padre), guardando o id do Evento e o tipo para linkar a edição em
+	 * Evento &gt; Palestras (/evento-&lt;tipo&gt;/cadastro-evento-palestra?&lt;tipo&gt;=&lt;eventoId&gt;).
+	 * Devolve null se a linha não tiver pessoa vinculada.
 	 */
-	private String nomePalestrante(String convidado, String seguidor, String casalEle, String casalEla, String padre) {
+	private Palestrante montarPalestrante(Long eventoId, String convidado, String seguidor, String casalEle,
+			String casalEla, String padre) {
 		if (convidado != null) {
-			return convidado;
+			return new Palestrante(eventoId, "convidado", convidado);
 		}
 		if (seguidor != null) {
-			return seguidor;
+			return new Palestrante(eventoId, "seguidor", seguidor);
 		}
 		if (casalEle != null || casalEla != null) {
-			return (casalEle != null ? casalEle : "") + " e " + (casalEla != null ? casalEla : "");
+			return new Palestrante(eventoId, "casal",
+					(casalEle != null ? casalEle : "") + " e " + (casalEla != null ? casalEla : ""));
 		}
 		if (padre != null) {
-			return padre;
+			return new Palestrante(eventoId, "padre", padre);
 		}
 		return null;
 	}
@@ -1450,7 +1456,7 @@ public class DashboardBean implements Serializable {
 		private final Integer ordem;
 		private final String nome;
 		private final String duracao;
-		private final List<String> palestrantes = new ArrayList<>();
+		private final List<Palestrante> palestrantes = new ArrayList<>();
 
 		PalestraLinha(Long id, Integer ordem, String nome, String duracao) {
 			this.id = id;
@@ -1459,8 +1465,8 @@ public class DashboardBean implements Serializable {
 			this.duracao = duracao;
 		}
 
-		void addPalestrante(String nome) {
-			palestrantes.add(nome);
+		void addPalestrante(Palestrante palestrante) {
+			palestrantes.add(palestrante);
 		}
 
 		public Long getId() {
@@ -1479,12 +1485,42 @@ public class DashboardBean implements Serializable {
 			return duracao;
 		}
 
-		public List<String> getPalestrantes() {
+		public List<Palestrante> getPalestrantes() {
 			return palestrantes;
 		}
 
 		public boolean isTemPalestrante() {
 			return !palestrantes.isEmpty();
+		}
+	}
+
+	/**
+	 * Um palestrante da grade: o id do Evento e o tipo ({@code seguidor}, {@code casal},
+	 * {@code padre} ou {@code convidado}) permitem linkar a edição direta em
+	 * Evento &gt; Palestras (/evento-&lt;tipo&gt;/cadastro-evento-palestra?&lt;tipo&gt;=&lt;eventoId&gt;).
+	 */
+	public static class Palestrante implements Serializable {
+		private static final long serialVersionUID = 1L;
+		private final Long eventoId;
+		private final String tipo;
+		private final String nome;
+
+		Palestrante(Long eventoId, String tipo, String nome) {
+			this.eventoId = eventoId;
+			this.tipo = tipo;
+			this.nome = nome;
+		}
+
+		public Long getEventoId() {
+			return eventoId;
+		}
+
+		public String getTipo() {
+			return tipo;
+		}
+
+		public String getNome() {
+			return nome;
 		}
 	}
 

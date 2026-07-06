@@ -320,14 +320,15 @@ public class EventoRepository implements Serializable {
 	/**
 	 * Palestras do encontro (grade), na ordem definida em {@code Palestra.ordem}, com
 	 * QUEM as ministra. O palestrante vem de um {@code Evento} ligado à palestra e pode
-	 * ser convidado, seguidor, casal ou padre — devolvo os nomes crus de cada tipo para
-	 * o bean montar o rótulo. Uma palestra pode ter mais de um palestrante (linhas
+	 * ser convidado, seguidor, casal ou padre — devolvo o id do Evento (para editar o
+	 * palestrante direto em Evento &gt; Palestras) e os nomes crus de cada tipo para o
+	 * bean montar o rótulo/tipo. Uma palestra pode ter mais de um palestrante (linhas
 	 * repetidas por palestra); o bean agrupa por {@code pl.id}.
-	 * Linhas: [palestraId, ordem, nome, duracao, convidadoNome, seguidorNome,
+	 * Linhas: [palestraId, ordem, nome, duracao, eventoId, convidadoNome, seguidorNome,
 	 * casalEle, casalEla, padreNome].
 	 */
 	public List<Object[]> palestrasDoEncontro(SegueMe sm) {
-		return manager.createQuery("SELECT pl.id, pl.ordem, pl.nome, pl.duracao, "
+		return manager.createQuery("SELECT pl.id, pl.ordem, pl.nome, pl.duracao, e.id, "
 				+ "pc.nome, s.nome, c.nomeEle, c.nomeEla, p.nome "
 				+ "FROM Evento e JOIN e.palestra pl "
 				+ "LEFT JOIN e.palestranteConvidado pc LEFT JOIN e.seguidor s "
