@@ -78,11 +78,12 @@
 			.dg-mfoot { font-size: 12.5px; color: #6e5f52; }
 			.dg-mfoot .warn { color: #b96c08; font-weight: 600; }
 			.dg-dactions { margin-top: 14px; display: flex; flex-direction: column; gap: 10px; }
-			.dg-chips { display: flex; flex-wrap: wrap; gap: 5px; }
-			.dg-chips .ui-button { flex: 1 1 auto; white-space: nowrap; min-width: 0; }
-			.dg-chips .ui-button .ui-button-text { padding: .5em .55em !important; }
-			.dg-chips .ui-button .ui-button-icon-left { margin-right: 1px; }
-			.dg-chip { font-size: 12px !important; border-radius: 999px !important; }
+			.dg-chip-rows { display: flex; flex-direction: column; gap: 7px; }
+			.dg-chip-row { display: flex; align-items: center; gap: 10px; }
+			.dg-chip-tag { flex: 0 0 62px; font-size: 10px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: #b3a091; text-align: right; }
+			.dg-chips { display: flex; flex-wrap: wrap; gap: 6px; flex: 1; }
+			.dg-chips .ui-button { flex: 1 1 auto; white-space: nowrap; }
+			.dg-chip { font-size: 12.5px !important; border-radius: 999px !important; }
 			.dg-chip-add.ui-button { border-style: dashed !important; color: #b96c08 !important; background: #fff7ec !important; }
 			.dg-chips-label { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #b3a091; margin: 2px 0 -2px; }
 
@@ -373,6 +374,8 @@
 									styleClass="dg-btn green-btn" ajax="false" action="#{dashboardBean.gerarLivroEncontro}"
 										title="PDF único na ordem: capa + história + quadrante de seguimistas + seguidores + palestrantes" />
 								<div class="dg-chips-label">Ou gere cada peça (ordem do livro)</div>
+								<div class="dg-chip-rows">
+								<div class="dg-chip-row"><span class="dg-chip-tag">Arquivos</span>
 									<div class="dg-chips">
 										<p:commandButton value="Capa" icon="fa fa-file-pdf-o" ajax="false" rendered="#{dashboardBean.temCapa}"
 											styleClass="dg-btn dg-chip" action="#{dashboardBean.baixarCapa}" />
@@ -384,10 +387,16 @@
 										<p:commandButton value="História" icon="fa fa-plus" rendered="#{not dashboardBean.temHistoria}"
 											styleClass="dg-btn dg-chip dg-chip-add" action="#{dashboardBean.abrirEdicao}" update=":formAnexos"
 											oncomplete="PF('dlgAnexos').show()" title="Anexar a história (PDF)" />
+									</div>
+								</div>
+								<div class="dg-chip-row"><span class="dg-chip-tag">Quadrantes</span>
+									<div class="dg-chips">
 										<p:button value="Seguimista" icon="fa fa-user" styleClass="dg-btn dg-chip" outcome="/evento-seguidor/relatorio-quadrante-seguimista" />
 										<p:commandButton value="Seguidor" icon="fa fa-users" ajax="false" styleClass="dg-btn dg-chip" action="#{dashboardBean.gerarQuadrante}" />
 										<p:button value="Palestrante" icon="fa fa-microphone" styleClass="dg-btn dg-chip" outcome="/evento-seguidor/relatorio-quadrante-palestra" />
 									</div>
+								</div>
+								</div>
 							</h:form>
 						</div>
 					</div>
