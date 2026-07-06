@@ -146,6 +146,7 @@
 			.dg-edit-anexo .st .ok { color: #1e9e5a; font-weight: 600; font-size: 13px; }
 			.dg-edit-foot { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; padding-top: 4px; }
 			.dg-detail { font-size: 13px; color: #b96c08; text-decoration: none; font-weight: 600; }
+			.dg-help { border-bottom: 1px dotted #b3a091; cursor: help; }
 
 			/* cracha role cards */
 			.dg-roles { display: grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: 14px; }
@@ -456,7 +457,7 @@
 						</div>
 						<div><span class="dg-big dg-tnum #{dashboardBean.totalPendentes eq 0 ? 'zero' : ''}">#{dashboardBean.totalPendentes}</span><span class="dg-u">crachás a imprimir</span></div>
 						<div class="dg-meter"><i class="ok" style="width:#{dashboardBean.pctCrachas}%"></i></div>
-						<div class="dg-mfoot dg-tnum">#{dashboardBean.totalImpressos} de #{dashboardBean.totalCrachas} impressos</div>
+						<div class="dg-mfoot dg-tnum">#{dashboardBean.totalImpressos} de <span class="dg-help" title="Total de crachás a emitir: 1 por pessoa ou por casal, somando todos os papéis (seguidores, seguimistas, casais, padres e palestrantes). Difere do quadrante, onde o casal conta como 2 pessoas.">#{dashboardBean.totalCrachas}</span> impressos</div>
 						<div class="dg-dactions">
 							<h:form>
 								<p:commandButton value="Imprimir crachás" icon="fa fa-print" style="width:100%"
