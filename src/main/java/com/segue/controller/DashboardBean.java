@@ -518,33 +518,58 @@ public class DashboardBean implements Serializable {
 		}
 	}
 
-	public void uploadImagemPadroeiro(FileUploadEvent event) {
+	/** Anexa a imagem do padroeiro direto (sem modal): normaliza, grava e recarrega. */
+	public void anexarImagem(FileUploadEvent event) {
 		try {
-			editSegueMe.setImagem(fotoService.normalizarImagemJpeg(event.getFile().getContents()));
-			FacesUtil.addInfoMessage("Imagem carregada. Clique em Salvar para gravar.");
+			byte[] jpg = fotoService.normalizarImagemJpeg(event.getFile().getContents());
+			aplicarAnexo(s -> s.setImagem(jpg), "Imagem do padroeiro atualizada.");
 		} catch (Exception e) {
-			FacesUtil.addErrorMessage("Não foi possível carregar a imagem.");
+			flashErro("Imagem inválida — envie um JPG.");
 		}
 	}
 
-	public void uploadCapaEdicao(FileUploadEvent event) {
+	/** Anexa a capa (PDF) direto: valida, grava e recarrega. */
+	public void anexarCapa(FileUploadEvent event) {
 		byte[] bytes = event.getFile().getContents();
 		if (!ehPdf(bytes)) {
-			FacesUtil.addErrorMessage("A capa precisa ser um PDF.");
+			flashErro("A capa precisa ser um PDF.");
 			return;
 		}
-		editSegueMe.setArquivoCapa(bytes);
-		FacesUtil.addInfoMessage("Capa carregada. Clique em Salvar para gravar.");
+		aplicarAnexo(s -> s.setArquivoCapa(bytes), "Capa anexada.");
 	}
 
-	public void uploadHistoriaEdicao(FileUploadEvent event) {
+	/** Anexa a história (PDF) direto: valida, grava e recarrega. */
+	public void anexarHistoria(FileUploadEvent event) {
 		byte[] bytes = event.getFile().getContents();
 		if (!ehPdf(bytes)) {
-			FacesUtil.addErrorMessage("A história precisa ser um PDF.");
+			flashErro("A história precisa ser um PDF.");
 			return;
 		}
-		editSegueMe.setArquivoHistoria(bytes);
-		FacesUtil.addInfoMessage("História carregada. Clique em Salvar para gravar.");
+		aplicarAnexo(s -> s.setArquivoHistoria(bytes), "História anexada.");
+	}
+
+	/**
+	 * Carrega o Segue-Me FRESCO por id (não o snapshot do login), aplica só o anexo
+	 * alterado e persiste. A mensagem sobrevive ao reload da tela (flash) que o
+	 * upload dispara em {@code oncomplete}, para o cabeçalho/chips refletirem.
+	 */
+	private void aplicarAnexo(java.util.function.Consumer<SegueMe> mutacao, String msg) {
+		if (segueMe == null) {
+			return;
+		}
+		try {
+			SegueMe fresco = segueMeRepository.porId(segueMe.getId());
+			mutacao.accept(fresco);
+			cadastroEjcService.salvar(fresco);
+			mensagemFlash(msg);
+		} catch (Exception e) {
+			flashErro("Não foi possível anexar: " + e.getMessage());
+		}
+	}
+
+	private void flashErro(String msg) {
+		facesContext.getExternalContext().getFlash().setKeepMessages(true);
+		FacesUtil.addErrorMessage(msg);
 	}
 
 	/** Persiste as edições/anexos e recarrega o dashboard (redirect → viewAction). */
@@ -569,19 +594,6 @@ public class DashboardBean implements Serializable {
 
 	public SegueMe getEditSegueMe() {
 		return editSegueMe;
-	}
-
-	public boolean isEditTemImagem() {
-		return editSegueMe != null && editSegueMe.getImagem() != null && editSegueMe.getImagem().length > 0;
-	}
-
-	public boolean isEditTemCapa() {
-		return editSegueMe != null && editSegueMe.getArquivoCapa() != null && editSegueMe.getArquivoCapa().length > 0;
-	}
-
-	public boolean isEditTemHistoria() {
-		return editSegueMe != null && editSegueMe.getArquivoHistoria() != null
-				&& editSegueMe.getArquivoHistoria().length > 0;
 	}
 
 	/**

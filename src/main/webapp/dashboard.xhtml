@@ -85,6 +85,20 @@
 			.dg-chips .ui-button { flex: 1 1 auto; white-space: nowrap; }
 			.dg-chip { font-size: 12.5px !important; border-radius: 999px !important; }
 			.dg-chip-add.ui-button { border-style: dashed !important; color: #b96c08 !important; background: #fff7ec !important; }
+			/* p:fileUpload disfarçado de chip (anexar direto, sem modal) */
+			.dg-chips .ui-fileupload { flex: 1 1 auto; }
+			.dg-chip-upload .ui-fileupload-buttonbar { padding: 0 !important; margin: 0 !important; background: transparent !important; border: 0 !important; }
+			.dg-chip-upload .ui-fileupload-content { display: none !important; }
+			.dg-chip-upload .ui-fileupload-choose { width: 100%; margin: 0 !important; border-radius: 999px !important;
+				font-size: 12.5px !important; font-weight: 600 !important; border-style: dashed !important;
+				color: #b96c08 !important; background: #fff7ec !important; border-color: #e0830b !important; }
+			.dg-chip-upload .ui-fileupload-choose:hover { background: #ffedd6 !important; }
+			/* fileUpload da imagem (botão Trocar/Anexar no painel direito) */
+			.dg-prep-actions .ui-fileupload { flex: 1 1 0; }
+			.dg-img-upload .ui-fileupload-buttonbar { padding: 0 !important; margin: 0 !important; background: transparent !important; border: 0 !important; }
+			.dg-img-upload .ui-fileupload-content { display: none !important; }
+			.dg-img-upload .ui-fileupload-choose { width: 100%; margin: 0 !important; border-radius: 9px !important;
+				font-size: 13.5px !important; font-weight: 600 !important; }
 			.dg-chips-label { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #b3a091; margin: 2px 0 -2px; }
 
 			/* modal de editar/anexar */
@@ -248,46 +262,6 @@
 			</h:form>
 		</p:dialog>
 
-		<!-- Imagem do padroeiro + capa + história (botão Editar da imagem e chips Anexar) -->
-		<p:dialog id="dlgAnexos" widgetVar="dlgAnexos" header="Imagem e arquivos do encontro" modal="true" width="520"
-			showEffect="fade" hideEffect="fade" responsive="true">
-			<h:form id="formAnexos">
-				<div class="dg-edit-body">
-					<div class="dg-edit-anexo">
-						<span class="lbl"><i class="fa fa-user"></i> Imagem do padroeiro (JPG)</span>
-						<h:panelGroup id="statusImg" layout="block" styleClass="st">
-							<p:fileUpload fileUploadListener="#{dashboardBean.uploadImagemPadroeiro}" mode="advanced" auto="true"
-								label="#{dashboardBean.editTemImagem ? 'Substituir' : 'Anexar'}" allowTypes="/(\.|\/)(jpe?g)$/"
-								sizeLimit="5242880" invalidFileMessage="Envie uma imagem JPG" update="statusImg" />
-						</h:panelGroup>
-					</div>
-					<div class="dg-edit-anexo">
-						<span class="lbl"><i class="fa fa-file-pdf-o"></i> Capa (PDF)</span>
-						<h:panelGroup id="statusCapa" layout="block" styleClass="st">
-							<h:outputText value="✓ já enviada" rendered="#{dashboardBean.editTemCapa}" styleClass="ok" />
-							<p:fileUpload fileUploadListener="#{dashboardBean.uploadCapaEdicao}" mode="advanced" auto="true"
-								label="#{dashboardBean.editTemCapa ? 'Substituir' : 'Anexar'}" allowTypes="/(\.|\/)(pdf)$/"
-								sizeLimit="10485760" invalidFileMessage="Envie um PDF" update="statusCapa" />
-						</h:panelGroup>
-					</div>
-					<div class="dg-edit-anexo">
-						<span class="lbl"><i class="fa fa-book"></i> História (PDF)</span>
-						<h:panelGroup id="statusHist" layout="block" styleClass="st">
-							<h:outputText value="✓ já enviada" rendered="#{dashboardBean.editTemHistoria}" styleClass="ok" />
-							<p:fileUpload fileUploadListener="#{dashboardBean.uploadHistoriaEdicao}" mode="advanced" auto="true"
-								label="#{dashboardBean.editTemHistoria ? 'Substituir' : 'Anexar'}" allowTypes="/(\.|\/)(pdf)$/"
-								sizeLimit="10485760" invalidFileMessage="Envie um PDF" update="statusHist" />
-						</h:panelGroup>
-					</div>
-				</div>
-				<div class="dg-edit-foot">
-					<p:commandButton value="Cancelar" type="button" styleClass="dg-btn" onclick="PF('dlgAnexos').hide()" />
-					<p:commandButton value="Salvar e fechar" styleClass="dg-btn green-btn" icon="fa fa-check"
-						action="#{dashboardBean.salvarEdicao}" ajax="false" />
-				</div>
-			</h:form>
-		</p:dialog>
-
 		<!-- Sem evento associado -->
 		<h:panelGroup layout="block" styleClass="dg" rendered="#{dashboardBean.semEvento}">
 			<div class="dg-event"><div class="t"><h1>Bem-vindo ao Segue-Me</h1>
@@ -336,8 +310,10 @@
 						<span>Sem imagem do padroeiro</span>
 					</h:panelGroup>
 					<h:form styleClass="dg-prep-actions">
-						<p:commandButton value="Editar" icon="fa fa-pencil" styleClass="dg-btn"
-							action="#{dashboardBean.abrirEdicao}" update=":formAnexos" oncomplete="PF('dlgAnexos').show()" />
+						<p:fileUpload fileUploadListener="#{dashboardBean.anexarImagem}" mode="advanced" auto="true"
+							label="#{dashboardBean.temImagem ? 'Trocar' : 'Anexar'}" allowTypes="/(\.|\/)(jpe?g)$/"
+							sizeLimit="5242880" invalidFileMessage="Envie uma imagem JPG" styleClass="dg-img-upload"
+							oncomplete="window.location.reload()" title="Anexar/trocar a imagem do padroeiro (JPG)" />
 						<p:commandButton value="Baixar" icon="fa fa-download" ajax="false" styleClass="dg-btn"
 							rendered="#{dashboardBean.temImagem}" action="#{dashboardBean.baixarImagem}" />
 					</h:form>
@@ -379,14 +355,16 @@
 									<div class="dg-chips">
 										<p:commandButton value="Capa" icon="fa fa-file-pdf-o" ajax="false" rendered="#{dashboardBean.temCapa}"
 											styleClass="dg-btn dg-chip" action="#{dashboardBean.baixarCapa}" />
-										<p:commandButton value="Capa" icon="fa fa-plus" rendered="#{not dashboardBean.temCapa}"
-											styleClass="dg-btn dg-chip dg-chip-add" action="#{dashboardBean.abrirEdicao}" update=":formAnexos"
-											oncomplete="PF('dlgAnexos').show()" title="Anexar a capa (PDF)" />
+										<p:fileUpload rendered="#{not dashboardBean.temCapa}" fileUploadListener="#{dashboardBean.anexarCapa}"
+											mode="advanced" auto="true" label="Capa" allowTypes="/(\.|\/)(pdf)$/" sizeLimit="10485760"
+											invalidFileMessage="Envie um PDF" styleClass="dg-chip-upload"
+											oncomplete="window.location.reload()" title="Anexar a capa (PDF)" />
 										<p:commandButton value="História" icon="fa fa-book" ajax="false" rendered="#{dashboardBean.temHistoria}"
 											styleClass="dg-btn dg-chip" action="#{dashboardBean.baixarHistoria}" />
-										<p:commandButton value="História" icon="fa fa-plus" rendered="#{not dashboardBean.temHistoria}"
-											styleClass="dg-btn dg-chip dg-chip-add" action="#{dashboardBean.abrirEdicao}" update=":formAnexos"
-											oncomplete="PF('dlgAnexos').show()" title="Anexar a história (PDF)" />
+										<p:fileUpload rendered="#{not dashboardBean.temHistoria}" fileUploadListener="#{dashboardBean.anexarHistoria}"
+											mode="advanced" auto="true" label="História" allowTypes="/(\.|\/)(pdf)$/" sizeLimit="10485760"
+											invalidFileMessage="Envie um PDF" styleClass="dg-chip-upload"
+											oncomplete="window.location.reload()" title="Anexar a história (PDF)" />
 									</div>
 								</div>
 								<div class="dg-chip-row"><span class="dg-chip-tag">Quadrantes</span>
