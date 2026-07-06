@@ -97,7 +97,10 @@ public class DashboardBean implements Serializable {
 	private boolean semEvento;
 	private boolean temCapa;
 	private boolean temHistoria;
-	/** Cópia FRESCA do Segue-Me (por id) usada só no modal de edição — não o snapshot do login. */
+	private boolean temImagem;
+	/** Caminho web da imagem do padroeiro já materializada em disco (para exibir no cabeçalho). */
+	private String imagemPadroeiroPath;
+	/** Cópia FRESCA do Segue-Me (por id) usada só nos diálogos de edição — não o snapshot do login. */
 	private SegueMe editSegueMe;
 
 	private List<Cracha> crachas = new ArrayList<>();
@@ -145,14 +148,23 @@ public class DashboardBean implements Serializable {
 		}
 		this.grafica = usuarioLogado.getEquipe() != null && usuarioLogado.getEquipe().getId() != null
 				&& usuarioLogado.getEquipe().getId() == EQUIPE_GRAFICA;
-		this.segueMe = usuarioLogado.getSegueMe();
-		if (segueMe == null) {
+		SegueMe snap = usuarioLogado.getSegueMe();
+		if (snap == null || snap.getId() == null) {
 			this.semEvento = true;
 			return;
 		}
-		boolean[] arquivos = eventoRepository.segueMeTemArquivos(segueMe.getId());
-		this.temCapa = arquivos[0];
-		this.temHistoria = arquivos[1];
+		// Recarrega FRESCO por id para o cabeçalho refletir as edições (o snapshot do login é estático)
+		this.segueMe = segueMeRepository.porId(snap.getId());
+		this.temCapa = segueMe.getArquivoCapa() != null && segueMe.getArquivoCapa().length > 0;
+		this.temHistoria = segueMe.getArquivoHistoria() != null && segueMe.getArquivoHistoria().length > 0;
+		this.temImagem = segueMe.getImagem() != null && segueMe.getImagem().length > 0;
+		if (temImagem) {
+			// Grava a imagem fresca em disco (sobrescreve) e monta o caminho relativo à
+			// raiz do contexto (o dashboard não fica em subpasta). O ?v= com o tamanho do
+			// arquivo quebra o cache do navegador quando a imagem é trocada.
+			fotoService.materializarImagensSegueMe(segueMe);
+			this.imagemPadroeiroPath = "resources/temp/segueMe/" + segueMe.getId() + ".jpg?v=" + segueMe.getImagem().length;
+		}
 		carregarCrachas();
 		carregarEquipes();
 		carregarSituacoes();
@@ -459,7 +471,7 @@ public class DashboardBean implements Serializable {
 		if (segueMe == null) {
 			return;
 		}
-		baixarPdf(eventoRepository.arquivoCapa(segueMe.getId()),
+		baixarArquivo(eventoRepository.arquivoCapa(segueMe.getId()), "application/pdf",
 				"Capa" + segueMe.getNumeroRomano().getNumeroRomano() + ".pdf");
 	}
 
@@ -468,17 +480,26 @@ public class DashboardBean implements Serializable {
 		if (segueMe == null) {
 			return;
 		}
-		baixarPdf(eventoRepository.arquivoHistoria(segueMe.getId()),
+		baixarArquivo(eventoRepository.arquivoHistoria(segueMe.getId()), "application/pdf",
 				"Historia" + segueMe.getNumeroRomano().getNumeroRomano() + ".pdf");
 	}
 
-	private void baixarPdf(byte[] bytes, String nomeArquivo) {
+	/** Baixa a imagem (JPEG) do padroeiro do encontro. */
+	public void baixarImagem() {
+		if (segueMe == null) {
+			return;
+		}
+		baixarArquivo(segueMe.getImagem(), "image/jpeg",
+				"Padroeiro" + segueMe.getNumeroRomano().getNumeroRomano() + ".jpg");
+	}
+
+	private void baixarArquivo(byte[] bytes, String contentType, String nomeArquivo) {
 		if (bytes == null || bytes.length == 0) {
 			FacesUtil.addErrorMessage("Arquivo não encontrado.");
 			return;
 		}
 		try {
-			response.setContentType("application/pdf");
+			response.setContentType(contentType);
 			response.setHeader("Content-Disposition", "attachment; filename=\"" + nomeArquivo + "\"");
 			response.getOutputStream().write(bytes);
 			response.getOutputStream().flush();
@@ -814,6 +835,14 @@ public class DashboardBean implements Serializable {
 
 	public boolean isTemHistoria() {
 		return temHistoria;
+	}
+
+	public boolean isTemImagem() {
+		return temImagem;
+	}
+
+	public String getImagemPadroeiroPath() {
+		return imagemPadroeiroPath;
 	}
 
 	public List<Cracha> getCrachas() {
