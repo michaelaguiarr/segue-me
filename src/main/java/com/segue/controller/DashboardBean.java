@@ -24,13 +24,17 @@ import com.segue.model.SegueMe;
 import com.segue.model.StatusInscricao;
 import com.segue.model.Usuario;
 import com.segue.repository.EventoRepository;
+import com.segue.repository.SegueMeRepository;
 import com.segue.security.Seguranca;
+import com.segue.service.CadastroEjcService;
 import com.segue.service.CadastroEventoCasalService;
 import com.segue.service.CadastroEventoPadreService;
 import com.segue.service.CadastroEventoSeguidorService;
 import com.segue.service.CadastroPalestraConvidadoService;
 import com.segue.service.FotoService;
 import com.segue.util.jsf.FacesUtil;
+import org.primefaces.event.FileUploadEvent;
+
 import com.segue.util.report.ExecutorLivroEncontro;
 import com.segue.util.report.ExecutorRelatorioDownload;
 
@@ -56,6 +60,12 @@ public class DashboardBean implements Serializable {
 
 	@Inject
 	private EventoRepository eventoRepository;
+
+	@Inject
+	private SegueMeRepository segueMeRepository;
+
+	@Inject
+	private CadastroEjcService cadastroEjcService;
 
 	@Inject
 	private FotoService fotoService;
@@ -87,6 +97,8 @@ public class DashboardBean implements Serializable {
 	private boolean semEvento;
 	private boolean temCapa;
 	private boolean temHistoria;
+	/** Cópia FRESCA do Segue-Me (por id) usada só no modal de edição — não o snapshot do login. */
+	private SegueMe editSegueMe;
 
 	private List<Cracha> crachas = new ArrayList<>();
 	private long totalCrachas;
@@ -474,6 +486,81 @@ public class DashboardBean implements Serializable {
 		} catch (Exception e) {
 			FacesUtil.addErrorMessage("Não foi possível baixar o arquivo.");
 		}
+	}
+
+	// ===== Editar / anexar o encontro pelo dashboard =====
+
+	/** Carrega uma cópia FRESCA do Segue-Me (por id) para o modal — não o snapshot do login. */
+	public void abrirEdicao() {
+		if (segueMe != null) {
+			this.editSegueMe = segueMeRepository.porId(segueMe.getId());
+		}
+	}
+
+	public void uploadImagemPadroeiro(FileUploadEvent event) {
+		try {
+			editSegueMe.setImagem(fotoService.normalizarImagemJpeg(event.getFile().getContents()));
+			FacesUtil.addInfoMessage("Imagem carregada. Clique em Salvar para gravar.");
+		} catch (Exception e) {
+			FacesUtil.addErrorMessage("Não foi possível carregar a imagem.");
+		}
+	}
+
+	public void uploadCapaEdicao(FileUploadEvent event) {
+		byte[] bytes = event.getFile().getContents();
+		if (!ehPdf(bytes)) {
+			FacesUtil.addErrorMessage("A capa precisa ser um PDF.");
+			return;
+		}
+		editSegueMe.setArquivoCapa(bytes);
+		FacesUtil.addInfoMessage("Capa carregada. Clique em Salvar para gravar.");
+	}
+
+	public void uploadHistoriaEdicao(FileUploadEvent event) {
+		byte[] bytes = event.getFile().getContents();
+		if (!ehPdf(bytes)) {
+			FacesUtil.addErrorMessage("A história precisa ser um PDF.");
+			return;
+		}
+		editSegueMe.setArquivoHistoria(bytes);
+		FacesUtil.addInfoMessage("História carregada. Clique em Salvar para gravar.");
+	}
+
+	/** Persiste as edições/anexos e recarrega o dashboard (redirect → viewAction). */
+	public String salvarEdicao() {
+		if (editSegueMe == null) {
+			return null;
+		}
+		try {
+			cadastroEjcService.salvar(editSegueMe);
+			mensagemFlash("Encontro atualizado.");
+		} catch (Exception e) {
+			FacesUtil.addErrorMessage("Não foi possível salvar: " + e.getMessage());
+			return null;
+		}
+		return "/dashboard.xhtml?faces-redirect=true";
+	}
+
+	private boolean ehPdf(byte[] bytes) {
+		return bytes != null && bytes.length > 4 && bytes[0] == '%' && bytes[1] == 'P' && bytes[2] == 'D'
+				&& bytes[3] == 'F';
+	}
+
+	public SegueMe getEditSegueMe() {
+		return editSegueMe;
+	}
+
+	public boolean isEditTemImagem() {
+		return editSegueMe != null && editSegueMe.getImagem() != null && editSegueMe.getImagem().length > 0;
+	}
+
+	public boolean isEditTemCapa() {
+		return editSegueMe != null && editSegueMe.getArquivoCapa() != null && editSegueMe.getArquivoCapa().length > 0;
+	}
+
+	public boolean isEditTemHistoria() {
+		return editSegueMe != null && editSegueMe.getArquivoHistoria() != null
+				&& editSegueMe.getArquivoHistoria().length > 0;
 	}
 
 	/**

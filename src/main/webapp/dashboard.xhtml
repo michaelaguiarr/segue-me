@@ -64,9 +64,22 @@
 			.dg-mfoot .warn { color: #b96c08; font-weight: 600; }
 			.dg-dactions { margin-top: 14px; display: flex; flex-direction: column; gap: 10px; }
 			.dg-chips { display: flex; flex-wrap: wrap; gap: 6px; }
-			.dg-chips .ui-button { flex: 1 1 92px; }
+			.dg-chips .ui-button { flex: 1 1 92px; white-space: nowrap; }
 			.dg-chip { font-size: 12.5px !important; border-radius: 999px !important; }
 			.dg-chips-label { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #b3a091; margin: 2px 0 -2px; }
+
+			/* modal de editar/anexar */
+			.dg-edit-body { display: flex; flex-direction: column; gap: 13px; padding: 4px 2px; }
+			.dg-edit-row { display: flex; flex-direction: column; gap: 5px; }
+			.dg-edit-row label { font-size: 12px; font-weight: 600; color: #6e5f52; }
+			.dg-edit-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; }
+			.dg-edit-sec { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #b3a091; border-top: 1px solid #ebe3d6; padding-top: 13px; }
+			.dg-edit-anexo { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+			.dg-edit-anexo .lbl { font-size: 13.5px; font-weight: 600; color: #4a3f34; min-width: 158px; }
+			.dg-edit-anexo .lbl i { color: #b96c08; margin-right: 6px; }
+			.dg-edit-anexo .st { display: flex; align-items: center; gap: 8px; }
+			.dg-edit-anexo .st .ok { color: #1e9e5a; font-weight: 600; font-size: 13px; }
+			.dg-edit-foot { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; padding-top: 4px; }
 			.dg-detail { font-size: 13px; color: #b96c08; text-decoration: none; font-weight: 600; }
 
 			/* cracha role cards */
@@ -172,6 +185,66 @@
 			<p:commandButton value="Cancelar" type="button" styleClass="ui-confirmdialog-no dg-btn" icon="fa fa-times" />
 		</p:confirmDialog>
 
+		<!-- Editar / anexar o encontro sem sair do dashboard -->
+		<p:dialog id="dlgEditar" widgetVar="dlgEditar" header="Editar encontro" modal="true" width="520"
+			showEffect="fade" hideEffect="fade" responsive="true" styleClass="dg-edit">
+			<h:form id="dlgEditarForm">
+				<div class="dg-edit-body">
+					<div class="dg-edit-row">
+						<p:outputLabel value="Padroeiro(a)" />
+						<p:inputText value="#{dashboardBean.editSegueMe.padroeiro}" maxlength="100" style="width:100%" />
+					</div>
+					<div class="dg-edit-2col">
+						<div class="dg-edit-row">
+							<p:outputLabel value="Data de início" />
+							<p:calendar value="#{dashboardBean.editSegueMe.dtInicio}" pattern="dd/MM/yyyy"
+								navigator="true" showButtonPanel="true" style="width:100%" />
+						</div>
+						<div class="dg-edit-row">
+							<p:outputLabel value="Data de fim" />
+							<p:calendar value="#{dashboardBean.editSegueMe.dtFim}" pattern="dd/MM/yyyy"
+								navigator="true" showButtonPanel="true" style="width:100%" />
+						</div>
+					</div>
+
+					<div class="dg-edit-sec">Anexos</div>
+
+					<div class="dg-edit-anexo">
+						<span class="lbl"><i class="fa fa-user"></i> Imagem do padroeiro</span>
+						<h:panelGroup id="statusImg" layout="block" styleClass="st">
+							<h:outputText value="✓ já enviada" rendered="#{dashboardBean.editTemImagem}" styleClass="ok" />
+							<p:fileUpload fileUploadListener="#{dashboardBean.uploadImagemPadroeiro}" mode="advanced" auto="true"
+								label="#{dashboardBean.editTemImagem ? 'Substituir' : 'Anexar'}" allowTypes="/(\.|\/)(jpe?g)$/"
+								sizeLimit="5242880" invalidFileMessage="Envie uma imagem JPG" update="statusImg" />
+						</h:panelGroup>
+					</div>
+					<div class="dg-edit-anexo">
+						<span class="lbl"><i class="fa fa-file-pdf-o"></i> Capa (PDF)</span>
+						<h:panelGroup id="statusCapa" layout="block" styleClass="st">
+							<h:outputText value="✓ já enviada" rendered="#{dashboardBean.editTemCapa}" styleClass="ok" />
+							<p:fileUpload fileUploadListener="#{dashboardBean.uploadCapaEdicao}" mode="advanced" auto="true"
+								label="#{dashboardBean.editTemCapa ? 'Substituir' : 'Anexar'}" allowTypes="/(\.|\/)(pdf)$/"
+								sizeLimit="10485760" invalidFileMessage="Envie um PDF" update="statusCapa" />
+						</h:panelGroup>
+					</div>
+					<div class="dg-edit-anexo">
+						<span class="lbl"><i class="fa fa-book"></i> História (PDF)</span>
+						<h:panelGroup id="statusHist" layout="block" styleClass="st">
+							<h:outputText value="✓ já enviada" rendered="#{dashboardBean.editTemHistoria}" styleClass="ok" />
+							<p:fileUpload fileUploadListener="#{dashboardBean.uploadHistoriaEdicao}" mode="advanced" auto="true"
+								label="#{dashboardBean.editTemHistoria ? 'Substituir' : 'Anexar'}" allowTypes="/(\.|\/)(pdf)$/"
+								sizeLimit="10485760" invalidFileMessage="Envie um PDF" update="statusHist" />
+						</h:panelGroup>
+					</div>
+				</div>
+				<div class="dg-edit-foot">
+					<p:commandButton value="Cancelar" type="button" styleClass="dg-btn" onclick="PF('dlgEditar').hide()" />
+					<p:commandButton value="Salvar" icon="fa fa-check" ajax="false" styleClass="dg-btn green-btn"
+						action="#{dashboardBean.salvarEdicao}" />
+				</div>
+			</h:form>
+		</p:dialog>
+
 		<!-- Sem evento associado -->
 		<h:panelGroup layout="block" styleClass="dg" rendered="#{dashboardBean.semEvento}">
 			<div class="dg-event"><div class="t"><h1>Bem-vindo ao Segue-Me</h1>
@@ -208,6 +281,9 @@
 					<h:form>
 						<p:commandButton value="Preparar imagens" icon="fa fa-refresh" style="width:100%"
 							styleClass="dg-btn" action="#{dashboardBean.prepararImagens}" update="dgGrowl" />
+						<p:commandButton value="Editar encontro" icon="fa fa-pencil" style="width:100%; margin-top:8px"
+							styleClass="dg-btn" action="#{dashboardBean.abrirEdicao}" update=":dlgEditarForm"
+							oncomplete="PF('dlgEditar').show()" />
 					</h:form>
 				</div>
 			</div>
@@ -240,16 +316,20 @@
 									<div class="dg-chips">
 										<p:commandButton value="Capa" icon="fa fa-file-pdf-o" ajax="false" rendered="#{dashboardBean.temCapa}"
 											styleClass="dg-btn dg-chip" action="#{dashboardBean.baixarCapa}" />
+										<p:commandButton value="Anexar capa" icon="fa fa-paperclip" rendered="#{not dashboardBean.temCapa}"
+											styleClass="dg-btn dg-chip" action="#{dashboardBean.abrirEdicao}" update=":dlgEditarForm"
+											oncomplete="PF('dlgEditar').show()" />
 										<p:commandButton value="História" icon="fa fa-book" ajax="false" rendered="#{dashboardBean.temHistoria}"
 											styleClass="dg-btn dg-chip" action="#{dashboardBean.baixarHistoria}" />
+										<p:commandButton value="Anexar história" icon="fa fa-paperclip" rendered="#{not dashboardBean.temHistoria}"
+											styleClass="dg-btn dg-chip" action="#{dashboardBean.abrirEdicao}" update=":dlgEditarForm"
+											oncomplete="PF('dlgEditar').show()" />
 										<p:button value="Seguimista" icon="fa fa-user" styleClass="dg-btn dg-chip" outcome="/evento-seguidor/relatorio-quadrante-seguimista" />
 										<p:commandButton value="Seguidor" icon="fa fa-users" ajax="false" styleClass="dg-btn dg-chip" action="#{dashboardBean.gerarQuadrante}" />
 										<p:button value="Palestrante" icon="fa fa-microphone" styleClass="dg-btn dg-chip" outcome="/evento-seguidor/relatorio-quadrante-palestra" />
 									</div>
 							</h:form>
-							<h:panelGroup layout="block" styleClass="dg-mfoot" rendered="#{not dashboardBean.temCapa or not dashboardBean.temHistoria}">
-								<span class="warn">Falta enviar #{not dashboardBean.temCapa and not dashboardBean.temHistoria ? 'a capa e a história' : (not dashboardBean.temCapa ? 'a capa' : 'a história')}</span> em Segue-Me › Cadastro › Livro do Encontro — o livro sai sem essa(s) seção(ões).
-							</h:panelGroup>
+							<!-- aviso de capa/história virou os botões "Anexar" nas peças acima -->
 							<!-- chips movidas para dentro do form, na ordem da montagem -->
 						</div>
 					</div>
