@@ -174,6 +174,11 @@
 			.dg-semcirc i { color: #e74c3c; }
 			.dg-semcirc-list b { color: #7a271c; }
 			.dg-semcirc-hint { color: #b08a82; font-size: 12px; margin-left: auto; }
+			.dg-sc-more-btn.ui-button { background: #e74c3c !important; border-color: #e74c3c !important; color: #fff !important; font-size: 12px !important; font-weight: 700 !important; border-radius: 8px !important; }
+			.dg-sc-dialog { display: flex; flex-direction: column; gap: 10px; padding: 2px; }
+			.dg-sc-ul { list-style: decimal inside; margin: 0; padding: 0; max-height: 360px; overflow-y: auto; }
+			.dg-sc-ul li { padding: 7px 6px; border-bottom: 1px solid #f2ece2; font-size: 13.5px; color: #4a3f34; }
+			.dg-sc-ul li:last-child { border-bottom: none; }
 			.dg-pbody { padding: 12px 18px 18px; }
 			.dg-scroll { overflow-x: auto; }
 			.dg-tbl { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 540px; }
@@ -575,10 +580,16 @@
 							</h:panelGroup>
 					</div>
 					<h:panelGroup layout="block" styleClass="dg-semcirc" rendered="#{dashboardBean.temSeguimistaSemCirculo}">
-						<span class="dg-semcirc-list"><i class="fa fa-exclamation-triangle"></i> <b>#{dashboardBean.totalSeguimistasSemCirculo} seguimista(s) aprovado(s) fora de círculo:</b>
-							<ui:repeat value="#{dashboardBean.seguimistasSemCirculo}" var="n" varStatus="st"><h:outputText value="#{n}" /><h:outputText rendered="#{not st.last}" value=", " /></ui:repeat></span>
+						<span class="dg-semcirc-list"><i class="fa fa-exclamation-triangle"></i> <b>#{dashboardBean.totalSeguimistasSemCirculo} seguimista(s) aprovado(s) fora de círculo.</b></span>
+						<p:commandButton type="button" value="Ver a lista" icon="fa fa-list-ul" styleClass="dg-sc-more-btn" onclick="PF('dlgSemCirc').show(); return false;" />
 						<span class="dg-semcirc-hint">Adicione cada um pelo <b>+ Seguimista</b> na linha do círculo.</span>
 					</h:panelGroup>
+					<p:dialog id="dlgSemCirc" widgetVar="dlgSemCirc" header="Seguimistas sem círculo" modal="true" width="480" showEffect="fade" hideEffect="fade" responsive="true">
+						<div class="dg-sc-dialog">
+							<p class="dg-faq-note">#{dashboardBean.totalSeguimistasSemCirculo} aprovado(s) ainda fora de círculo. Adicione cada um pelo <b>+ Seguimista</b> na linha do círculo.</p>
+							<ol class="dg-sc-ul"><ui:repeat value="#{dashboardBean.seguimistasSemCirculo}" var="n"><li><h:outputText value="#{n}" /></li></ui:repeat></ol>
+						</div>
+					</p:dialog>
 					<div class="dg-pbody dg-scroll">
 						<h:form>
 							<table class="dg-tbl">
