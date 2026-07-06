@@ -167,6 +167,13 @@
 			.dg-phead { padding: 14px 18px 11px; border-bottom: 1px solid #ebe3d6; display: flex; align-items: flex-end; gap: 12px; }
 			.dg-phead h3 { font-size: 16px; font-weight: 700; }
 			.dg-phead .sub { font-size: 12.5px; color: #9c8d7e; }
+			.dg-circ-head { margin-left: auto; display: inline-flex; align-items: center; gap: 8px; }
+			.dg-warn-badge { color: #fff; background: #e74c3c; font-size: 12px; font-weight: 700; padding: 4px 11px; border-radius: 999px; white-space: nowrap; }
+			.dg-ok-badge { color: #1e7a48; background: #e4f4ea; font-size: 12px; font-weight: 600; padding: 4px 11px; border-radius: 999px; white-space: nowrap; }
+			.dg-semcirc { padding: 11px 18px; background: #fdf0ee; border-bottom: 1px solid #f3d9d4; color: #8a2e22; font-size: 13px; display: flex; gap: 6px 14px; align-items: baseline; flex-wrap: wrap; }
+			.dg-semcirc i { color: #e74c3c; }
+			.dg-semcirc-list b { color: #7a271c; }
+			.dg-semcirc-hint { color: #b08a82; font-size: 12px; margin-left: auto; }
 			.dg-pbody { padding: 12px 18px 18px; }
 			.dg-scroll { overflow-x: auto; }
 			.dg-tbl { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 540px; }
@@ -368,6 +375,9 @@
 				<p:button value="Seguidor" icon="fa fa-user" styleClass="dg-btn green-btn" outcome="/evento-seguidor/cadastro-evento-seguidor" />
 				<p:button value="Casal" icon="fa fa-heart" styleClass="dg-btn green-btn" outcome="/evento-casal/cadastro-evento-casal" />
 					<p:button value="Padre / Bispo" icon="fa fa-institution" styleClass="dg-btn green-btn" outcome="/evento-padre/cadastro-evento-padre" />
+					<a href="#dgCirculos" title="Rola até o bloco Seguimistas por círculo"
+						class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left dg-btn green-btn"
+						onclick="document.getElementById('dgCirculos').scrollIntoView({behavior:'smooth'}); return false;"><span class="ui-button-icon-left ui-icon fa fa-user"></span><span class="ui-button-text">Seguimista</span></a>
 				<span class="dg-quick-hint">Abre o formulário para alocar a pessoa numa equipe</span>
 			</div>
 
@@ -552,15 +562,27 @@
 			</div>
 
 			<!-- Seguimistas por círculo -->
-			<div class="dg-sec">
+			<div class="dg-sec" id="dgCirculos">
 				<div class="dg-panel">
 					<div class="dg-phead">
 						<div><h3>Seguimistas por círculo</h3><div class="sub">#{dashboardBean.totalSeguimistas} seguimistas em círculo · ordenado por crachás a imprimir</div></div>
+							<h:panelGroup layout="block" styleClass="dg-circ-head">
+								<h:outputText rendered="#{dashboardBean.temSeguimistaSemCirculo}" styleClass="dg-warn-badge" value="⚠ #{dashboardBean.totalSeguimistasSemCirculo} sem círculo" />
+								<h:outputText rendered="#{not dashboardBean.temSeguimistaSemCirculo and dashboardBean.totalSeguimistas gt 0}"
+									styleClass="dg-ok-badge" value="✓ todos em círculo" />
+								<p:button value="Montar círculos" icon="fa fa-object-group" styleClass="dg-btn"
+									outcome="/circulo/pesquisa-circulo" title="Adicionar/organizar os seguimistas nos círculos" />
+							</h:panelGroup>
 					</div>
+					<h:panelGroup layout="block" styleClass="dg-semcirc" rendered="#{dashboardBean.temSeguimistaSemCirculo}">
+						<span class="dg-semcirc-list"><i class="fa fa-exclamation-triangle"></i> <b>#{dashboardBean.totalSeguimistasSemCirculo} seguimista(s) aprovado(s) fora de círculo:</b>
+							<ui:repeat value="#{dashboardBean.seguimistasSemCirculo}" var="n" varStatus="st"><h:outputText value="#{n}" /><h:outputText rendered="#{not st.last}" value=", " /></ui:repeat></span>
+						<span class="dg-semcirc-hint">Adicione cada um pelo <b>+ Seguimista</b> na linha do círculo.</span>
+					</h:panelGroup>
 					<div class="dg-pbody dg-scroll">
 						<h:form>
 							<table class="dg-tbl">
-								<thead><tr><th>Círculo</th><th class="n">Seguimistas</th><th class="n">A imprimir</th><th class="n">Impressão</th><th class="acts">Imprimir só deste círculo</th></tr></thead>
+								<thead><tr><th>Círculo</th><th class="n">Seguimistas</th><th class="n">A imprimir</th><th class="n">Impressão</th><th class="acts">Ações do círculo</th></tr></thead>
 								<tbody>
 									<ui:repeat value="#{dashboardBean.circulos}" var="c">
 										<tr>
@@ -570,7 +592,8 @@
 											<td class="n">#{c.pctImpresso}%</td>
 											<td class="acts">
 												<span class="dg-rowbtns">
-													<p:commandButton value="Lista" icon="fa fa-list" ajax="false" styleClass="dg-rowbtn"
+													<p:button value="Seguimista" icon="fa fa-user-plus" styleClass="dg-rowbtn green-btn" outcome="/circulo/cadastro-circulo" title="Adicionar um seguimista neste círculo"><f:param name="circulo" value="#{c.circuloId}" /></p:button>
+												<p:commandButton value="Lista" icon="fa fa-list" ajax="false" styleClass="dg-rowbtn"
 														title="Imprimir a relação (lista) dos seguimistas deste círculo"
 														action="#{dashboardBean.gerarListaCirculo(c.circuloId, c.corLabel)}" />
 													<p:commandButton value="Quadrante" icon="fa fa-th-large" ajax="false" styleClass="dg-rowbtn"

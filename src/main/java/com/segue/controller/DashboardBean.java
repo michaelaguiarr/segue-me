@@ -130,6 +130,7 @@ public class DashboardBean implements Serializable {
 	private List<CirculoLinha> circulos = new ArrayList<>();
 	private long totalSeguimistas;
 	private long totalSeguimistasPendentes;
+	private List<String> seguimistasSemCirculo = new ArrayList<>();
 
 	private List<Aniversariante> aniversariantesSeguimistas = new ArrayList<>();
 	private List<Aniversariante> aniversariantesServico = new ArrayList<>();
@@ -277,6 +278,11 @@ public class DashboardBean implements Serializable {
 			circulos.add(new CirculoLinha(circuloId, nome, cor, corHex(cor), total, pendentes));
 			totalSeguimistas += total;
 			totalSeguimistasPendentes += pendentes;
+		}
+		for (Object[] r : eventoRepository.seguimistasSemCirculo(segueMe)) {
+			String nome = (String) r[0];
+			String apelido = (String) r[1];
+			seguimistasSemCirculo.add(apelido != null && !apelido.trim().isEmpty() ? nome + " (" + apelido + ")" : nome);
 		}
 	}
 
@@ -1020,6 +1026,18 @@ public class DashboardBean implements Serializable {
 
 	public long getTotalSeguimistas() {
 		return totalSeguimistas;
+	}
+
+	public List<String> getSeguimistasSemCirculo() {
+		return seguimistasSemCirculo;
+	}
+
+	public int getTotalSeguimistasSemCirculo() {
+		return seguimistasSemCirculo.size();
+	}
+
+	public boolean isTemSeguimistaSemCirculo() {
+		return !seguimistasSemCirculo.isEmpty();
 	}
 
 	public long getTotalSeguimistasPendentes() {

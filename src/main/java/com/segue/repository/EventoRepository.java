@@ -298,6 +298,19 @@ public class EventoRepository implements Serializable {
 	}
 
 	/**
+	 * Seguimistas ({@code seguidor} SEM função — é assim que se identifica um
+	 * seguimista) com inscrição APROVADA que ainda NÃO estão em nenhum círculo
+	 * ({@code e.circulo IS NULL}). Devolve [nome, apelido] para o dashboard mostrar
+	 * QUEM precisa ser colocado num círculo. Recusados/sem-inscrição ficam de fora.
+	 */
+	public List<Object[]> seguimistasSemCirculo(SegueMe sm) {
+		return manager.createQuery("SELECT s.nome, s.apelido FROM Evento e JOIN e.seguidor s JOIN e.inscricao i "
+				+ "WHERE e.segueMe = :sm AND e.funcao IS NULL AND e.circulo IS NULL AND i.statusInscricao = :aprovado "
+				+ "ORDER BY s.nome", Object[].class)
+				.setParameter("sm", sm).setParameter("aprovado", StatusInscricao.APROVADO).getResultList();
+	}
+
+	/**
 	 * Seguimistas com data de nascimento preenchida: linhas [nome, dataNascimento,
 	 * corCirculo(CorCirculo), circuloNome]. O filtro por mês/dia é feito no bean
 	 * (volume pequeno, evita função de data específica do banco). "Seguimista" =
