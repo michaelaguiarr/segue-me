@@ -39,6 +39,13 @@
 			.dg-event .meta { color: #6e5f52; font-size: 13.5px; margin-top: 8px; display: flex; flex-wrap: wrap; gap: 6px 16px; }
 			.dg-event .meta i { color: #e0830b; margin-right: 5px; }
 
+			/* atalho de escalar/alocar */
+			.dg-quick { display: flex; align-items: center; gap: 10px 14px; flex-wrap: wrap; background: #fff; border: 1px solid #ebe3d6; border-radius: 12px; padding: 12px 16px; margin-bottom: 24px; box-shadow: 0 1px 2px rgba(43,32,24,.04); }
+			.dg-quick-label { font-weight: 700; font-size: 14px; color: #4a3f34; display: inline-flex; align-items: center; gap: 8px; }
+			.dg-quick-label i { color: #b96c08; }
+			.dg-quick .ui-button { border-radius: 9px !important; font-weight: 600 !important; }
+			.dg-quick-hint { font-size: 12.5px; color: #9c8d7e; margin-left: auto; }
+
 			/* buttons */
 			.dg-btn { font-size: 13.5px !important; font-weight: 600 !important; border-radius: 9px !important; }
 			/* painel da imagem do padroeiro (à direita do cabeçalho) */
@@ -139,6 +146,7 @@
 			.dg-edit-anexo .st .ok { color: #1e9e5a; font-weight: 600; font-size: 13px; }
 			.dg-edit-foot { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; padding-top: 4px; }
 			.dg-detail { font-size: 13px; color: #b96c08; text-decoration: none; font-weight: 600; }
+			.dg-help { border-bottom: 1px dotted #b3a091; cursor: help; }
 
 			/* cracha role cards */
 			.dg-roles { display: grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: 14px; }
@@ -160,6 +168,18 @@
 			.dg-phead { padding: 14px 18px 11px; border-bottom: 1px solid #ebe3d6; display: flex; align-items: flex-end; gap: 12px; }
 			.dg-phead h3 { font-size: 16px; font-weight: 700; }
 			.dg-phead .sub { font-size: 12.5px; color: #9c8d7e; }
+			.dg-circ-head { margin-left: auto; display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+			.dg-warn-badge { color: #fff; background: #e74c3c; font-size: 12px; font-weight: 700; padding: 4px 11px; border-radius: 999px; white-space: nowrap; }
+			.dg-ok-badge { color: #1e7a48; background: #e4f4ea; font-size: 12px; font-weight: 600; padding: 4px 11px; border-radius: 999px; white-space: nowrap; }
+			.dg-semcirc { padding: 11px 18px; background: #fdf0ee; border-bottom: 1px solid #f3d9d4; color: #8a2e22; font-size: 13px; display: flex; gap: 6px 14px; align-items: baseline; flex-wrap: wrap; }
+			.dg-semcirc i { color: #e74c3c; }
+			.dg-semcirc-list b { color: #7a271c; }
+			.dg-semcirc-hint { color: #b08a82; font-size: 12px; margin-left: auto; }
+			.dg-sc-more-btn.ui-button { background: #e74c3c !important; border-color: #e74c3c !important; color: #fff !important; font-size: 12px !important; font-weight: 700 !important; border-radius: 8px !important; }
+			.dg-sc-dialog { display: flex; flex-direction: column; gap: 10px; padding: 2px; }
+			.dg-sc-ul { list-style: decimal inside; margin: 0; padding: 0; max-height: 360px; overflow-y: auto; }
+			.dg-sc-ul li { padding: 7px 6px; border-bottom: 1px solid #f2ece2; font-size: 13.5px; color: #4a3f34; }
+			.dg-sc-ul li:last-child { border-bottom: none; }
 			.dg-pbody { padding: 12px 18px 18px; }
 			.dg-scroll { overflow-x: auto; }
 			.dg-tbl { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 540px; }
@@ -170,6 +190,10 @@
 			.dg-tbl .team { font-weight: 600; }
 			.dg-mine { font-size: 10px; font-weight: 700; color: #b96c08; background: #fbeed8; padding: 2px 8px; border-radius: 999px; margin-left: 7px; text-transform: uppercase; }
 			.dg-gap { font-size: 11px; color: #9c8d7e; margin-left: 5px; }
+			.dg-palz-label { font-size: 12.5px; color: #6e5f52; font-weight: 600; margin-right: 2px; }
+			.dg-btn-sm { font-size: 12.5px !important; padding: 5px 10px !important; }
+			.dg-palz-link { color: #b96c08; text-decoration: none; border-bottom: 1px dotted #d8b98a; }
+			.dg-palz-link:hover { color: #8f5406; border-bottom-color: #b96c08; }
 			.dg-sub2 { font-size: 11.5px; color: #9c8d7e; font-weight: 500; }
 			.dg-pend { font-weight: 700; color: #e0830b; }
 			.dg-pend.done { color: #1e9e5a; font-weight: 600; }
@@ -355,6 +379,18 @@
 				</div>
 			</div>
 
+			<!-- Atalho: escalar/alocar no quadrante -->
+			<div class="dg-quick">
+				<span class="dg-quick-label"><i class="fa fa-user-plus"></i> Escalar no quadrante</span>
+				<p:button value="Seguidor" icon="fa fa-user" styleClass="dg-btn green-btn" outcome="/evento-seguidor/cadastro-evento-seguidor" />
+				<p:button value="Casal" icon="fa fa-heart" styleClass="dg-btn green-btn" outcome="/evento-casal/cadastro-evento-casal" />
+					<p:button value="Padre / Bispo" icon="fa fa-institution" styleClass="dg-btn green-btn" outcome="/evento-padre/cadastro-evento-padre" />
+					<a href="#dgCirculos" title="Rola até o bloco Seguimistas por círculo"
+						class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left dg-btn green-btn"
+						onclick="document.getElementById('dgCirculos').scrollIntoView({behavior:'smooth'}); return false;"><span class="ui-button-icon-left ui-icon fa fa-user"></span><span class="ui-button-text">Seguimista</span></a>
+				<span class="dg-quick-hint">Abre o formulário para alocar a pessoa numa equipe</span>
+			</div>
+
 			<!-- ENTREGAS: quadrante + crachás -->
 			<div class="dg-sec">
 				<p class="dg-eyebrow">Entregas da Gráfica neste encontro</p>
@@ -425,11 +461,25 @@
 						</div>
 						<div><span class="dg-big dg-tnum #{dashboardBean.totalPendentes eq 0 ? 'zero' : ''}">#{dashboardBean.totalPendentes}</span><span class="dg-u">crachás a imprimir</span></div>
 						<div class="dg-meter"><i class="ok" style="width:#{dashboardBean.pctCrachas}%"></i></div>
-						<div class="dg-mfoot dg-tnum">#{dashboardBean.totalImpressos} de #{dashboardBean.totalCrachas} impressos</div>
+						<div class="dg-mfoot dg-tnum">#{dashboardBean.totalImpressos} de <span class="dg-help" title="Total de crachás a emitir: 1 por pessoa ou por casal, somando todos os papéis (seguidores, seguimistas, casais, padres e palestrantes). Difere do quadrante, onde o casal conta como 2 pessoas.">#{dashboardBean.totalCrachas}</span> impressos</div>
 						<div class="dg-dactions">
 							<h:form>
 								<p:commandButton value="Imprimir crachás" icon="fa fa-print" style="width:100%"
-									styleClass="dg-btn green-btn" ajax="false" action="#{dashboardBean.gerarCracha('Seguidor')}" />
+									styleClass="dg-btn green-btn" ajax="false" action="#{dashboardBean.gerarCrachaTodos}"
+									title="Todos os crachás num PDF: seguidores, seguimistas, casais, padres e palestrantes" />
+								<div class="dg-chips-label">Depois de imprimir, dê a baixa</div>
+								<div class="dg-chips">
+									<p:commandButton value="Marcar impresso" icon="fa fa-check" rendered="#{dashboardBean.totalPendentes gt 0}"
+										styleClass="dg-btn dg-chip" action="#{dashboardBean.marcarImpressoTodos}"
+										title="Dar baixa em todos os #{dashboardBean.totalPendentes} crachás pendentes">
+										<p:confirm header="Marcar como impresso" message="Confirmar baixa dos #{dashboardBean.totalPendentes} crachá(s) pendentes (todos os papéis)?" icon="fa fa-check" />
+									</p:commandButton>
+									<p:commandButton value="Não impresso" icon="fa fa-undo" rendered="#{dashboardBean.totalImpressos gt 0}"
+										styleClass="dg-btn dg-chip dg-rowbtn-undo" action="#{dashboardBean.marcarNaoImpressoTodos}"
+										title="Voltar todos os #{dashboardBean.totalImpressos} crachás impressos para a lista">
+										<p:confirm header="Marcar como não impresso" message="Voltar os #{dashboardBean.totalImpressos} crachá(s) já impressos (todos os papéis) para a lista de impressão?" icon="fa fa-undo" />
+									</p:commandButton>
+								</div>
 							</h:form>
 							<a class="dg-detail" href="#dgCrachas">Ver detalhe por papel e por equipe &#8595;</a>
 						</div>
@@ -499,9 +549,9 @@
 														styleClass="dg-rowbtn #{e.crachaCompleto or e.alocadosPessoas eq 0 ? '' : 'green-btn'}"
 														title="Imprimir todos os crachás desta equipe (seguidores + casais)"
 														action="#{dashboardBean.gerarCrachaEquipe(e.equipeId, e.titulo)}" />
-													<p:commandButton value="Quadrante" icon="fa fa-th-large" ajax="false" disabled="#{e.alocados eq 0}"
+													<p:commandButton value="Quadrante" icon="fa fa-th-large" ajax="false" disabled="#{e.alocadosPessoas eq 0}"
 														styleClass="dg-rowbtn"
-														title="#{e.alocados eq 0 ? 'Sem seguidores nesta equipe (o quadrante por equipe é de seguidores)' : 'Imprimir o quadrante de seguidores desta equipe'}"
+														title="Imprimir o quadrante desta equipe (inclui casais)"
 														action="#{dashboardBean.gerarQuadranteEquipe(e.equipeId, e.titulo)}" />
 													<p:commandButton value="Impresso" icon="fa fa-check" rendered="#{e.pendentes gt 0}"
 														styleClass="dg-rowbtn"
@@ -536,15 +586,33 @@
 			</div>
 
 			<!-- Seguimistas por círculo -->
-			<div class="dg-sec">
+			<div class="dg-sec" id="dgCirculos">
 				<div class="dg-panel">
 					<div class="dg-phead">
 						<div><h3>Seguimistas por círculo</h3><div class="sub">#{dashboardBean.totalSeguimistas} seguimistas em círculo · ordenado por crachás a imprimir</div></div>
+							<h:panelGroup layout="block" styleClass="dg-circ-head">
+								<h:outputText rendered="#{dashboardBean.temSeguimistaSemCirculo}" styleClass="dg-warn-badge" value="⚠ #{dashboardBean.totalSeguimistasSemCirculo} sem círculo" />
+								<h:outputText rendered="#{not dashboardBean.temSeguimistaSemCirculo and dashboardBean.totalSeguimistas gt 0}"
+									styleClass="dg-ok-badge" value="✓ todos em círculo" />
+								<p:button value="Montar círculos" icon="fa fa-object-group" styleClass="dg-btn"
+									outcome="/circulo/pesquisa-circulo" title="Adicionar/organizar os seguimistas nos círculos" />
+							</h:panelGroup>
 					</div>
+					<h:panelGroup layout="block" styleClass="dg-semcirc" rendered="#{dashboardBean.temSeguimistaSemCirculo}">
+						<span class="dg-semcirc-list"><i class="fa fa-exclamation-triangle"></i> <b>#{dashboardBean.totalSeguimistasSemCirculo} seguimista(s) aprovado(s) fora de círculo.</b></span>
+						<p:commandButton type="button" value="Ver a lista" icon="fa fa-list-ul" styleClass="dg-sc-more-btn" onclick="PF('dlgSemCirc').show(); return false;" />
+						<span class="dg-semcirc-hint">Adicione cada um pelo <b>+ Seguimista</b> na linha do círculo.</span>
+					</h:panelGroup>
+					<p:dialog id="dlgSemCirc" widgetVar="dlgSemCirc" header="Seguimistas sem círculo" modal="true" width="480" showEffect="fade" hideEffect="fade" responsive="true">
+						<div class="dg-sc-dialog">
+							<p class="dg-faq-note">#{dashboardBean.totalSeguimistasSemCirculo} aprovado(s) ainda fora de círculo. Adicione cada um pelo <b>+ Seguimista</b> na linha do círculo.</p>
+							<ol class="dg-sc-ul"><ui:repeat value="#{dashboardBean.seguimistasSemCirculo}" var="n"><li><h:outputText value="#{n}" /></li></ui:repeat></ol>
+						</div>
+					</p:dialog>
 					<div class="dg-pbody dg-scroll">
 						<h:form>
 							<table class="dg-tbl">
-								<thead><tr><th>Círculo</th><th class="n">Seguimistas</th><th class="n">A imprimir</th><th class="n">Impressão</th><th class="acts">Imprimir só deste círculo</th></tr></thead>
+								<thead><tr><th>Círculo</th><th class="n">Seguimistas</th><th class="n">A imprimir</th><th class="n">Impressão</th><th class="acts">Ações do círculo</th></tr></thead>
 								<tbody>
 									<ui:repeat value="#{dashboardBean.circulos}" var="c">
 										<tr>
@@ -554,7 +622,8 @@
 											<td class="n">#{c.pctImpresso}%</td>
 											<td class="acts">
 												<span class="dg-rowbtns">
-													<p:commandButton value="Lista" icon="fa fa-list" ajax="false" styleClass="dg-rowbtn"
+													<p:button value="Seguimista" icon="fa fa-user-plus" styleClass="dg-rowbtn green-btn" outcome="/circulo/cadastro-circulo" title="Adicionar um seguimista neste círculo"><f:param name="circulo" value="#{c.circuloId}" /></p:button>
+												<p:commandButton value="Lista" icon="fa fa-list" ajax="false" styleClass="dg-rowbtn"
 														title="Imprimir a relação (lista) dos seguimistas deste círculo"
 														action="#{dashboardBean.gerarListaCirculo(c.circuloId, c.corLabel)}" />
 													<p:commandButton value="Quadrante" icon="fa fa-th-large" ajax="false" styleClass="dg-rowbtn"
@@ -591,6 +660,54 @@
 							</table>
 							<h:outputText rendered="#{empty dashboardBean.circulos}" styleClass="dg-note" value="Nenhum seguimista alocado em círculo ainda." />
 						</h:form>
+					</div>
+				</div>
+			</div>
+
+			<!-- Palestras do encontro -->
+			<div class="dg-sec">
+				<div class="dg-panel">
+					<div class="dg-phead">
+						<div><h3>Palestras do encontro</h3><div class="sub">#{dashboardBean.totalPalestras} palestras · clique no palestrante para editá-lo em Evento › Palestras</div></div>
+						<h:panelGroup layout="block" styleClass="dg-circ-head">
+							<span class="dg-palz-label">+ Palestrante:</span>
+							<p:button value="Casal" icon="fa fa-venus-mars" styleClass="dg-btn dg-btn-sm"
+								outcome="/evento-casal/pesquisa-palestra" title="Palestrantes casais — adicionar/editar (Evento › Palestras)" />
+							<p:button value="Seguidor" icon="fa fa-users" styleClass="dg-btn dg-btn-sm"
+								outcome="/evento-seguidor/pesquisa-palestra" title="Palestrantes seguidores — adicionar/editar (Evento › Palestras)" />
+							<p:button value="Padre" icon="fa fa-user-o" styleClass="dg-btn dg-btn-sm"
+								outcome="/evento-padre/pesquisa-palestra" title="Palestrantes padres/bispos — adicionar/editar (Evento › Palestras)" />
+							<p:button value="Convidado" icon="fa fa-street-view" styleClass="dg-btn dg-btn-sm"
+								outcome="/evento-convidado/pesquisa-palestra" title="Palestrantes convidados — adicionar/editar (Evento › Palestras)" />
+							<p:button value="Quadrante" icon="fa fa-th-large" styleClass="dg-btn"
+								outcome="/evento-seguidor/relatorio-quadrante-palestra" title="Imprimir o quadrante (grade) dos palestrantes" />
+						</h:panelGroup>
+					</div>
+					<div class="dg-pbody dg-scroll">
+						<table class="dg-tbl">
+							<thead><tr><th class="n">Ordem</th><th>Palestra</th><th class="n">Duração</th><th>Palestrante(s)</th></tr></thead>
+							<tbody>
+								<ui:repeat value="#{dashboardBean.palestras}" var="pl">
+									<tr>
+										<td class="n">#{pl.ordem}</td>
+										<td><span class="team">#{pl.nome}</span></td>
+										<td class="n"><h:outputText rendered="#{not empty pl.duracao}" value="#{pl.duracao} min" /><h:outputText rendered="#{empty pl.duracao}" value="—" /></td>
+										<td class="dg-palz">
+											<ui:repeat value="#{pl.palestrantes}" var="pn" varStatus="st"><h:link styleClass="dg-palz-link" outcome="/evento-#{pn.tipo}/cadastro-evento-palestra" value="#{pn.nome}" title="Editar este palestrante em Evento › Palestras"><f:param name="#{pn.tipo}" value="#{pn.eventoId}" /></h:link><h:outputText rendered="#{not st.last}" value=", " /></ui:repeat>
+											<h:outputText rendered="#{not pl.temPalestrante}" styleClass="dg-gap" value="(sem palestrante)" />
+										</td>
+									</tr>
+								</ui:repeat>
+							</tbody>
+							<tfoot><tr>
+								<td class="n"></td>
+								<td>Total · #{dashboardBean.totalPalestras} palestras</td>
+								<td class="n"></td>
+								<td></td>
+							</tr></tfoot>
+						</table>
+						<h:outputText rendered="#{empty dashboardBean.palestras}" styleClass="dg-note"
+							value="Nenhuma palestra com palestrante neste encontro ainda. Adicione os palestrantes em Evento › Palestras (por tipo de pessoa)." />
 					</div>
 				</div>
 			</div>

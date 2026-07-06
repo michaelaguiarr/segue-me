@@ -130,6 +130,9 @@ public class DashboardBean implements Serializable {
 	private List<CirculoLinha> circulos = new ArrayList<>();
 	private long totalSeguimistas;
 	private long totalSeguimistasPendentes;
+	private List<String> seguimistasSemCirculo = new ArrayList<>();
+
+		private List<PalestraLinha> palestras = new ArrayList<>();
 
 	private List<Aniversariante> aniversariantesSeguimistas = new ArrayList<>();
 	private List<Aniversariante> aniversariantesServico = new ArrayList<>();
@@ -170,6 +173,7 @@ public class DashboardBean implements Serializable {
 		carregarEquipes();
 		carregarSituacoes();
 		carregarCirculos();
+		carregarPalestras();
 		carregarAniversariantes();
 		carregarAniversariantesCasais();
 		this.seguidoresServindo = totalAlocados;
@@ -278,6 +282,55 @@ public class DashboardBean implements Serializable {
 			totalSeguimistas += total;
 			totalSeguimistasPendentes += pendentes;
 		}
+		for (Object[] r : eventoRepository.seguimistasSemCirculo(segueMe)) {
+			String nome = (String) r[0];
+			String apelido = (String) r[1];
+			seguimistasSemCirculo.add(apelido != null && !apelido.trim().isEmpty() ? nome + " (" + apelido + ")" : nome);
+		}
+	}
+
+	private void carregarPalestras() {
+		Map<Long, PalestraLinha> mapa = new LinkedHashMap<>();
+		for (Object[] r : eventoRepository.palestrasDoEncontro(segueMe)) {
+			Long id = ((Number) r[0]).longValue();
+			PalestraLinha pl = mapa.get(id);
+			if (pl == null) {
+				Integer ordem = r[1] != null ? ((Number) r[1]).intValue() : null;
+				pl = new PalestraLinha(id, ordem, (String) r[2], (String) r[3]);
+				mapa.put(id, pl);
+			}
+			Long eventoId = r[4] != null ? ((Number) r[4]).longValue() : null;
+			Palestrante palestrante = montarPalestrante(eventoId, (String) r[5], (String) r[6], (String) r[7],
+					(String) r[8], (String) r[9]);
+			if (palestrante != null) {
+				pl.addPalestrante(palestrante);
+			}
+		}
+		palestras.addAll(mapa.values());
+	}
+
+	/**
+	 * Monta o palestrante conforme o tipo presente no Evento (convidado, seguidor,
+	 * casal ou padre), guardando o id do Evento e o tipo para linkar a edição em
+	 * Evento &gt; Palestras (/evento-&lt;tipo&gt;/cadastro-evento-palestra?&lt;tipo&gt;=&lt;eventoId&gt;).
+	 * Devolve null se a linha não tiver pessoa vinculada.
+	 */
+	private Palestrante montarPalestrante(Long eventoId, String convidado, String seguidor, String casalEle,
+			String casalEla, String padre) {
+		if (convidado != null) {
+			return new Palestrante(eventoId, "convidado", convidado);
+		}
+		if (seguidor != null) {
+			return new Palestrante(eventoId, "seguidor", seguidor);
+		}
+		if (casalEle != null || casalEla != null) {
+			return new Palestrante(eventoId, "casal",
+					(casalEle != null ? casalEle : "") + " e " + (casalEla != null ? casalEla : ""));
+		}
+		if (padre != null) {
+			return new Palestrante(eventoId, "padre", padre);
+		}
+		return null;
 	}
 
 	private void carregarAniversariantes() {
@@ -669,6 +722,44 @@ public class DashboardBean implements Serializable {
 	}
 
 	/**
+	 * Gera e baixa TODOS os crachás do encontro num único PDF, unindo os relatórios
+	 * de cada papel: seguidor, seguimista, casal, padre e palestrante (convidado).
+	 * Cada papel que voltar vazio é pulado. Botão NÃO-AJAX.
+	 */
+	public void gerarCrachaTodos() {
+		if (segueMe == null) {
+			return;
+		}
+		try {
+			fotoService.materializarImagensSegueMe(segueMe);
+			fotoService.materializarImagensCirculo(segueMe); // seguimista usa a imagem do círculo
+			fotoService.materializarImagensEquipe(); // demais usam a imagem das equipes
+			String nomeArquivo = segueMe.getNomeArquivoCracha() == null || segueMe.getNomeArquivoCracha().isEmpty()
+					? "cracha"
+					: segueMe.getNomeArquivoCracha();
+			Map<String, Object> parametros = new HashMap<>();
+			parametros.put(JRParameter.REPORT_LOCALE, new Locale("pt", "BR"));
+			parametros.put("segueMe", segueMe.getId());
+			List<String> relatorios = java.util.Arrays.asList(
+					"/jasper/" + nomeArquivo + "Seguidor.jasper",
+					"/jasper/" + nomeArquivo + "Seguimista.jasper",
+					"/jasper/" + nomeArquivo + "Casal.jasper",
+					"/jasper/" + nomeArquivo + "Padre.jasper",
+					"/jasper/" + nomeArquivo + "Convidado.jasper");
+			ExecutorCrachaEquipe executor = new ExecutorCrachaEquipe(relatorios, parametros, response,
+					"Crachas" + segueMe.getNumeroRomano().getNumeroRomano() + ".pdf");
+			manager.unwrap(Session.class).doWork(executor);
+			if (executor.isRelatorioGerado()) {
+				facesContext.responseComplete();
+			} else {
+				FacesUtil.addErrorMessage("Nenhum crachá para imprimir.");
+			}
+		} catch (Exception e) {
+			FacesUtil.addErrorMessage("A execução do relatório não retornou dados.");
+		}
+	}
+
+	/**
 	 * Gera e baixa o PDF dos crachás de UMA equipe — TODOS os participantes: une num
 	 * único PDF o crachá de seguidor ({@code <modelo>SeguidorEquipe}) e o de casal
 	 * ({@code <modelo>CasalEquipe}). Cada relatório que voltar vazio é pulado (ex.:
@@ -833,6 +924,44 @@ public class DashboardBean implements Serializable {
 			mensagemFlash(n + " crachá(s) marcado(s) como impresso(s).");
 		} catch (Exception e) {
 			FacesUtil.addErrorMessage("Não foi possível marcar os crachás como impressos.");
+			return null;
+		}
+		return "/dashboard.xhtml?faces-redirect=true";
+	}
+
+	/** Marca como impressos TODOS os crachás pendentes (todos os papéis) do encontro. */
+	public String marcarImpressoTodos() {
+		if (segueMe == null) {
+			return null;
+		}
+		try {
+			int n = seguidorService.atualizarCracha(eventoRepository.idsCrachaPendenteSeguidores(segueMe), false);
+			n += seguidorService.atualizarCracha(eventoRepository.idsCrachaPendenteSeguimistas(segueMe), false);
+			n += casalService.atualizarCracha(eventoRepository.idsCrachaPendenteCasais(segueMe), false);
+			n += padreService.atualizarCracha(eventoRepository.idsCrachaPendentePadres(segueMe), false);
+			n += convidadoService.atualizarCracha(eventoRepository.idsCrachaPendenteConvidados(segueMe), false);
+			mensagemFlash(n + " crachá(s) marcado(s) como impresso(s).");
+		} catch (Exception e) {
+			FacesUtil.addErrorMessage("Não foi possível marcar os crachás como impressos.");
+			return null;
+		}
+		return "/dashboard.xhtml?faces-redirect=true";
+	}
+
+	/** Desfaz a baixa: volta a PENDENTE TODOS os crachás já impressos (todos os papéis). */
+	public String marcarNaoImpressoTodos() {
+		if (segueMe == null) {
+			return null;
+		}
+		try {
+			int n = seguidorService.atualizarCracha(eventoRepository.idsCrachaImpressoSeguidores(segueMe), true);
+			n += seguidorService.atualizarCracha(eventoRepository.idsCrachaImpressoSeguimistas(segueMe), true);
+			n += casalService.atualizarCracha(eventoRepository.idsCrachaImpressoCasais(segueMe), true);
+			n += padreService.atualizarCracha(eventoRepository.idsCrachaImpressoPadres(segueMe), true);
+			n += convidadoService.atualizarCracha(eventoRepository.idsCrachaImpressoConvidados(segueMe), true);
+			mensagemFlash(n + " crachá(s) voltaram para a lista de impressão.");
+		} catch (Exception e) {
+			FacesUtil.addErrorMessage("Não foi possível desmarcar os crachás.");
 			return null;
 		}
 		return "/dashboard.xhtml?faces-redirect=true";
@@ -1022,8 +1151,28 @@ public class DashboardBean implements Serializable {
 		return totalSeguimistas;
 	}
 
+	public List<String> getSeguimistasSemCirculo() {
+		return seguimistasSemCirculo;
+	}
+
+	public int getTotalSeguimistasSemCirculo() {
+		return seguimistasSemCirculo.size();
+	}
+
+	public boolean isTemSeguimistaSemCirculo() {
+		return !seguimistasSemCirculo.isEmpty();
+	}
+
 	public long getTotalSeguimistasPendentes() {
 		return totalSeguimistasPendentes;
+	}
+
+	public List<PalestraLinha> getPalestras() {
+		return palestras;
+	}
+
+	public int getTotalPalestras() {
+		return palestras.size();
 	}
 
 	public List<Aniversariante> getAniversariantesSeguimistas() {
@@ -1298,6 +1447,80 @@ public class DashboardBean implements Serializable {
 
 		public int getPctImpresso() {
 			return total > 0 ? (int) Math.round(getImpressos() * 100.0 / total) : 0;
+		}
+	}
+
+	public static class PalestraLinha implements Serializable {
+		private static final long serialVersionUID = 1L;
+		private final Long id;
+		private final Integer ordem;
+		private final String nome;
+		private final String duracao;
+		private final List<Palestrante> palestrantes = new ArrayList<>();
+
+		PalestraLinha(Long id, Integer ordem, String nome, String duracao) {
+			this.id = id;
+			this.ordem = ordem;
+			this.nome = nome;
+			this.duracao = duracao;
+		}
+
+		void addPalestrante(Palestrante palestrante) {
+			palestrantes.add(palestrante);
+		}
+
+		public Long getId() {
+			return id;
+		}
+
+		public Integer getOrdem() {
+			return ordem;
+		}
+
+		public String getNome() {
+			return nome;
+		}
+
+		public String getDuracao() {
+			return duracao;
+		}
+
+		public List<Palestrante> getPalestrantes() {
+			return palestrantes;
+		}
+
+		public boolean isTemPalestrante() {
+			return !palestrantes.isEmpty();
+		}
+	}
+
+	/**
+	 * Um palestrante da grade: o id do Evento e o tipo ({@code seguidor}, {@code casal},
+	 * {@code padre} ou {@code convidado}) permitem linkar a edição direta em
+	 * Evento &gt; Palestras (/evento-&lt;tipo&gt;/cadastro-evento-palestra?&lt;tipo&gt;=&lt;eventoId&gt;).
+	 */
+	public static class Palestrante implements Serializable {
+		private static final long serialVersionUID = 1L;
+		private final Long eventoId;
+		private final String tipo;
+		private final String nome;
+
+		Palestrante(Long eventoId, String tipo, String nome) {
+			this.eventoId = eventoId;
+			this.tipo = tipo;
+			this.nome = nome;
+		}
+
+		public Long getEventoId() {
+			return eventoId;
+		}
+
+		public String getTipo() {
+			return tipo;
+		}
+
+		public String getNome() {
+			return nome;
 		}
 	}
 
