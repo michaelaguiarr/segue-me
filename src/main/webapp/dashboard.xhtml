@@ -530,9 +530,9 @@
 														styleClass="dg-rowbtn #{e.crachaCompleto or e.alocadosPessoas eq 0 ? '' : 'green-btn'}"
 														title="Imprimir todos os crachás desta equipe (seguidores + casais)"
 														action="#{dashboardBean.gerarCrachaEquipe(e.equipeId, e.titulo)}" />
-													<p:commandButton value="Quadrante" icon="fa fa-th-large" ajax="false" disabled="#{e.alocados eq 0}"
+													<p:commandButton value="Quadrante" icon="fa fa-th-large" ajax="false" disabled="#{e.alocadosPessoas eq 0}"
 														styleClass="dg-rowbtn"
-														title="#{e.alocados eq 0 ? 'Sem seguidores nesta equipe (o quadrante por equipe é de seguidores)' : 'Imprimir o quadrante de seguidores desta equipe'}"
+														title="Imprimir o quadrante desta equipe (inclui casais)"
 														action="#{dashboardBean.gerarQuadranteEquipe(e.equipeId, e.titulo)}" />
 													<p:commandButton value="Impresso" icon="fa fa-check" rendered="#{e.pendentes gt 0}"
 														styleClass="dg-rowbtn"
