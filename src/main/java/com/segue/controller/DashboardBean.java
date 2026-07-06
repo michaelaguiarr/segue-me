@@ -572,6 +572,38 @@ public class DashboardBean implements Serializable {
 		FacesUtil.addErrorMessage(msg);
 	}
 
+	/** Remove a imagem do padroeiro do encontro (confirmar antes). */
+	public String removerImagem() {
+		return removerAnexo(s -> s.setImagem(null), "Imagem removida.");
+	}
+
+	/** Remove a capa (PDF) do encontro (confirmar antes). */
+	public String removerCapa() {
+		return removerAnexo(s -> s.setArquivoCapa(null), "Capa removida.");
+	}
+
+	/** Remove a história (PDF) do encontro (confirmar antes). */
+	public String removerHistoria() {
+		return removerAnexo(s -> s.setArquivoHistoria(null), "História removida.");
+	}
+
+	/** Zera um anexo no Segue-Me FRESCO por id, persiste e recarrega o dashboard. */
+	private String removerAnexo(java.util.function.Consumer<SegueMe> mutacao, String msg) {
+		if (segueMe == null) {
+			return null;
+		}
+		try {
+			SegueMe fresco = segueMeRepository.porId(segueMe.getId());
+			mutacao.accept(fresco);
+			cadastroEjcService.salvar(fresco);
+			mensagemFlash(msg);
+		} catch (Exception e) {
+			FacesUtil.addErrorMessage("Não foi possível remover: " + e.getMessage());
+			return null;
+		}
+		return "/dashboard.xhtml?faces-redirect=true";
+	}
+
 	/** Persiste as edições/anexos e recarrega o dashboard (redirect → viewAction). */
 	public String salvarEdicao() {
 		if (editSegueMe == null) {

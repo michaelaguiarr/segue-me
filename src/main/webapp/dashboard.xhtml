@@ -32,7 +32,8 @@
 			.dg-pencil .ui-icon, .dg-pencil .ui-button-icon-left { font-size: 12px; margin: 0; position: static; left: auto; }
 
 			/* event header */
-			.dg-event { display: flex; align-items: flex-end; gap: 22px; flex-wrap: wrap; border-bottom: 1px solid #ebe3d6; padding-bottom: 20px; margin-bottom: 24px; }
+			.dg-event { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; border-bottom: 1px solid #ebe3d6; padding-bottom: 20px; margin-bottom: 24px; }
+			.dg-event .t { align-self: center; }
 			.dg-event .t { flex: 1 1 320px; }
 			.dg-event h1 { font-size: 26px; font-weight: 700; line-height: 1.15; color: #2b2018; }
 			.dg-event .meta { color: #6e5f52; font-size: 13.5px; margin-top: 8px; display: flex; flex-wrap: wrap; gap: 6px 16px; }
@@ -46,10 +47,13 @@
 			.dg-portrait { position: relative; border-radius: 16px; padding: 13px; border: 1px solid #ecdcbb;
 				background: radial-gradient(120% 80% at 50% -10%, #fff9ec 0%, #fbeed6 52%, #f3e1c2 100%);
 				box-shadow: 0 1px 2px rgba(43,32,24,.06), 0 12px 28px rgba(160,110,20,.15); }
-			.dg-portrait .frame { height: 172px; background: #fff; border-radius: 11px; border: 1px solid #f0e6d3; padding: 8px;
+			.dg-portrait .frame { height: 132px; background: #fff; border-radius: 11px; border: 1px solid #f0e6d3; padding: 7px;
 				display: flex; align-items: center; justify-content: center; box-shadow: inset 0 1px 3px rgba(120,80,10,.06); }
 			.dg-portrait .frame img { max-width: 100%; max-height: 100%; object-fit: contain; display: block; }
-			.dg-portrait .cap { text-align: center; margin-top: 11px; padding-bottom: 2px; }
+			.dg-portrait .cap { text-align: center; margin-top: 8px; padding-bottom: 1px; }
+			.dg-prepline { flex-basis: 100%; margin-top: 13px; }
+			.dg-prep-btn.ui-button { font-size: 12.5px !important; background: #fff !important; border: 1px solid #e6c9a0 !important; color: #b96c08 !important; box-shadow: none !important; }
+			.dg-prep-btn.ui-button:hover { background: #fdf6ea !important; }
 			.dg-portrait .cap .orn { display: flex; align-items: center; justify-content: center; gap: 8px; color: #cba85f; font-size: 10px; }
 			.dg-portrait .cap .orn::before, .dg-portrait .cap .orn::after { content: ''; height: 1px; width: 26px; }
 			.dg-portrait .cap .orn::before { background: linear-gradient(90deg, transparent, #dcbd82); }
@@ -63,6 +67,13 @@
 			.dg-prep-actions .ui-button .ui-button-text { padding: .4em .5em; }
 			.dg-prep-actions .ui-button, .dg-img-upload .ui-fileupload-choose { background: #fff !important; border: 1px solid #ecdcbb !important; color: #9a5a06 !important; box-shadow: none !important; }
 			.dg-prep-actions .ui-button:hover, .dg-img-upload .ui-fileupload-choose:hover { background: #fdf6ea !important; }
+			/* lixeirinha de remover (imagem/capa/história) */
+			.dg-trash.ui-button { flex: 0 0 auto !important; align-self: stretch; width: 34px; min-width: 34px; padding: 0 !important; border-radius: 999px !important;
+				display: inline-flex !important; align-items: center !important; justify-content: center !important;
+				background: #fff !important; border: 1px solid #eadfd0 !important; color: #b0a596 !important; box-shadow: none !important; }
+			.dg-trash.ui-button:hover { color: #c0392b !important; border-color: #e3b4ad !important; background: #fdf0ee !important; }
+			.dg-trash .ui-button-text { display: none !important; padding: 0 !important; }
+			.dg-trash .ui-button-icon-left, .dg-trash .ui-icon { position: static !important; margin: 0 !important; top: auto !important; left: auto !important; font-size: 13px; }
 
 			/* section */
 			.dg-sec { margin-bottom: 28px; }
@@ -228,7 +239,7 @@
 		<p:growl id="dgGrowl" showDetail="true" life="4000" />
 
 		<p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
-			<p:commandButton value="Sim, marcar" type="button" styleClass="ui-confirmdialog-yes dg-btn green-btn" icon="fa fa-check" />
+			<p:commandButton value="Confirmar" type="button" styleClass="ui-confirmdialog-yes dg-btn green-btn" icon="fa fa-check" />
 			<p:commandButton value="Cancelar" type="button" styleClass="ui-confirmdialog-no dg-btn" icon="fa fa-times" />
 		</p:confirmDialog>
 
@@ -312,6 +323,7 @@
 							<span><b class="dg-tnum">#{dashboardBean.totalInscritos}</b> inscritos</span>
 							<span><i class="fa fa-users"></i><b class="dg-tnum">#{dashboardBean.pessoasServindo}</b> pessoas servindo</span>
 							<span class="dg-servdet">#{dashboardBean.seguidoresServindo} seguidores e #{dashboardBean.casaisServindo} casais</span>
+							<div class="dg-prepline"><p:commandButton value="Preparar imagens p/ imprimir" icon="fa fa-refresh" styleClass="dg-btn dg-prep-btn" action="#{dashboardBean.prepararImagens}" update="dgGrowl" title="Regrava em disco as fotos do retiro, círculos e equipes (perdidas a cada atualização) para os crachás/quadrante não saírem em branco" /></div>
 						</div>
 					</h:form>
 				</div>
@@ -333,11 +345,10 @@
 							oncomplete="window.location.reload()" title="Anexar/trocar a imagem do padroeiro (JPG)" />
 						<p:commandButton value="Baixar" icon="fa fa-download" ajax="false" styleClass="dg-btn"
 							rendered="#{dashboardBean.temImagem}" action="#{dashboardBean.baixarImagem}" />
-					</h:form>
-					<h:form>
-						<p:commandButton value="Preparar imagens p/ imprimir" icon="fa fa-refresh" style="width:100%"
-							styleClass="dg-btn" action="#{dashboardBean.prepararImagens}" update="dgGrowl"
-							title="Regrava em disco as fotos do retiro, círculos e equipes (perdidas a cada atualização) para os crachás/quadrante não saírem em branco" />
+						<p:commandButton icon="fa fa-trash-o" styleClass="dg-trash" rendered="#{dashboardBean.temImagem}"
+							action="#{dashboardBean.removerImagem}" title="Remover a imagem">
+							<p:confirm header="Remover imagem" message="Remover a imagem do padroeiro deste encontro?" icon="fa fa-trash-o" />
+						</p:commandButton>
 					</h:form>
 				</div>
 			</div>
@@ -371,13 +382,21 @@
 								<div class="dg-chip-row"><span class="dg-chip-tag">Arquivos</span>
 									<div class="dg-chips">
 										<p:commandButton value="Capa" icon="fa fa-file-pdf-o" ajax="false" rendered="#{dashboardBean.temCapa}"
-											styleClass="dg-btn dg-chip" action="#{dashboardBean.baixarCapa}" />
+											styleClass="dg-btn dg-chip" action="#{dashboardBean.baixarCapa}" title="Baixar a capa" />
+											<p:commandButton icon="fa fa-trash-o" styleClass="dg-trash" rendered="#{dashboardBean.temCapa}"
+												action="#{dashboardBean.removerCapa}" title="Remover a capa">
+												<p:confirm header="Remover capa" message="Remover a capa deste encontro?" icon="fa fa-trash-o" />
+											</p:commandButton>
 										<p:fileUpload rendered="#{not dashboardBean.temCapa}" fileUploadListener="#{dashboardBean.anexarCapa}"
 											mode="advanced" auto="true" label="Capa" allowTypes="/(\.|\/)(pdf)$/" sizeLimit="10485760"
 											invalidFileMessage="Envie um PDF" styleClass="dg-chip-upload"
 											oncomplete="window.location.reload()" title="Anexar a capa (PDF)" />
 										<p:commandButton value="História" icon="fa fa-book" ajax="false" rendered="#{dashboardBean.temHistoria}"
-											styleClass="dg-btn dg-chip" action="#{dashboardBean.baixarHistoria}" />
+											styleClass="dg-btn dg-chip" action="#{dashboardBean.baixarHistoria}" title="Baixar a história" />
+											<p:commandButton icon="fa fa-trash-o" styleClass="dg-trash" rendered="#{dashboardBean.temHistoria}"
+												action="#{dashboardBean.removerHistoria}" title="Remover a história">
+												<p:confirm header="Remover história" message="Remover a história deste encontro?" icon="fa fa-trash-o" />
+											</p:commandButton>
 										<p:fileUpload rendered="#{not dashboardBean.temHistoria}" fileUploadListener="#{dashboardBean.anexarHistoria}"
 											mode="advanced" auto="true" label="História" allowTypes="/(\.|\/)(pdf)$/" sizeLimit="10485760"
 											invalidFileMessage="Envie um PDF" styleClass="dg-chip-upload"
