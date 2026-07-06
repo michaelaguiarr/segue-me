@@ -3,6 +3,7 @@ package com.segue.repository;
 
 import com.segue.filter.CasalFilter;
 import com.segue.model.Casal;
+import com.segue.model.Paroquia;
 import com.segue.service.NegocioException;
 import com.segue.util.StringExtended;
 import org.apache.commons.lang3.StringUtils;
@@ -11,10 +12,12 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceException;
+import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -70,6 +73,9 @@ public class CasalRepository implements Serializable {
 			predicates.add(builder.equal(root.get("segueMe"), filtro.getSegueMe()));
 		}
 
+		// Oculta registros inativados (duplicados consolidados).
+		predicates.add(builder.equal(root.get("ativo"), true));
+
 		criteriaQuery.select(root);
 		criteriaQuery.where(predicates.toArray(new Predicate[0]));
 		criteriaQuery.orderBy(builder.asc(root.get("nome")), builder.asc(root.get("segueMe")));
@@ -80,14 +86,18 @@ public class CasalRepository implements Serializable {
 
 	public List<Casal> filtrados(CasalFilter filtro) {
 		CriteriaBuilder builder = manager.getCriteriaBuilder();
-		CriteriaQuery<Casal> criteriaQuery = builder.createQuery(Casal.class);
+		CriteriaQuery<Tuple> criteriaQuery = builder.createTupleQuery();
 		List<Predicate> predicates = new ArrayList<>();
 
 		Root<Casal> root = criteriaQuery.from(Casal.class);
-		From<?, ?> enderecoJoin = (From<?, ?>) root.fetch("endereco", JoinType.LEFT);
-		From<?, ?> paroquiaJoin = (From<?, ?>) root.fetch("paroquia", JoinType.LEFT);
-		From<?, ?> eccJoin = (From<?, ?>) root.fetch("ecc", JoinType.LEFT);
-		From<?, ?> numeroRomanoJoin = (From<?, ?>) eccJoin.fetch("numeroRomano", JoinType.INNER);
+		// Projeção da listagem: joins (não fetch) só do que a tabela exibe, SEM os
+		// blobs imagem_ele/imagem_ela (fotos). Mantém os mesmos joins/tipos da
+		// consulta original para preservar o conjunto de resultados (o INNER em
+		// ecc.numeroRomano excluía casais sem ECC).
+		root.join("endereco", JoinType.LEFT);
+		Join<Object, Object> paroquiaJoin = root.join("paroquia", JoinType.LEFT);
+		Join<Object, Object> eccJoin = root.join("ecc", JoinType.LEFT);
+		eccJoin.join("numeroRomano", JoinType.INNER);
 
 		if (filtro.getParoquia() != null) {
 			predicates.add(builder.equal(root.get("paroquia"), filtro.getParoquia()));
@@ -111,24 +121,131 @@ public class CasalRepository implements Serializable {
 			predicates.add(builder.like(builder.lower(root.get("apelidoEla")),
 					"%" + filtro.getApelidoEla().toLowerCase() + "%"));
 		}
-		criteriaQuery.select(root);
+		// Oculta registros inativados (duplicados consolidados).
+		predicates.add(builder.equal(root.get("ativo"), true));
+		criteriaQuery.multiselect(root.get("id"), root.get("timestamp"), root.get("nomeEle"), root.get("apelidoEle"),
+				root.get("nomeEla"), root.get("apelidoEla"), root.get("telefoneEleUm"), root.get("telefoneElaUm"),
+				paroquiaJoin.get("descricao"));
 		criteriaQuery.where(predicates.toArray(new Predicate[0]));
 		criteriaQuery.orderBy(builder.asc(root.get("nomeEle")), builder.asc(root.get("paroquia")));
 
-		TypedQuery<Casal> query = manager.createQuery(criteriaQuery);
-		return query.getResultList();
+		return montarProjecao(manager.createQuery(criteriaQuery).getResultList());
+	}
+
+	/**
+	 * Remonta as linhas da projeção (tupla) da listagem em {@link Casal} leves,
+	 * via o construtor de projeção — sem os blobs de foto. A foto é carregada sob
+	 * demanda por id ({@code PesquisaCasalBean.carregarFoto} → {@link #findById}).
+	 */
+	private List<Casal> montarProjecao(List<Tuple> tuples) {
+		List<Casal> casais = new ArrayList<>(tuples.size());
+		for (Tuple t : tuples) {
+			Paroquia paroquia = new Paroquia();
+			paroquia.setDescricao((String) t.get(8));
+			casais.add(new Casal((Integer) t.get(0), (Calendar) t.get(1), (String) t.get(2), (String) t.get(3),
+					(String) t.get(4), (String) t.get(5), (String) t.get(6), (String) t.get(7), paroquia));
+		}
+		return casais;
+	}
+
+	/** Predicados compartilhados da listagem de casal (página e contagem). */
+	private List<Predicate> predicadosCasal(CriteriaBuilder builder, Root<Casal> root, CasalFilter filtro) {
+		List<Predicate> predicates = new ArrayList<>();
+		if (filtro.getParoquia() != null) {
+			predicates.add(builder.equal(root.get("paroquia"), filtro.getParoquia()));
+		}
+		if (StringUtils.isNotBlank(filtro.getNomeEle())) {
+			predicates.add(builder.like(builder.lower(root.get("nomeEleSemAcento")),
+					"%" + StringExtended.toASCII(filtro.getNomeEle().toLowerCase()) + "%"));
+		}
+		if (StringUtils.isNotBlank(filtro.getApelidoEle())) {
+			predicates.add(builder.like(builder.lower(root.get("apelidoEle")),
+					"%" + filtro.getApelidoEle().toLowerCase() + "%"));
+		}
+		if (StringUtils.isNotBlank(filtro.getNomeEla())) {
+			predicates.add(builder.like(builder.lower(root.get("nomeElaSemAcento")),
+					"%" + StringExtended.toASCII(filtro.getNomeEla().toLowerCase()) + "%"));
+		}
+		if (StringUtils.isNotBlank(filtro.getApelidoEla())) {
+			predicates.add(builder.like(builder.lower(root.get("apelidoEla")),
+					"%" + filtro.getApelidoEla().toLowerCase() + "%"));
+		}
+		predicates.add(builder.equal(root.get("ativo"), true));
+		return predicates;
+	}
+
+	/** Conta o total de casais do filtro (usado pelo LazyDataModel). */
+	public Long contar(CasalFilter filtro) {
+		CriteriaBuilder builder = manager.getCriteriaBuilder();
+		CriteriaQuery<Long> criteriaQuery = builder.createQuery(Long.class);
+		Root<Casal> root = criteriaQuery.from(Casal.class);
+		// O INNER em ecc.numeroRomano filtra casais sem ECC — replicado no count.
+		root.join("ecc", JoinType.LEFT).join("numeroRomano", JoinType.INNER);
+		criteriaQuery.select(builder.count(root));
+		criteriaQuery.where(predicadosCasal(builder, root, filtro).toArray(new Predicate[0]));
+		return manager.createQuery(criteriaQuery).getSingleResult();
+	}
+
+	/** Página da listagem de casal (projeção sem blob) para paginação server-side. */
+	public List<Casal> filtradosPaginado(CasalFilter filtro, int first, int pageSize, String sortField, boolean asc) {
+		CriteriaBuilder builder = manager.getCriteriaBuilder();
+		CriteriaQuery<Tuple> criteriaQuery = builder.createTupleQuery();
+		Root<Casal> root = criteriaQuery.from(Casal.class);
+		root.join("endereco", JoinType.LEFT);
+		Join<Object, Object> paroquiaJoin = root.join("paroquia", JoinType.LEFT);
+		Join<Object, Object> eccJoin = root.join("ecc", JoinType.LEFT);
+		eccJoin.join("numeroRomano", JoinType.INNER);
+		criteriaQuery.multiselect(root.get("id"), root.get("timestamp"), root.get("nomeEle"), root.get("apelidoEle"),
+				root.get("nomeEla"), root.get("apelidoEla"), root.get("telefoneEleUm"), root.get("telefoneElaUm"),
+				paroquiaJoin.get("descricao"));
+		criteriaQuery.where(predicadosCasal(builder, root, filtro).toArray(new Predicate[0]));
+		criteriaQuery.orderBy(ordenacaoCasal(builder, root, paroquiaJoin, sortField, asc));
+		List<Tuple> tuples = manager.createQuery(criteriaQuery).setFirstResult(first).setMaxResults(pageSize)
+				.getResultList();
+		return montarProjecao(tuples);
+	}
+
+	/** Mapeia a coluna de ordenação do p:dataTable para a expressão (default: nomeEle). */
+	private Order ordenacaoCasal(CriteriaBuilder builder, Root<Casal> root, Join<Object, Object> paroquiaJoin,
+			String sortField, boolean asc) {
+		Expression<?> expr;
+		switch (sortField == null ? "nomeEle" : sortField) {
+		case "timestamp.time":
+			expr = root.get("timestamp");
+			break;
+		case "nomeEla":
+			expr = root.get("nomeEla");
+			break;
+		case "telefoneEleUm":
+			expr = root.get("telefoneEleUm");
+			break;
+		case "telefoneElaUm":
+			expr = root.get("telefoneElaUm");
+			break;
+		case "paroquia.descricao":
+			expr = paroquiaJoin.get("descricao");
+			break;
+		case "nomeEle":
+		default:
+			expr = root.get("nomeEle");
+			break;
+		}
+		return asc ? builder.asc(expr) : builder.desc(expr);
 	}
 	
 	public List<Casal> filtradosPublic(CasalFilter filtro) {
 		CriteriaBuilder builder = manager.getCriteriaBuilder();
-		CriteriaQuery<Casal> criteriaQuery = builder.createQuery(Casal.class);
+		CriteriaQuery<Tuple> criteriaQuery = builder.createTupleQuery();
 		List<Predicate> predicates = new ArrayList<>();
 
 		Root<Casal> root = criteriaQuery.from(Casal.class);
-		From<?, ?> enderecoJoin = (From<?, ?>) root.fetch("endereco", JoinType.LEFT);
-		From<?, ?> paroquiaJoin = (From<?, ?>) root.fetch("paroquia", JoinType.LEFT);
-		From<?, ?> eccJoin = (From<?, ?>) root.fetch("ecc", JoinType.LEFT);
-		From<?, ?> numeroRomanoJoin = (From<?, ?>) eccJoin.fetch("numeroRomano", JoinType.LEFT);
+		// Projeção da listagem pública (ver filtrados): joins (não fetch) sem os
+		// blobs imagem_ele/imagem_ela. Aqui numeroRomano é LEFT (não filtra casais
+		// sem ECC), preservando o conjunto de resultados original.
+		root.join("endereco", JoinType.LEFT);
+		Join<Object, Object> paroquiaJoin = root.join("paroquia", JoinType.LEFT);
+		Join<Object, Object> eccJoin = root.join("ecc", JoinType.LEFT);
+		eccJoin.join("numeroRomano", JoinType.LEFT);
 
 		if (filtro.getTelefone() != null && !filtro.getTelefone().isEmpty()) {
 			Predicate telefoneEleUmPredicate = builder.equal(root.get("telefoneEleUm"), filtro.getTelefone());
@@ -137,6 +254,9 @@ public class CasalRepository implements Serializable {
 			Predicate telefoneElaDoisPredicate = builder.equal(root.get("telefoneElaDois"), filtro.getTelefone());
 			predicates.add(builder.or(telefoneEleUmPredicate, telefoneEleDoisPredicate, telefoneElaUmPredicate, telefoneElaDoisPredicate));
 		}
+
+		// Oculta registros inativados (duplicados consolidados).
+		predicates.add(builder.equal(root.get("ativo"), true));
 
 //		Predicate orClause =
 //			    builder.or(
@@ -154,12 +274,13 @@ public class CasalRepository implements Serializable {
 //					builder.equal(root.get("dataNascimentoEla").as(java.sql.Date.class), filtro.getDtNascimento()));
 //		}
 		
-		criteriaQuery.select(root);
+		criteriaQuery.multiselect(root.get("id"), root.get("timestamp"), root.get("nomeEle"), root.get("apelidoEle"),
+				root.get("nomeEla"), root.get("apelidoEla"), root.get("telefoneEleUm"), root.get("telefoneElaUm"),
+				paroquiaJoin.get("descricao"));
 		criteriaQuery.where(predicates.toArray(new Predicate[0]));
 		criteriaQuery.orderBy(builder.asc(root.get("nomeEle")), builder.asc(root.get("paroquia")));
 
-		TypedQuery<Casal> query = manager.createQuery(criteriaQuery);
-		return query.getResultList();
+		return montarProjecao(manager.createQuery(criteriaQuery).getResultList());
 	}
 
 
@@ -173,7 +294,7 @@ public class CasalRepository implements Serializable {
 		Casal casal = null;
 		try {
 			return manager.createQuery("SELECT c FROM Casal c "
-					+ "WHERE lower(c.nomeEleSemAcento) LIKE lower(:nomeEle)  AND c.dataNascimentoEle = :dataNascimentoEle",
+					+ "WHERE lower(c.nomeEleSemAcento) LIKE lower(:nomeEle)  AND c.dataNascimentoEle = :dataNascimentoEle AND c.ativo = true",
 					Casal.class).setParameter("nomeEle", StringExtended.toASCII(nomeEle.toUpperCase())).setParameter("dataNascimentoEle", dataNascimentoEle)
 					.getSingleResult();
 		} catch (NoResultException e) {
@@ -186,7 +307,7 @@ public class CasalRepository implements Serializable {
 		Casal casal = null;
 		try {
 			return manager.createQuery("SELECT c FROM Casal c "
-					+ "WHERE lower(c.nomeEleSemAcento) LIKE lower(:nomeEla)  AND c.dataNascimentoEla = :dataNascimentoEla",
+					+ "WHERE lower(c.nomeEleSemAcento) LIKE lower(:nomeEla)  AND c.dataNascimentoEla = :dataNascimentoEla AND c.ativo = true",
 					Casal.class).setParameter("nomeEla", StringExtended.toASCII(nomeEla.toUpperCase())).setParameter("dataNascimentoEla", dataNascimentoEla)
 					.getSingleResult();
 		} catch (NoResultException e) {
@@ -197,15 +318,34 @@ public class CasalRepository implements Serializable {
 
 	public List<Casal> findByNome(String searchValue) {
 		try {
-			return manager
-					.createQuery("select distinct(c) from Casal c " + "where lower(c.nomeEleSemAcento) LIKE lower(:nomeEle) "
-							+ "OR lower(c.apelidoEle) LIKE lower(:apelidoEle) "
-							+ "OR lower(c.nomeEleSemAcento) LIKE lower(:nomeEla) "
-							+ "OR lower(c.apelidoEla) LIKE lower(:apelidoEla) ", Casal.class)
-					.setParameter("nomeEle", "%" + StringExtended.toASCII(searchValue.toUpperCase()) + "%")
-					.setParameter("apelidoEle", "%" + searchValue.toUpperCase() + "%")
-					.setParameter("nomeEla", "%" + StringExtended.toASCII(searchValue.toUpperCase()) + "%")
-					.setParameter("apelidoEla", "%" + searchValue.toUpperCase() + "%").setMaxResults(30).getResultList();
+			String nome = "%" + StringExtended.toASCII(searchValue.toUpperCase()) + "%";
+			String apelido = "%" + searchValue.toUpperCase() + "%";
+			// Busca também por telefone: só os dígitos do que foi digitado (tira a
+			// máscara) contra os telefones pessoais do casal, também normalizados no
+			// banco. LIKE parcial permite achar por trechos do número.
+			String digitos = searchValue.replaceAll("[^0-9]", "");
+			boolean buscaTelefone = digitos.length() >= 3;
+
+			StringBuilder jpql = new StringBuilder("select distinct(c) from Casal c where ("
+					+ "lower(c.nomeEleSemAcento) LIKE lower(:nome) "
+					+ "OR lower(c.apelidoEle) LIKE lower(:apelido) "
+					+ "OR lower(c.nomeElaSemAcento) LIKE lower(:nome) "
+					+ "OR lower(c.apelidoEla) LIKE lower(:apelido) ");
+			if (buscaTelefone) {
+				jpql.append("OR function('regexp_replace', c.telefoneEleUm, '[^0-9]', '', 'g') LIKE :tel ");
+				jpql.append("OR function('regexp_replace', c.telefoneEleDois, '[^0-9]', '', 'g') LIKE :tel ");
+				jpql.append("OR function('regexp_replace', c.telefoneElaUm, '[^0-9]', '', 'g') LIKE :tel ");
+				jpql.append("OR function('regexp_replace', c.telefoneElaDois, '[^0-9]', '', 'g') LIKE :tel ");
+			}
+			// Fecha o grupo de OR e oculta registros inativados (duplicados consolidados).
+			jpql.append(") AND c.ativo = true");
+
+			TypedQuery<Casal> query = manager.createQuery(jpql.toString(), Casal.class)
+					.setParameter("nome", nome).setParameter("apelido", apelido);
+			if (buscaTelefone) {
+				query.setParameter("tel", "%" + digitos + "%");
+			}
+			return query.setMaxResults(30).getResultList();
 		} catch (NoResultException nr) {
 			return null;
 		}

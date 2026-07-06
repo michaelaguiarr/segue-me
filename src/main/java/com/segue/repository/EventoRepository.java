@@ -14,9 +14,11 @@ import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
@@ -37,6 +39,7 @@ import com.segue.model.CorCirculo;
 import com.segue.model.Equipe;
 import com.segue.model.Evento;
 import com.segue.model.Funcao;
+import com.segue.model.Inscricao;
 import com.segue.model.NumeroRomano;
 import com.segue.model.Padre;
 import com.segue.model.Palestra;
@@ -102,23 +105,164 @@ public class EventoRepository implements Serializable {
 				Evento.class).getResultList();
 	}
 
+	// ===== Dashboard da Equipe Gráfica: agregações por Segue-Me =====
+	// A flag e.cracha = true significa crachá PENDENTE de impressão.
+
+	/** Resumo de crachás [total, pendentes] de uma população de eventos do Segue-Me. */
+	private long[] resumoCracha(String jpqlFrom, SegueMe segueMe) {
+		Object[] r = (Object[]) manager
+				.createQuery("SELECT COUNT(e), COALESCE(SUM(CASE WHEN e.cracha = true THEN 1 ELSE 0 END), 0) "
+						+ jpqlFrom + " WHERE e.segueMe = :sm")
+				.setParameter("sm", segueMe).getSingleResult();
+		return new long[] { ((Number) r[0]).longValue(), ((Number) r[1]).longValue() };
+	}
+
+	/** [total, pendentes] dos crachás de seguidores de serviço (equipe/função). */
+	public long[] resumoCrachaSeguidores(SegueMe sm) {
+		return resumoCracha("FROM Evento e JOIN e.seguidor s JOIN e.equipe eq JOIN e.funcao f", sm);
+	}
+
+	/** [total, pendentes] dos crachás de seguimistas (inscrição aprovada). */
+	public long[] resumoCrachaSeguimistas(SegueMe sm) {
+		Object[] r = (Object[]) manager
+				.createQuery("SELECT COUNT(e), COALESCE(SUM(CASE WHEN e.cracha = true THEN 1 ELSE 0 END), 0) "
+						+ "FROM Evento e JOIN e.seguidor s JOIN e.inscricao i "
+						+ "WHERE e.segueMe = :sm AND i.statusInscricao = :aprovado")
+				.setParameter("sm", sm).setParameter("aprovado", StatusInscricao.APROVADO).getSingleResult();
+		return new long[] { ((Number) r[0]).longValue(), ((Number) r[1]).longValue() };
+	}
+
+	/** [total, pendentes] dos crachás de casais de serviço. */
+	public long[] resumoCrachaCasais(SegueMe sm) {
+		return resumoCracha("FROM Evento e JOIN e.casal c JOIN e.equipe eq JOIN e.funcao f", sm);
+	}
+
+	/** [total, pendentes] dos crachás de padres/bispos de serviço. */
+	public long[] resumoCrachaPadres(SegueMe sm) {
+		return resumoCracha("FROM Evento e JOIN e.padre p JOIN e.equipe eq JOIN e.funcao f", sm);
+	}
+
+	/** [total, pendentes] dos crachás de palestrantes convidados. */
+	public long[] resumoCrachaConvidados(SegueMe sm) {
+		Object[] r = (Object[]) manager
+				.createQuery("SELECT COUNT(e), COALESCE(SUM(CASE WHEN e.cracha = true THEN 1 ELSE 0 END), 0) "
+						+ "FROM Evento e JOIN e.palestranteConvidado pc JOIN e.palestra pl "
+						+ "WHERE e.segueMe = :sm AND e.equipe IS NULL AND e.funcao IS NULL")
+				.setParameter("sm", sm).getSingleResult();
+		return new long[] { ((Number) r[0]).longValue(), ((Number) r[1]).longValue() };
+	}
+
+	/**
+	 * Seguidores por equipe no quadrante: linhas [equipeId, titulo,
+	 * previstos(Equipe.pessoas), alocados, pendentes], ordenado por crachás a
+	 * imprimir (desc). Usado no Dashboard da Gráfica.
+	 */
+	public List<Object[]> resumoSeguidoresPorEquipe(SegueMe sm) {
+		return manager.createQuery("SELECT eq.id, eq.titulo, eq.pessoas, COUNT(e), "
+				+ "COALESCE(SUM(CASE WHEN e.cracha = true THEN 1 ELSE 0 END), 0) "
+				+ "FROM Evento e JOIN e.seguidor s JOIN e.equipe eq JOIN e.funcao f "
+				+ "WHERE e.segueMe = :sm GROUP BY eq.id, eq.titulo, eq.pessoas "
+				+ "ORDER BY COALESCE(SUM(CASE WHEN e.cracha = true THEN 1 ELSE 0 END), 0) DESC, COUNT(e) DESC",
+				Object[].class).setParameter("sm", sm).getResultList();
+	}
+
+	/**
+	 * Casais de serviço por equipe: linhas [equipeId, titulo, previstos, totalCasais].
+	 * Traz titulo/previstos para o Dashboard poder incluir também as equipes que
+	 * têm SÓ casais (sem seguidores) na tabela e nos totais. Usado para descontar
+	 * os casais (cada casal = 2 pessoas) no "faltam", já que {@code Equipe.pessoas}
+	 * planeja seguidores + casais.
+	 */
+	public List<Object[]> resumoCasaisPorEquipe(SegueMe sm) {
+		return manager.createQuery("SELECT eq.id, eq.titulo, eq.pessoas, COUNT(e) "
+				+ "FROM Evento e JOIN e.casal c JOIN e.equipe eq JOIN e.funcao f "
+				+ "WHERE e.segueMe = :sm GROUP BY eq.id, eq.titulo, eq.pessoas", Object[].class)
+				.setParameter("sm", sm).getResultList();
+	}
+
+	/** Inscritos por situação: linhas [StatusInscricao, total] do Segue-Me. */
+	public List<Object[]> resumoInscritosPorStatus(SegueMe sm) {
+		return manager.createQuery("SELECT i.statusInscricao, COUNT(i) FROM Evento e JOIN e.inscricao i "
+				+ "WHERE e.segueMe = :sm GROUP BY i.statusInscricao", Object[].class).setParameter("sm", sm)
+				.getResultList();
+	}
+
+	/**
+	 * Seguimistas (inscrição aprovada) por círculo: linhas [circuloId, nome,
+	 * corCirculo(CorCirculo), total, pendentes]. Agrupa por {@code Evento.circulo}
+	 * — a MESMA ligação usada pelos relatórios Jasper (relacaoSeguimistaCirculo,
+	 * quadranteSeguimista) — para que os números batam com o impresso. Ordenado
+	 * por crachás a imprimir (desc). Usado no Dashboard da Gráfica.
+	 */
+	public List<Object[]> resumoSeguimistasPorCirculo(SegueMe sm) {
+		return manager.createQuery("SELECT c.id, c.nome, c.corCirculo, COUNT(e), "
+				+ "COALESCE(SUM(CASE WHEN e.cracha = true THEN 1 ELSE 0 END), 0) "
+				+ "FROM Evento e JOIN e.seguidor s JOIN e.inscricao i JOIN e.circulo c "
+				+ "WHERE e.segueMe = :sm AND i.statusInscricao = :aprovado "
+				+ "GROUP BY c.id, c.nome, c.corCirculo "
+				+ "ORDER BY COALESCE(SUM(CASE WHEN e.cracha = true THEN 1 ELSE 0 END), 0) DESC, c.corCirculo",
+				Object[].class).setParameter("sm", sm).setParameter("aprovado", StatusInscricao.APROVADO)
+				.getResultList();
+	}
+
+	/**
+	 * Seguimistas com data de nascimento preenchida: linhas [nome, dataNascimento,
+	 * corCirculo(CorCirculo), circuloNome]. O filtro por mês/dia é feito no bean
+	 * (volume pequeno, evita função de data específica do banco). "Seguimista" =
+	 * Evento com inscrição aprovada; nome/nascimento vêm do {@code Seguidor}.
+	 */
+	public List<Object[]> aniversariantesSeguimistas(SegueMe sm) {
+		return manager.createQuery("SELECT s.nome, s.apelido, s.dataNascimento, c.corCirculo, c.nome "
+				+ "FROM Evento e JOIN e.seguidor s JOIN e.inscricao i LEFT JOIN e.circulo c "
+				+ "WHERE e.segueMe = :sm AND i.statusInscricao = :aprovado AND s.dataNascimento IS NOT NULL",
+				Object[].class).setParameter("sm", sm).setParameter("aprovado", StatusInscricao.APROVADO)
+				.getResultList();
+	}
+
+	/**
+	 * Seguidores de serviço (equipe + função) com data de nascimento preenchida:
+	 * linhas [nome, apelido, dataNascimento, equipeTitulo]. Filtro por mês/dia no
+	 * bean.
+	 */
+	public List<Object[]> aniversariantesSeguidoresServico(SegueMe sm) {
+		return manager.createQuery("SELECT s.nome, s.apelido, s.dataNascimento, eq.titulo "
+				+ "FROM Evento e JOIN e.seguidor s JOIN e.equipe eq JOIN e.funcao f "
+				+ "WHERE e.segueMe = :sm AND s.dataNascimento IS NOT NULL", Object[].class)
+				.setParameter("sm", sm).getResultList();
+	}
+
+	/**
+	 * Casais de serviço (equipe + função): linhas [nomeEle, nomeEla,
+	 * dataNascimentoEle, dataNascimentoEla, dataCasamento, equipeTitulo]. Cada
+	 * casal pode render até 3 aniversários no mês (nascimento dele, dela e
+	 * casamento) — o filtro por mês/dia e o cálculo de anos de casados são feitos
+	 * no bean.
+	 */
+	public List<Object[]> aniversariantesCasais(SegueMe sm) {
+		return manager.createQuery("SELECT c.nomeEle, c.nomeEla, c.dataNascimentoEle, c.dataNascimentoEla, "
+				+ "c.dataCasamento, eq.titulo "
+				+ "FROM Evento e JOIN e.casal c JOIN e.equipe eq JOIN e.funcao f "
+				+ "WHERE e.segueMe = :sm", Object[].class).setParameter("sm", sm).getResultList();
+	}
+
 	public List<Evento> filtradosInscricao(EventoFilter filtro) {
 		CriteriaBuilder builder = manager.getCriteriaBuilder();
-		CriteriaQuery<Evento> criteriaQuery = builder.createQuery(Evento.class);
+		CriteriaQuery<Tuple> criteriaQuery = builder.createTupleQuery();
 		List<Predicate> predicates = new ArrayList<>();
 
 		Root<Evento> root = criteriaQuery.from(Evento.class);
-		From<?, ?> seguidorJoin = (From<?, ?>) root.fetch("seguidor", JoinType.LEFT);
-		From<?, ?> casalJoin = (From<?, ?>) root.fetch("casal", JoinType.LEFT);
-		From<?, ?> padreJoin = (From<?, ?>) root.fetch("padre", JoinType.LEFT);
-		From<?, ?> palestranteConvidadoJoin = (From<?, ?>) root.fetch("palestranteConvidado", JoinType.LEFT);
-		From<?, ?> funcaoJoin = (From<?, ?>) root.fetch("funcao", JoinType.LEFT);
-		From<?, ?> segueMeJoin = (From<?, ?>) root.fetch("segueMe", JoinType.INNER);
-		From<?, ?> equipeJoin = (From<?, ?>) root.fetch("equipe", JoinType.LEFT);
-		From<?, ?> inscricaoJoin = (From<?, ?>) root.fetch("inscricao", JoinType.INNER);
-		From<?, ?> palestraJoin = (From<?, ?>) root.fetch("palestra", JoinType.LEFT);
-		From<?, ?> usuarioJoin = (From<?, ?>) root.fetch("usuario", JoinType.INNER);
-		From<?, ?> numeroRomanoJoin = (From<?, ?>) segueMeJoin.fetch("numeroRomano", JoinType.INNER);
+		// Projeção leve da listagem de inscritos: NÃO seleciona as fotos (byte[]) de
+		// seguidor/casal/padre/convidado — carregar as imagens de todos os inscritos
+		// estourava a memória (OOM). Só dados textuais exibidos na tabela. Mantém os
+		// INNER joins (segueMe, inscricao, usuario, numeroRomano) para preservar o
+		// mesmo conjunto de resultados da consulta original.
+		Join<Object, Object> seguidorJoin = root.join("seguidor", JoinType.LEFT);
+		Join<Object, Object> sexoJoin = seguidorJoin.join("sexo", JoinType.LEFT);
+		Join<Object, Object> segueMeJoin = root.join("segueMe", JoinType.INNER);
+		Join<Object, Object> numeroRomanoJoin = segueMeJoin.join("numeroRomano", JoinType.INNER);
+		Join<Object, Object> inscricaoJoin = root.join("inscricao", JoinType.INNER);
+		Join<Object, Object> inscricaoParoquiaJoin = inscricaoJoin.join("paroquia", JoinType.LEFT);
+		root.join("usuario", JoinType.INNER);
 
 		if (filtro.getParoquia() != null) {
 			predicates.add(builder.equal(segueMeJoin.get("paroquia"), filtro.getParoquia()));
@@ -136,17 +280,174 @@ public class EventoRepository implements Serializable {
 		if (filtro.getId() != null) {
 			predicates.add(builder.equal(inscricaoJoin.get("numero"), filtro.getId()));
 		}
-		
+
 		if (filtro.getStatusInscricao() != null) {
 			predicates.add(builder.equal(inscricaoJoin.get("statusInscricao"), filtro.getStatusInscricao()));
 		}
 
-		criteriaQuery.select(root);
+		criteriaQuery.multiselect(root.get("id"), root.get("idade"), seguidorJoin.get("id"), seguidorJoin.get("nome"),
+				seguidorJoin.get("telefoneUm"), sexoJoin.get("cod"), inscricaoJoin.get("numero"),
+				inscricaoJoin.get("dataInsccricao"), inscricaoJoin.get("fichaDoPadre"),
+				inscricaoJoin.get("statusInscricao"), inscricaoParoquiaJoin.get("descricao"), segueMeJoin.get("id"),
+				segueMeJoin.get("titulo"), numeroRomanoJoin.get("numeroRomano"));
 		criteriaQuery.where(predicates.toArray(new Predicate[0]));
 		criteriaQuery.orderBy(builder.asc(inscricaoJoin.get("numero")), builder.asc(root.get("segueMe")));
 
-		TypedQuery<Evento> query = manager.createQuery(criteriaQuery);
-		return query.getResultList();
+		List<Tuple> tuples = manager.createQuery(criteriaQuery).getResultList();
+		List<Evento> eventos = new ArrayList<>(tuples.size());
+		for (Tuple t : tuples) {
+			eventos.add(montarEventoInscricao(t));
+		}
+		return eventos;
+	}
+
+	/**
+	 * Monta um {@link Evento} "leve" (sem fotos) a partir da projeção usada em
+	 * {@link #filtradosInscricao(EventoFilter)}. Os índices seguem a ordem do
+	 * multiselect.
+	 */
+	private Evento montarEventoInscricao(Tuple t) {
+		Evento evento = new Evento();
+		evento.setId((Long) t.get(0));
+		evento.setIdade((Integer) t.get(1));
+
+		// Só monta o seguidor quando existe (inscrição pode ser uma ficha pendente
+		// sem seguidor vinculado — fk_seguidor_id nulo). Assim a coluna Nome fica
+		// vazia sem ícone, como na consulta original (seguidor == null).
+		Integer seguidorId = (Integer) t.get(2);
+		if (seguidorId != null) {
+			Seguidor seguidor = new Seguidor();
+			seguidor.setId(seguidorId);
+			seguidor.setNome((String) t.get(3));
+			seguidor.setTelefoneUm((String) t.get(4));
+			Integer sexoCod = (Integer) t.get(5);
+			if (sexoCod != null) {
+				seguidor.setSexo(new Sexo(sexoCod));
+			}
+			evento.setSeguidor(seguidor);
+		}
+
+		Inscricao inscricao = new Inscricao();
+		inscricao.setNumero((Integer) t.get(6));
+		inscricao.setDataInsccricao((Date) t.get(7));
+		inscricao.setFichaDoPadre((Boolean) t.get(8));
+		inscricao.setStatusInscricao((StatusInscricao) t.get(9));
+		Paroquia inscricaoParoquia = new Paroquia();
+		inscricaoParoquia.setDescricao((String) t.get(10));
+		inscricao.setParoquia(inscricaoParoquia);
+		evento.setInscricao(inscricao);
+
+		SegueMe segueMe = new SegueMe();
+		segueMe.setId((Long) t.get(11));
+		segueMe.setTitulo((String) t.get(12));
+		NumeroRomano numeroRomano = new NumeroRomano();
+		numeroRomano.setNumeroRomano((String) t.get(13));
+		segueMe.setNumeroRomano(numeroRomano);
+		evento.setSegueMe(segueMe);
+
+		return evento;
+	}
+
+	/** Predicados compartilhados da listagem de inscritos (página e contagem). */
+	private List<Predicate> predicadosInscricao(CriteriaBuilder builder, Root<Evento> root,
+			Join<Object, Object> seguidorJoin, Join<Object, Object> segueMeJoin, Join<Object, Object> inscricaoJoin,
+			EventoFilter filtro) {
+		List<Predicate> predicates = new ArrayList<>();
+		if (filtro.getParoquia() != null) {
+			predicates.add(builder.equal(segueMeJoin.get("paroquia"), filtro.getParoquia()));
+		}
+		if (filtro.getSegueMe() != null) {
+			predicates.add(builder.equal(root.get("segueMe"), filtro.getSegueMe()));
+		}
+		if (StringUtils.isNotBlank(filtro.getNome())) {
+			predicates.add(
+					builder.like(builder.lower(seguidorJoin.get("nome")), "%" + filtro.getNome().toLowerCase() + "%"));
+		}
+		if (filtro.getId() != null) {
+			predicates.add(builder.equal(inscricaoJoin.get("numero"), filtro.getId()));
+		}
+		if (filtro.getStatusInscricao() != null) {
+			predicates.add(builder.equal(inscricaoJoin.get("statusInscricao"), filtro.getStatusInscricao()));
+		}
+		return predicates;
+	}
+
+	/** Conta o total de inscritos do filtro (usado pelo LazyDataModel). */
+	public Long contarInscricao(EventoFilter filtro) {
+		CriteriaBuilder builder = manager.getCriteriaBuilder();
+		CriteriaQuery<Long> criteriaQuery = builder.createQuery(Long.class);
+		Root<Evento> root = criteriaQuery.from(Evento.class);
+		Join<Object, Object> seguidorJoin = root.join("seguidor", JoinType.LEFT);
+		Join<Object, Object> segueMeJoin = root.join("segueMe", JoinType.INNER);
+		segueMeJoin.join("numeroRomano", JoinType.INNER);
+		Join<Object, Object> inscricaoJoin = root.join("inscricao", JoinType.INNER);
+		root.join("usuario", JoinType.INNER);
+		criteriaQuery.select(builder.count(root));
+		criteriaQuery.where(predicadosInscricao(builder, root, seguidorJoin, segueMeJoin, inscricaoJoin, filtro)
+				.toArray(new Predicate[0]));
+		return manager.createQuery(criteriaQuery).getSingleResult();
+	}
+
+	/** Página da listagem de inscritos (projeção sem foto) para paginação server-side. */
+	public List<Evento> filtradosInscricaoPaginado(EventoFilter filtro, int first, int pageSize, String sortField,
+			boolean asc) {
+		CriteriaBuilder builder = manager.getCriteriaBuilder();
+		CriteriaQuery<Tuple> criteriaQuery = builder.createTupleQuery();
+		Root<Evento> root = criteriaQuery.from(Evento.class);
+		Join<Object, Object> seguidorJoin = root.join("seguidor", JoinType.LEFT);
+		Join<Object, Object> sexoJoin = seguidorJoin.join("sexo", JoinType.LEFT);
+		Join<Object, Object> segueMeJoin = root.join("segueMe", JoinType.INNER);
+		Join<Object, Object> numeroRomanoJoin = segueMeJoin.join("numeroRomano", JoinType.INNER);
+		Join<Object, Object> inscricaoJoin = root.join("inscricao", JoinType.INNER);
+		Join<Object, Object> inscricaoParoquiaJoin = inscricaoJoin.join("paroquia", JoinType.LEFT);
+		root.join("usuario", JoinType.INNER);
+		criteriaQuery.multiselect(root.get("id"), root.get("idade"), seguidorJoin.get("id"), seguidorJoin.get("nome"),
+				seguidorJoin.get("telefoneUm"), sexoJoin.get("cod"), inscricaoJoin.get("numero"),
+				inscricaoJoin.get("dataInsccricao"), inscricaoJoin.get("fichaDoPadre"),
+				inscricaoJoin.get("statusInscricao"), inscricaoParoquiaJoin.get("descricao"), segueMeJoin.get("id"),
+				segueMeJoin.get("titulo"), numeroRomanoJoin.get("numeroRomano"));
+		criteriaQuery.where(predicadosInscricao(builder, root, seguidorJoin, segueMeJoin, inscricaoJoin, filtro)
+				.toArray(new Predicate[0]));
+		criteriaQuery.orderBy(ordenacaoInscricao(builder, root, seguidorJoin, inscricaoJoin, inscricaoParoquiaJoin,
+				numeroRomanoJoin, sortField, asc));
+		List<Tuple> tuples = manager.createQuery(criteriaQuery).setFirstResult(first).setMaxResults(pageSize)
+				.getResultList();
+		List<Evento> eventos = new ArrayList<>(tuples.size());
+		for (Tuple t : tuples) {
+			eventos.add(montarEventoInscricao(t));
+		}
+		return eventos;
+	}
+
+	/** Mapeia a coluna de ordenação do p:dataTable para a expressão (default: nº da inscrição). */
+	private Order ordenacaoInscricao(CriteriaBuilder builder, Root<Evento> root, Join<Object, Object> seguidorJoin,
+			Join<Object, Object> inscricaoJoin, Join<Object, Object> inscricaoParoquiaJoin,
+			Join<Object, Object> numeroRomanoJoin, String sortField, boolean asc) {
+		Expression<?> expr;
+		switch (sortField == null ? "" : sortField) {
+		case "id":
+			expr = root.get("id");
+			break;
+		case "seguidor.nome":
+			expr = seguidorJoin.get("nome");
+			break;
+		case "seguidor.telefoneUm":
+			expr = seguidorJoin.get("telefoneUm");
+			break;
+		case "inscricao.statusInscricao.nome":
+			expr = inscricaoJoin.get("statusInscricao");
+			break;
+		case "inscricao.paroquia.descricao":
+			expr = inscricaoParoquiaJoin.get("descricao");
+			break;
+		case "segueMe.numeroRomano.numeroRomano":
+			expr = numeroRomanoJoin.get("numeroRomano");
+			break;
+		default:
+			expr = inscricaoJoin.get("numero");
+			break;
+		}
+		return asc ? builder.asc(expr) : builder.desc(expr);
 	}
 
 	public List<Evento> filtradosSeguidor(EventoSeguidorFilter filtro) {

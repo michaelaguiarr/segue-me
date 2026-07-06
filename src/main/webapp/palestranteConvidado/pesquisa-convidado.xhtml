@@ -47,10 +47,10 @@
 						<div class="ui-g">
 
 							<p:dataTable var="convidado" id="datatable-convidado"
-								value="#{pesquisaPalestranteConvidadoBean.listaPalestranteConvidado}" reflow="true"
+								value="#{pesquisaPalestranteConvidadoBean.modelo}" lazy="true" reflow="true"
 								selectionMode="single"
 								selection="#{pesquisaPalestranteConvidadoBean.palestranteConvidado}"
-								rowKey="#{convidado}" emptyMessage="Palestrante Convidado não encontrado!"
+								rowKey="#{convidado.id}" emptyMessage="Palestrante Convidado não encontrado!"
 								paginator="true" sortBy="#{convidado.nome}"
 								paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
 								currentPageReportTemplate=" Exibindo de {startRecord} a {endRecord} no total de {totalRecords} - Página: {currentPage}/{totalPages} "
@@ -61,12 +61,10 @@
 
 								<p:column headerText="Foto" width="50">
 									<p:commandButton update=":form:fotoDialog"
-										style="width: auto; margin-left: 15px;"
+										style="width: auto; margin-left: 15px;" process="@this"
+										action="#{pesquisaPalestranteConvidadoBean.carregarFoto(convidado.id)}"
 										oncomplete="PF('fotoDialogWidgetVar').show()"
-										icon="fa fa-picture-o">
-										<f:setPropertyActionListener
-											target="#{pesquisaPalestranteConvidadoBean.palestranteConvidado}" value="#{convidado}" />
-									</p:commandButton>
+										icon="fa fa-picture-o" />
 								</p:column>
 								<p:column headerText="Data Cadastro"
 									sortBy="#{convidado.timestamp.time}" width="100">

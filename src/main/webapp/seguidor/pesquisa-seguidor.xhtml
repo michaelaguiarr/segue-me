@@ -90,11 +90,11 @@
 						<div class="ui-g">
 
 							<p:dataTable var="seguidor" id="datatable-seguidor"
-								value="#{pesquisaSeguidorBean.listaSeguidor}" reflow="true"
+								value="#{pesquisaSeguidorBean.modelo}" lazy="true" reflow="true"
 								selectionMode="single"
 								selection="#{pesquisaSeguidorBean.seguidor}"
-								rowKey="#{seguidor}" emptyMessage="Seguidor não encontrado!"
-								paginator="true" sortBy="#{seguidor.nome}"
+								rowKey="#{seguidor.id}" emptyMessage="Seguidor não encontrado!"
+								paginator="true"
 								paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
 								currentPageReportTemplate=" Exibindo de {startRecord} a {endRecord} no total de {totalRecords} - Página: {currentPage}/{totalPages} "
 								rows="25" rowsPerPageTemplate="25,50,100,150,200">
@@ -104,12 +104,10 @@
 
 								<p:column headerText="Foto" width="50">
 									<p:commandButton update=":form:fotoDialog"
-										style="width: auto; margin-left: 15px;"
+										style="width: auto; margin-left: 15px;" process="@this"
+										action="#{pesquisaSeguidorBean.carregarFoto(seguidor.id)}"
 										oncomplete="PF('fotoDialogWidgetVar').show()"
-										icon="fa fa-picture-o">
-										<f:setPropertyActionListener
-											target="#{pesquisaSeguidorBean.seguidor}" value="#{seguidor}" />
-									</p:commandButton>
+										icon="fa fa-picture-o" />
 								</p:column>
 								<p:column headerText="Data Cadastro"
 									sortBy="#{seguidor.timestamp.time}" width="100">

@@ -4,11 +4,15 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
+
+import org.primefaces.model.LazyDataModel;
+import org.primefaces.model.SortOrder;
 
 import com.segue.filter.CasalFilter;
 import com.segue.model.Casal;
@@ -51,6 +55,7 @@ public class PesquisaCasalBean implements Serializable {
 	private boolean novoCasal = false;
 
 	private List<Casal> lista;
+	private LazyDataModel<Casal> modelo;
 	private List<Paroquia> listaParoquia;
 	private List<SegueMe> listaSegueMe;
 
@@ -73,19 +78,33 @@ public class PesquisaCasalBean implements Serializable {
 			filter.setParoquia(this.usuarioLogado.getSegueMe().getParoquia());
 			this.listaSegueMe = segueMeRepository.findByParoquia(filter.getParoquia());
 			filter.setSegueMe(this.usuarioLogado.getSegueMe());
-			this.lista = repository.filtrados(filter);
+			this.modelo = criarModelo();
 			this.novoCasal = false;
 		}
+	}
+
+	/**
+	 * Cria o modelo de paginação server-side (só a página visível vem à memória).
+	 */
+	private LazyDataModel<Casal> criarModelo() {
+		return new LazyDataModel<Casal>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public List<Casal> load(int first, int pageSize, String sortField, SortOrder sortOrder,
+					Map<String, Object> filters) {
+				setRowCount(repository.contar(filter).intValue());
+				boolean asc = sortOrder != SortOrder.DESCENDING;
+				return repository.filtradosPaginado(filter, first, pageSize, sortField, asc);
+			}
+		};
 	}
 
 	/**
 	 * Pesquisa usuario pelo nome, paroquia, Segue-me e Equipe
 	 */
 	public void pesquisar() {
-		lista = repository.filtrados(this.filter);
-		if (lista.isEmpty()) {
-			FacesUtil.addErrorMessage("Nenhum Resultado Encontrado!");
-		}
+		this.modelo = criarModelo();
 	}
 
 	public void pesquisarPublic() {
@@ -109,6 +128,15 @@ public class PesquisaCasalBean implements Serializable {
 			e.printStackTrace();
 			FacesUtil.addErrorMessage("Deu merda!");
 		}
+	}
+
+	/**
+	 * Carrega o casal completo (com as fotos) sob demanda ao abrir o diálogo de
+	 * foto. A listagem é projetada sem os blobs por performance, então aqui
+	 * recarregamos o registro pelo id.
+	 */
+	public void carregarFoto(Integer id) {
+		this.casal = repository.findById(id);
 	}
 
 	/**
@@ -179,6 +207,10 @@ public class PesquisaCasalBean implements Serializable {
 
 	public void setLista(List<Casal> lista) {
 		this.lista = lista;
+	}
+
+	public LazyDataModel<Casal> getModelo() {
+		return modelo;
 	}
 
 	public boolean isNovoCasal() {

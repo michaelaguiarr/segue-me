@@ -53,8 +53,8 @@ public class PalestranteConvidado implements Serializable {
 	@Email
 	private String email;
 
-	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name = "dt_nascimento", columnDefinition = "timestamp with time zone")
+	@Temporal(TemporalType.DATE)
+	@Column(name = "dt_nascimento", columnDefinition = "date")
 	private Date dataNascimento;
 
 	private String naturalidade;
@@ -74,9 +74,33 @@ public class PalestranteConvidado implements Serializable {
 	@Column(columnDefinition = "BOOLEAN DEFAULT false", name = "exibir_imagem")
 	private boolean exibirImagem;
 
+	@Column(columnDefinition = "BOOLEAN DEFAULT true", name = "ativo")
+	private boolean ativo = true;
+
+	/**
+	 * Construtor padrão exigido pela JPA.
+	 */
+	public PalestranteConvidado() {
+	}
+
+	/**
+	 * Construtor de projeção da listagem de pesquisa: só os campos exibidos na
+	 * tabela, sem o blob {@code imagem} (foto). A foto é carregada sob demanda ao
+	 * abrir o diálogo ({@code PesquisaPalestranteConvidadoBean.carregarFoto}).
+	 */
+	public PalestranteConvidado(Integer id, Calendar timestamp, String nome, String apelido, String telefoneUm,
+			Sexo sexo) {
+		this.id = id;
+		this.timestamp = timestamp;
+		this.nome = nome;
+		this.apelido = apelido;
+		this.telefoneUm = telefoneUm;
+		this.sexo = sexo;
+	}
+
 	/**
 	 * Exibe icone para sexo
-	 * 
+	 *
 	 * @return
 	 */
 	public String getIconeParaSexo() {
@@ -211,6 +235,14 @@ public class PalestranteConvidado implements Serializable {
 
 	public void setExibirImagem(boolean exibirImagem) {
 		this.exibirImagem = exibirImagem;
+	}
+
+	public boolean isAtivo() {
+		return ativo;
+	}
+
+	public void setAtivo(boolean ativo) {
+		this.ativo = ativo;
 	}
 
 	@Override

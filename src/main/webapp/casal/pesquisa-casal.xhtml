@@ -74,9 +74,9 @@
 						<div class="ui-g">
 
 							<p:dataTable var="casal" id="datatable-casal"
-								value="#{pesquisaCasalBean.lista}" reflow="true"
+								value="#{pesquisaCasalBean.modelo}" lazy="true" reflow="true"
 								selectionMode="single" selection="#{pesquisaCasalBean.casal}"
-								rowKey="#{casal}" emptyMessage="Casal não encontrado!"
+								rowKey="#{casal.id}" emptyMessage="Casal não encontrado!"
 								paginator="true"
 								paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
 								currentPageReportTemplate=" Exibindo de {startRecord} a {endRecord} no total de {totalRecords} - Página: {currentPage}/{totalPages} "
@@ -87,12 +87,10 @@
 
 								<p:column width="50">
 									<p:commandButton update=":form:fotoDialogEle"
-										style="width: auto;"
+										style="width: auto;" process="@this"
+										action="#{pesquisaCasalBean.carregarFoto(casal.id)}"
 										oncomplete="PF('fotoDialogWidgetVarEle').show()"
-										icon="fa fa-picture-o">
-										<f:setPropertyActionListener
-											target="#{pesquisaCasalBean.casal}" value="#{casal}" />
-									</p:commandButton>
+										icon="fa fa-picture-o" />
 								</p:column>
 								<p:column headerText="Data Cadastro"
 									sortBy="#{casal.timestamp.time}" width="100">

@@ -3,11 +3,15 @@ package com.segue.controller;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
+
+import org.primefaces.model.LazyDataModel;
+import org.primefaces.model.SortOrder;
 
 import com.segue.filter.PalestranteConvidadoFilter;
 import com.segue.model.PalestranteConvidado;
@@ -33,6 +37,7 @@ public class PesquisaPalestranteConvidadoBean implements Serializable {
 	private PalestranteConvidadoFilter filter;
 
 	private List<PalestranteConvidado> listaPalestranteConvidado;
+	private LazyDataModel<PalestranteConvidado> modelo;
 
 	public PesquisaPalestranteConvidadoBean() {
 		palestranteConvidado = new PalestranteConvidado();
@@ -43,16 +48,39 @@ public class PesquisaPalestranteConvidadoBean implements Serializable {
 	public void inicializar() {
 		this.seguranca = new Seguranca();
 		this.usuarioLogado = this.seguranca.usuarioLogado();
+		this.modelo = criarModelo();
+	}
+
+	/**
+	 * Cria o modelo de paginação server-side (só a página visível vem à memória).
+	 */
+	private LazyDataModel<PalestranteConvidado> criarModelo() {
+		return new LazyDataModel<PalestranteConvidado>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public List<PalestranteConvidado> load(int first, int pageSize, String sortField, SortOrder sortOrder,
+					Map<String, Object> filters) {
+				setRowCount(repository.contar(filter).intValue());
+				boolean asc = sortOrder != SortOrder.DESCENDING;
+				return repository.filtradosPaginado(filter, first, pageSize, sortField, asc);
+			}
+		};
 	}
 
 	/**
 	 * Pesquisa usuario pelo nome, paroquia, Segue-me e Equipe
 	 */
 	public void pesquisar() {
-		listaPalestranteConvidado = repository.filtrados(this.filter);
-		if (listaPalestranteConvidado.isEmpty()) {
-			FacesUtil.addErrorMessage("Nenhum Resultado Encontrado!");
-		}
+		this.modelo = criarModelo();
+	}
+
+	/**
+	 * Carrega o convidado completo (com a foto) sob demanda ao abrir o diálogo. A
+	 * listagem é projetada sem o blob por performance, então recarregamos pelo id.
+	 */
+	public void carregarFoto(Integer id) {
+		this.palestranteConvidado = repository.findById(id);
 	}
 
 	/**
@@ -89,6 +117,10 @@ public class PesquisaPalestranteConvidadoBean implements Serializable {
 
 	public void setListaPalestranteConvidado(List<PalestranteConvidado> listaPalestranteConvidado) {
 		this.listaPalestranteConvidado = listaPalestranteConvidado;
+	}
+
+	public LazyDataModel<PalestranteConvidado> getModelo() {
+		return modelo;
 	}
 
 	public Usuario getUsuarioLogado() {

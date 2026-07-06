@@ -69,7 +69,7 @@ public class Seguidor implements Serializable {
 	private String email;
 
 	@Temporal(TemporalType.DATE)
-	@Column(name = "dt_nascimento")
+	@Column(name = "dt_nascimento", columnDefinition = "date")
 	private Date dataNascimento;
 
 	private String naturalidade;
@@ -157,9 +157,36 @@ public class Seguidor implements Serializable {
 	@Column(name = "igreja_frequenta")
 	private String igrejaFrequenta;
 
+	@Column(columnDefinition = "BOOLEAN DEFAULT true", name = "ativo")
+	private boolean ativo = true;
+
+	/**
+	 * Construtor padrão exigido pela JPA.
+	 */
+	public Seguidor() {
+	}
+
+	/**
+	 * Construtor de projeção usado na listagem da pesquisa. Carrega apenas os
+	 * campos exibidos na tabela, evitando trazer o blob {@code imagem} (foto) de
+	 * todos os seguidores — o que degradava a performance da pesquisa. A foto é
+	 * carregada sob demanda ao abrir o diálogo de foto.
+	 */
+	public Seguidor(Integer id, String nome, String apelido, String telefoneUm, Calendar timestamp, Sexo sexo,
+			SegueMe segueMe, Circulo circulo) {
+		this.id = id;
+		this.nome = nome;
+		this.apelido = apelido;
+		this.telefoneUm = telefoneUm;
+		this.timestamp = timestamp;
+		this.sexo = sexo;
+		this.segueMe = segueMe;
+		this.circulo = circulo;
+	}
+
 	/**
 	 * Exibe icone para sexo
-	 * 
+	 *
 	 * @return
 	 */
 	public String getIconeParaSexo() {
@@ -568,6 +595,14 @@ public class Seguidor implements Serializable {
 
 	public void setNomeSemAcento(String nomeSemAcento) {
 		this.nomeSemAcento = StringExtended.toASCII(nomeSemAcento.toUpperCase());
+	}
+
+	public boolean isAtivo() {
+		return ativo;
+	}
+
+	public void setAtivo(boolean ativo) {
+		this.ativo = ativo;
 	}
 
 	@Override

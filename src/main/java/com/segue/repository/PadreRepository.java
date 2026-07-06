@@ -10,11 +10,15 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceException;
+import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.From;
+import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
@@ -22,6 +26,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.segue.filter.PadreFilter;
 import com.segue.model.Padre;
+import com.segue.model.Paroquia;
 import com.segue.service.NegocioException;
 
 public class PadreRepository implements Serializable {
@@ -75,12 +80,27 @@ public class PadreRepository implements Serializable {
 		}
 	}
 
-	public List<Padre> findByNome(String nome) {
+	public List<Padre> findByNome(String searchValue) {
 		try {
-			return manager
-					.createQuery("select distinct(s) from Padre s " + "where (s.nome LIKE :nome "
-							+ "OR s.apelido LIKE :nome) ", Padre.class)
-					.setParameter("nome", "%" + nome + "%").setMaxResults(30).getResultList();
+			String nome = "%" + searchValue + "%";
+			// Busca também por telefone: só os dígitos do que foi digitado (tira a
+			// máscara) contra o telefone do padre, também normalizado no banco.
+			String digitos = searchValue.replaceAll("[^0-9]", "");
+			boolean buscaTelefone = digitos.length() >= 3;
+
+			StringBuilder jpql = new StringBuilder("select distinct(s) from Padre s where ("
+					+ "lower(s.nome) LIKE lower(:nome) OR lower(s.apelido) LIKE lower(:nome) ");
+			if (buscaTelefone) {
+				jpql.append("OR function('regexp_replace', s.telefoneUm, '[^0-9]', '', 'g') LIKE :tel ");
+			}
+			jpql.append(")");
+
+			TypedQuery<Padre> query = manager.createQuery(jpql.toString(), Padre.class)
+					.setParameter("nome", nome);
+			if (buscaTelefone) {
+				query.setParameter("tel", "%" + digitos + "%");
+			}
+			return query.setMaxResults(30).getResultList();
 		} catch (NoResultException nr) {
 			return null;
 		}
@@ -88,12 +108,15 @@ public class PadreRepository implements Serializable {
 
 	public List<Padre> filtrados(PadreFilter filtro) {
 		CriteriaBuilder builder = manager.getCriteriaBuilder();
-		CriteriaQuery<Padre> criteriaQuery = builder.createQuery(Padre.class);
+		CriteriaQuery<Tuple> criteriaQuery = builder.createTupleQuery();
 		List<Predicate> predicates = new ArrayList<>();
 
 		Root<Padre> root = criteriaQuery.from(Padre.class);
-		From<?, ?> enderecoJoin = (From<?, ?>) root.fetch("endereco", JoinType.INNER);
-		From<?, ?> paroquiaJoin = (From<?, ?>) root.fetch("paroquia", JoinType.LEFT);
+		// Projeção da listagem: joins (não fetch) só do que a tabela exibe, SEM o
+		// blob imagem (foto). O INNER em endereco preserva o conjunto de resultados
+		// da consulta original.
+		root.join("endereco", JoinType.INNER);
+		Join<Object, Object> paroquiaJoin = root.join("paroquia", JoinType.LEFT);
 
 		if (filtro.getParoquia() != null) {
 			predicates.add(builder.equal(root.get("paroquia"), filtro.getParoquia()));
@@ -108,11 +131,78 @@ public class PadreRepository implements Serializable {
 					builder.like(builder.lower(root.get("apelido")), "%" + filtro.getApelido().toLowerCase() + "%"));
 		}
 
-		criteriaQuery.select(root);
+		criteriaQuery.multiselect(root.get("id"), root.get("nome"), root.get("apelido"), paroquiaJoin.get("descricao"));
 		criteriaQuery.where(predicates.toArray(new Predicate[0]));
 		criteriaQuery.orderBy(builder.asc(root.get("nome")), builder.asc(root.get("paroquia")));
 
-		TypedQuery<Padre> query = manager.createQuery(criteriaQuery);
-		return query.getResultList();
+		return montarProjecao(manager.createQuery(criteriaQuery).getResultList());
+	}
+
+	/** Predicados compartilhados da listagem de padre (página e contagem). */
+	private List<Predicate> predicadosPadre(CriteriaBuilder builder, Root<Padre> root, PadreFilter filtro) {
+		List<Predicate> predicates = new ArrayList<>();
+		if (filtro.getParoquia() != null) {
+			predicates.add(builder.equal(root.get("paroquia"), filtro.getParoquia()));
+		}
+		if (StringUtils.isNotBlank(filtro.getNome())) {
+			predicates.add(builder.like(builder.lower(root.get("nome")), "%" + filtro.getNome().toLowerCase() + "%"));
+		}
+		if (StringUtils.isNotBlank(filtro.getApelido())) {
+			predicates.add(
+					builder.like(builder.lower(root.get("apelido")), "%" + filtro.getApelido().toLowerCase() + "%"));
+		}
+		return predicates;
+	}
+
+	private List<Padre> montarProjecao(List<Tuple> tuples) {
+		List<Padre> padres = new ArrayList<>(tuples.size());
+		for (Tuple t : tuples) {
+			Paroquia paroquia = new Paroquia();
+			paroquia.setDescricao((String) t.get(3));
+			padres.add(new Padre((Integer) t.get(0), (String) t.get(1), (String) t.get(2), paroquia));
+		}
+		return padres;
+	}
+
+	/** Conta o total de padres do filtro (usado pelo LazyDataModel). */
+	public Long contar(PadreFilter filtro) {
+		CriteriaBuilder builder = manager.getCriteriaBuilder();
+		CriteriaQuery<Long> criteriaQuery = builder.createQuery(Long.class);
+		Root<Padre> root = criteriaQuery.from(Padre.class);
+		root.join("endereco", JoinType.INNER); // INNER filtra padres sem endereco
+		criteriaQuery.select(builder.count(root));
+		criteriaQuery.where(predicadosPadre(builder, root, filtro).toArray(new Predicate[0]));
+		return manager.createQuery(criteriaQuery).getSingleResult();
+	}
+
+	/** Página da listagem de padre (projeção sem blob) para paginação server-side. */
+	public List<Padre> filtradosPaginado(PadreFilter filtro, int first, int pageSize, String sortField, boolean asc) {
+		CriteriaBuilder builder = manager.getCriteriaBuilder();
+		CriteriaQuery<Tuple> criteriaQuery = builder.createTupleQuery();
+		Root<Padre> root = criteriaQuery.from(Padre.class);
+		root.join("endereco", JoinType.INNER);
+		Join<Object, Object> paroquiaJoin = root.join("paroquia", JoinType.LEFT);
+		criteriaQuery.multiselect(root.get("id"), root.get("nome"), root.get("apelido"), paroquiaJoin.get("descricao"));
+		criteriaQuery.where(predicadosPadre(builder, root, filtro).toArray(new Predicate[0]));
+		criteriaQuery.orderBy(ordenacaoPadre(builder, root, paroquiaJoin, sortField, asc));
+		List<Tuple> tuples = manager.createQuery(criteriaQuery).setFirstResult(first).setMaxResults(pageSize)
+				.getResultList();
+		return montarProjecao(tuples);
+	}
+
+	/** Mapeia a coluna de ordenação do p:dataTable para a expressão (default: nome). */
+	private Order ordenacaoPadre(CriteriaBuilder builder, Root<Padre> root, Join<Object, Object> paroquiaJoin,
+			String sortField, boolean asc) {
+		Expression<?> expr;
+		switch (sortField == null ? "nome" : sortField) {
+		case "paroquia.descricao":
+			expr = paroquiaJoin.get("descricao");
+			break;
+		case "nome":
+		default:
+			expr = root.get("nome");
+			break;
+		}
+		return asc ? builder.asc(expr) : builder.desc(expr);
 	}
 }

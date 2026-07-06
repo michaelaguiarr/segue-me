@@ -3,12 +3,19 @@ package com.segue.controller;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.persistence.EntityManager;
+import javax.servlet.http.HttpServletResponse;
+
+import org.hibernate.Session;
 
 import com.segue.filter.PalestraSeguidorFilter;
 import com.segue.model.Evento;
@@ -21,8 +28,13 @@ import com.segue.repository.PalestraRepository;
 import com.segue.repository.ParoquiaRepository;
 import com.segue.repository.SegueMeRepository;
 import com.segue.security.Seguranca;
+import com.segue.service.CadastroEventoSeguidorService;
+import com.segue.service.FotoService;
 import com.segue.util.Constants;
 import com.segue.util.jsf.FacesUtil;
+import com.segue.util.report.ExecutorRelatorioDownload;
+
+import net.sf.jasperreports.engine.JRParameter;
 
 @Named
 @ViewScoped
@@ -41,6 +53,18 @@ public class PesquisaPalestraSeguidorBean implements Serializable {
 
 	@Inject
 	private PalestraRepository palestraRepository;
+
+	@Inject
+	private CadastroEventoSeguidorService cadastroService;
+
+	@Inject
+	private EntityManager manager;
+
+	@Inject
+	private HttpServletResponse response;
+
+	@Inject
+	private FotoService fotoService;
 
 	private Evento evento;
 
@@ -81,6 +105,89 @@ public class PesquisaPalestraSeguidorBean implements Serializable {
 		if (listaEventoSeguidor.isEmpty()) {
 			FacesUtil.addErrorMessage("Nenhum Resultado Encontrado!");
 		}
+	}
+
+	/**
+	 * Coloca os selecionados de volta na fila de impressão (cracha = true), para
+	 * reimprimir apenas alguns crachás.
+	 */
+	public void marcarSelecionadosParaImprimir() {
+		atualizarCrachaSelecionados(true);
+	}
+
+	/**
+	 * Marca os selecionados como já impressos (cracha = false), tirando-os da fila.
+	 */
+	public void marcarSelecionadosComoImpressos() {
+		atualizarCrachaSelecionados(false);
+	}
+
+	private void atualizarCrachaSelecionados(boolean pendente) {
+		List<Long> ids = new ArrayList<>();
+		for (Evento evento : listaEventoSeguidor) {
+			if (evento.isSelecionado()) {
+				ids.add(evento.getId());
+			}
+		}
+		if (ids.isEmpty()) {
+			FacesUtil.addInfoMessage("Selecione ao menos um registro.");
+			return;
+		}
+		cadastroService.atualizarCracha(ids, pendente);
+		FacesUtil.addInfoMessage(ids.size()
+				+ (pendente ? " crachá(s) marcado(s) para imprimir." : " crachá(s) marcado(s) como impresso(s)."));
+		pesquisar();
+	}
+
+	/**
+	 * Gera o PDF de crachá apenas dos seguidores selecionados (por id), sem alterar
+	 * a flag de crachá.
+	 */
+	public void imprimirSelecionados() {
+		List<Long> ids = new ArrayList<>();
+		for (Evento evento : listaEventoSeguidor) {
+			if (evento.isSelecionado()) {
+				ids.add(evento.getId());
+			}
+		}
+		if (ids.isEmpty()) {
+			FacesUtil.addInfoMessage("Selecione ao menos um registro.");
+			return;
+		}
+		SegueMe segueMe = filter.getSegueMe();
+		if (segueMe == null || segueMe.getId() == null) {
+			FacesUtil.addErrorMessage("Selecione um Segue-Me na pesquisa antes de imprimir.");
+			return;
+		}
+		try {
+			fotoService.materializarImagensSegueMe(segueMe);
+			fotoService.materializarImagensEquipe();
+			Map<String, Object> parametros = new HashMap<>();
+			parametros.put(JRParameter.REPORT_LOCALE, new Locale("pt", "BR"));
+			parametros.put("segueMe", segueMe.getId());
+			parametros.put("whereCracha", montarFiltroIds(ids));
+			String nomeArquivo = segueMe.getNomeArquivoCracha().isEmpty() ? "cracha" : segueMe.getNomeArquivoCracha();
+			ExecutorRelatorioDownload executor = new ExecutorRelatorioDownload(
+					"/jasper/" + nomeArquivo + "Seguidor.jasper", response, parametros, "CrachaSelecionados.pdf");
+			Session session = manager.unwrap(Session.class);
+			session.doWork(executor);
+			if (executor.isRelatorioGerado()) {
+				FacesContext.getCurrentInstance().responseComplete();
+			}
+		} catch (Exception e) {
+			FacesUtil.addErrorMessage("Não foi possível gerar o PDF dos selecionados.");
+		}
+	}
+
+	private String montarFiltroIds(List<Long> ids) {
+		StringBuilder sb = new StringBuilder("public.evento_segue_me.id IN (");
+		for (int i = 0; i < ids.size(); i++) {
+			if (i > 0) {
+				sb.append(",");
+			}
+			sb.append(ids.get(i));
+		}
+		return sb.append(")").toString();
 	}
 
 	/**

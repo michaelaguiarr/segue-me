@@ -4,11 +4,15 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
+
+import org.primefaces.model.LazyDataModel;
+import org.primefaces.model.SortOrder;
 
 import com.segue.filter.PadreFilter;
 import com.segue.model.Padre;
@@ -35,6 +39,7 @@ public class PesquisaPadreBean implements Serializable {
 	private PadreFilter filter;
 
 	private List<Padre> listaPadre;
+	private LazyDataModel<Padre> modelo;
 	private List<Paroquia> listaParoquia;
 
 	public PesquisaPadreBean() {
@@ -47,17 +52,39 @@ public class PesquisaPadreBean implements Serializable {
 
 	public void inicializar() {
 		this.listaParoquia = paroquiaRepository.listaParoquias();
-		this.listaPadre = repository.filtrados(filter);
+		this.modelo = criarModelo();
+	}
+
+	/**
+	 * Cria o modelo de paginação server-side (só a página visível vem à memória).
+	 */
+	private LazyDataModel<Padre> criarModelo() {
+		return new LazyDataModel<Padre>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public List<Padre> load(int first, int pageSize, String sortField, SortOrder sortOrder,
+					Map<String, Object> filters) {
+				setRowCount(repository.contar(filter).intValue());
+				boolean asc = sortOrder != SortOrder.DESCENDING;
+				return repository.filtradosPaginado(filter, first, pageSize, sortField, asc);
+			}
+		};
 	}
 
 	/**
 	 * Pesquisa usuario pelo nome, paroquia, Segue-me e Equipe
 	 */
 	public void pesquisar() {
-		listaPadre = repository.filtrados(this.filter);
-		if (listaPadre.isEmpty()) {
-			FacesUtil.addErrorMessage("Nenhum Resultado Encontrado!");
-		}
+		this.modelo = criarModelo();
+	}
+
+	/**
+	 * Carrega o padre completo (com a foto) sob demanda ao abrir o diálogo. A
+	 * listagem é projetada sem o blob por performance, então recarregamos pelo id.
+	 */
+	public void carregarFoto(Integer id) {
+		this.padre = repository.findById(id);
 	}
 
 	/**
@@ -102,6 +129,10 @@ public class PesquisaPadreBean implements Serializable {
 
 	public void setListaPadre(List<Padre> listaPadre) {
 		this.listaPadre = listaPadre;
+	}
+
+	public LazyDataModel<Padre> getModelo() {
+		return modelo;
 	}
 
 }
