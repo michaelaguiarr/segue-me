@@ -157,7 +157,7 @@ public.endereco.bairro ASC]]>
 				<textField>
 					<reportElement x="17" y="0" width="536" height="15" uuid="172c0757-feb9-4c46-8ff0-e49ed7fe0b2a"/>
 					<textElement textAlignment="Right" verticalAlignment="Middle">
-						<font fontName="ComicSan" size="10" isBold="true"/>
+						<font fontName="Comic Sans MS" size="10" isBold="true"/>
 					</textElement>
 					<textFieldExpression><![CDATA["Círculo "+$F{corcirculo}]]></textFieldExpression>
 				</textField>
@@ -168,7 +168,7 @@ public.endereco.bairro ASC]]>
 				<staticText>
 					<reportElement x="10" y="0" width="450" height="20" uuid="f0341ec1-b0f0-4146-8930-9dee87223205"/>
 					<textElement textAlignment="Right" verticalAlignment="Middle">
-						<font fontName="ComicSan" isBold="true"/>
+						<font fontName="Comic Sans MS" isBold="true"/>
 					</textElement>
 					<text><![CDATA[Total :   ]]></text>
 				</staticText>
@@ -242,7 +242,7 @@ public.endereco.bairro ASC]]>
 			<staticText>
 				<reportElement x="0" y="0" width="553" height="20" uuid="51869704-5574-461a-9248-c2df7e4ac5e5"/>
 				<textElement verticalAlignment="Middle">
-					<font fontName="ComicSan" isBold="true"/>
+					<font fontName="Comic Sans MS" isBold="true"/>
 				</textElement>
 				<text><![CDATA[Nome (Idade) - Sexo / Telefone / Bairro]]></text>
 			</staticText>
@@ -253,14 +253,14 @@ public.endereco.bairro ASC]]>
 			<textField>
 				<reportElement x="0" y="0" width="553" height="20" uuid="2269184c-d920-4584-8e94-8a2f00c49c2f"/>
 				<textElement verticalAlignment="Middle">
-					<font fontName="ComicSan"/>
+					<font fontName="Comic Sans MS"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{nome}+"("+$F{apelido}+ ")"+"("+$F{idade}+ ")"+" "+$F{sexo}+" / "+$F{seguidor_telefone}+" / "+$F{bairro}]]></textFieldExpression>
 			</textField>
 			<textField>
 				<reportElement x="0" y="21" width="553" height="20" uuid="f0cf7169-464b-429e-a11a-719395f045f7"/>
 				<textElement verticalAlignment="Middle">
-					<font fontName="ComicSan"/>
+					<font fontName="Comic Sans MS"/>
 				</textElement>
 				<textFieldExpression><![CDATA["Facebook( "+$F{rede_social_facebook}+ " )"+" Instagram( "+$F{rede_social_instagram}+ " ) Twitter ( "+$F{rede_social_twitter}+" )"]]></textFieldExpression>
 			</textField>
