@@ -220,6 +220,20 @@ public class EventoRepository implements Serializable {
 				.setParameter("sm", sm).getResultList();
 	}
 
+	/**
+	 * [temCapa, temHistoria] do Segue-Me — consulta leve (só checa IS NULL, não
+	 * transfere os blobs de PDF). Usado no Dashboard para o aviso do livro e para
+	 * refletir o estado ATUAL do banco (o SegueMe do usuário logado é snapshot do
+	 * login e pode não ter os arquivos enviados depois).
+	 */
+	public boolean[] segueMeTemArquivos(Long segueMeId) {
+		Object[] r = (Object[]) manager
+				.createQuery("SELECT CASE WHEN s.arquivoCapa IS NULL THEN false ELSE true END, "
+						+ "CASE WHEN s.arquivoHistoria IS NULL THEN false ELSE true END FROM SegueMe s WHERE s.id = :id")
+				.setParameter("id", segueMeId).getSingleResult();
+		return new boolean[] { (Boolean) r[0], (Boolean) r[1] };
+	}
+
 	/** Inscritos por situação: linhas [StatusInscricao, total] do Segue-Me. */
 	public List<Object[]> resumoInscritosPorStatus(SegueMe sm) {
 		return manager.createQuery("SELECT i.statusInscricao, COUNT(i) FROM Evento e JOIN e.inscricao i "

@@ -233,7 +233,13 @@
 							<h:form>
 								<p:commandButton value="Gerar quadrante" icon="fa fa-th" style="width:100%"
 									styleClass="dg-btn green-btn" ajax="false" action="#{dashboardBean.gerarQuadrante}" />
+								<p:commandButton value="Gerar o encontro completo" icon="fa fa-book" style="width:100%; margin-top:8px"
+									styleClass="dg-btn" ajax="false" action="#{dashboardBean.gerarLivroEncontro}"
+									title="PDF único: capa + história + relação de seguimistas + quadrante de seguidores + palestrantes" />
 							</h:form>
+							<h:panelGroup layout="block" styleClass="dg-mfoot" rendered="#{not dashboardBean.temCapa or not dashboardBean.temHistoria}">
+								<span class="warn">Falta enviar #{not dashboardBean.temCapa and not dashboardBean.temHistoria ? 'a capa e a história' : (not dashboardBean.temCapa ? 'a capa' : 'a história')}</span> em Segue-Me › Cadastro › Livro do Encontro — o livro sai sem essa(s) seção(ões).
+							</h:panelGroup>
 							<div class="dg-chips">
 								<p:button value="Por equipe" styleClass="dg-btn dg-chip" outcome="/evento-seguidor/relatorio-quadrante-equipe" />
 								<p:button value="Seguimistas" styleClass="dg-btn dg-chip" outcome="/evento-seguidor/relatorio-quadrante-seguimista" />

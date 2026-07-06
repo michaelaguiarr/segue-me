@@ -216,6 +216,56 @@
 									</div>
 								</div>
 							</p:tab>
+							<p:tab title="Livro do Encontro">
+								<div class="ui-g">
+									<div class="ui-g-12">
+										<p:outputLabel value="Capa (PDF)" />
+									</div>
+									<div class="ui-g-12 ui-lg-6">
+										<h:panelGrid id="capaUploadPanel">
+											<p:fileUpload fileUploadListener="#{cadastroSegueMeBean.uploadCapa}"
+												allowTypes="/(\.|\/)(pdf)$/" invalidFileMessage="Envie um arquivo PDF"
+												sizeLimit="10485760" invalidSizeMessage="O PDF deve ter no máximo 10 MB"
+												auto="true" label="Capa PDF" update="capaUploadPanel capaStatusPanel"
+												rendered="#{not cadastroSegueMeBean.capaEnviada}" />
+										</h:panelGrid>
+										<h:panelGrid id="capaStatusPanel">
+											<h:outputText value="✓ Capa enviada" style="color:#1e9e5a; font-weight:600"
+												rendered="#{cadastroSegueMeBean.capaEnviada}" />
+											<p:commandButton value="Remover capa" style="width:auto; margin-left:12px"
+												actionListener="#{cadastroSegueMeBean.removerCapa}" process="@this"
+												update="capaUploadPanel capaStatusPanel"
+												rendered="#{cadastroSegueMeBean.capaEnviada}" />
+										</h:panelGrid>
+									</div>
+
+									<div class="ui-g-12">
+										<p:outputLabel value="História (PDF)" />
+									</div>
+									<div class="ui-g-12 ui-lg-6">
+										<h:panelGrid id="historiaUploadPanel">
+											<p:fileUpload fileUploadListener="#{cadastroSegueMeBean.uploadHistoria}"
+												allowTypes="/(\.|\/)(pdf)$/" invalidFileMessage="Envie um arquivo PDF"
+												sizeLimit="10485760" invalidSizeMessage="O PDF deve ter no máximo 10 MB"
+												auto="true" label="História PDF" update="historiaUploadPanel historiaStatusPanel"
+												rendered="#{not cadastroSegueMeBean.historiaEnviada}" />
+										</h:panelGrid>
+										<h:panelGrid id="historiaStatusPanel">
+											<h:outputText value="✓ História enviada" style="color:#1e9e5a; font-weight:600"
+												rendered="#{cadastroSegueMeBean.historiaEnviada}" />
+											<p:commandButton value="Remover história" style="width:auto; margin-left:12px"
+												actionListener="#{cadastroSegueMeBean.removerHistoria}" process="@this"
+												update="historiaUploadPanel historiaStatusPanel"
+												rendered="#{cadastroSegueMeBean.historiaEnviada}" />
+										</h:panelGrid>
+									</div>
+
+									<div class="ui-g-12">
+										<p:outputLabel style="color:#888"
+											value="Dica: use PDF A4 retrato, poucas páginas. A capa e a história entram no início do 'Encontro completo' gerado no dashboard. Não esqueça de clicar em Salvar." />
+									</div>
+								</div>
+							</p:tab>
 						</p:tabView>
 						<div class="save ui-g-12">
 							<p:commandButton value="Salvar" style="width: auto;"

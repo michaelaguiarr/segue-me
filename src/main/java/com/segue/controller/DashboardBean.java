@@ -31,6 +31,7 @@ import com.segue.service.CadastroEventoSeguidorService;
 import com.segue.service.CadastroPalestraConvidadoService;
 import com.segue.service.FotoService;
 import com.segue.util.jsf.FacesUtil;
+import com.segue.util.report.ExecutorLivroEncontro;
 import com.segue.util.report.ExecutorRelatorioDownload;
 
 import net.sf.jasperreports.engine.JRParameter;
@@ -84,6 +85,8 @@ public class DashboardBean implements Serializable {
 	private SegueMe segueMe;
 	private boolean grafica;
 	private boolean semEvento;
+	private boolean temCapa;
+	private boolean temHistoria;
 
 	private List<Cracha> crachas = new ArrayList<>();
 	private long totalCrachas;
@@ -135,6 +138,9 @@ public class DashboardBean implements Serializable {
 			this.semEvento = true;
 			return;
 		}
+		boolean[] arquivos = eventoRepository.segueMeTemArquivos(segueMe.getId());
+		this.temCapa = arquivos[0];
+		this.temHistoria = arquivos[1];
 		carregarCrachas();
 		carregarEquipes();
 		carregarSituacoes();
@@ -414,6 +420,29 @@ public class DashboardBean implements Serializable {
 	}
 
 	/**
+	 * Gera e baixa o "Livro do Encontro": um único PDF unindo capa + história
+	 * (PDFs externos enviados no cadastro do Segue-Me) + relação de seguimistas +
+	 * quadrante de seguidores + quadrante de palestrantes. Botão NÃO-AJAX.
+	 */
+	public void gerarLivroEncontro() {
+		if (segueMe == null) {
+			return;
+		}
+		try {
+			fotoService.materializarImagensSegueMe(segueMe);
+			fotoService.materializarImagensCirculo(segueMe);
+			ExecutorLivroEncontro executor = new ExecutorLivroEncontro(segueMe.getId(), response,
+					"Encontro" + segueMe.getNumeroRomano().getNumeroRomano() + ".pdf");
+			manager.unwrap(Session.class).doWork(executor);
+			if (executor.isRelatorioGerado()) {
+				facesContext.responseComplete();
+			}
+		} catch (Exception e) {
+			FacesUtil.addErrorMessage("Não foi possível gerar o livro do encontro.");
+		}
+	}
+
+	/**
 	 * Gera e baixa o PDF dos crachás de um papel direto do dashboard, usando o
 	 * MESMO modelo configurado no retiro que a tela de relatório
 	 * ({@code segueMe.nomeArquivoCracha}, ou "cracha" quando vazio) — cada retiro
@@ -656,6 +685,14 @@ public class DashboardBean implements Serializable {
 
 	public boolean isSemEvento() {
 		return semEvento;
+	}
+
+	public boolean isTemCapa() {
+		return temCapa;
+	}
+
+	public boolean isTemHistoria() {
+		return temHistoria;
 	}
 
 	public List<Cracha> getCrachas() {
