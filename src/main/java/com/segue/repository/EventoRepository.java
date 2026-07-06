@@ -234,6 +234,18 @@ public class EventoRepository implements Serializable {
 		return new boolean[] { (Boolean) r[0], (Boolean) r[1] };
 	}
 
+	/** Bytes do PDF da capa (fresco do banco), ou null. */
+	public byte[] arquivoCapa(Long segueMeId) {
+		return (byte[]) manager.createQuery("SELECT s.arquivoCapa FROM SegueMe s WHERE s.id = :id")
+				.setParameter("id", segueMeId).getSingleResult();
+	}
+
+	/** Bytes do PDF da história (fresco do banco), ou null. */
+	public byte[] arquivoHistoria(Long segueMeId) {
+		return (byte[]) manager.createQuery("SELECT s.arquivoHistoria FROM SegueMe s WHERE s.id = :id")
+				.setParameter("id", segueMeId).getSingleResult();
+	}
+
 	/** Inscritos por situação: linhas [StatusInscricao, total] do Segue-Me. */
 	public List<Object[]> resumoInscritosPorStatus(SegueMe sm) {
 		return manager.createQuery("SELECT i.statusInscricao, COUNT(i) FROM Evento e JOIN e.inscricao i "

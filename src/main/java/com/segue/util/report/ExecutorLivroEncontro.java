@@ -70,8 +70,13 @@ public class ExecutorLivroEncontro implements Work {
 				pdfs.add(externos[1]);
 			}
 
-			// 3-Relação de seguimistas, 4-Quadrante de seguidores, 5-Quadrante de palestrantes
-			adicionarJasper(pdfs, "/jasper/relacaoSeguimista.jasper", paramsBase(), connection);
+			// 3-Quadrante de seguimistas (é por círculo: um por círculo, em ordem de cor),
+			// 4-Quadrante de seguidores, 5-Quadrante de palestrantes
+			for (Integer circuloId : circulosComSeguimista(connection)) {
+				Map<String, Object> params = paramsQuadrante();
+				params.put("circulo", circuloId);
+				adicionarJasper(pdfs, "/jasper/quadranteSeguimistaLayout.jasper", params, connection);
+			}
 			adicionarJasper(pdfs, "/jasper/quadranteSeguidorLayout.jasper", paramsQuadrante(), connection);
 			adicionarJasper(pdfs, "/jasper/quadrantePalestraLayout.jasper", paramsQuadrante(), connection);
 
@@ -101,6 +106,24 @@ public class ExecutorLivroEncontro implements Work {
 			}
 		}
 		return new byte[][] { null, null };
+	}
+
+	/** Ids dos círculos que têm seguimistas (inscrição aprovada), ordenados por cor. */
+	private List<Integer> circulosComSeguimista(Connection connection) throws SQLException {
+		List<Integer> ids = new ArrayList<>();
+		try (PreparedStatement ps = connection.prepareStatement(
+				"SELECT DISTINCT c.id, c.corcirculo FROM circulo c "
+						+ "JOIN evento_segue_me e ON e.fk_circulo_id = c.id "
+						+ "JOIN inscricao i ON i.id = e.fk_inscricao_id "
+						+ "WHERE e.fk_segue_me_id = ? AND i.statusinscricao LIKE 'APROVADO' ORDER BY c.corcirculo")) {
+			ps.setLong(1, segueMeId);
+			try (ResultSet rs = ps.executeQuery()) {
+				while (rs.next()) {
+					ids.add(rs.getInt(1));
+				}
+			}
+		}
+		return ids;
 	}
 
 	/** Preenche um relatório Jasper na connection e adiciona seu PDF à lista (pula se vazio). */

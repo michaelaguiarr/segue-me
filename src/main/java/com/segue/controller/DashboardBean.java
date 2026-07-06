@@ -442,6 +442,40 @@ public class DashboardBean implements Serializable {
 		}
 	}
 
+	/** Baixa o PDF da capa enviada no cadastro do Segue-Me (fresco do banco). */
+	public void baixarCapa() {
+		if (segueMe == null) {
+			return;
+		}
+		baixarPdf(eventoRepository.arquivoCapa(segueMe.getId()),
+				"Capa" + segueMe.getNumeroRomano().getNumeroRomano() + ".pdf");
+	}
+
+	/** Baixa o PDF da história enviada no cadastro do Segue-Me (fresco do banco). */
+	public void baixarHistoria() {
+		if (segueMe == null) {
+			return;
+		}
+		baixarPdf(eventoRepository.arquivoHistoria(segueMe.getId()),
+				"Historia" + segueMe.getNumeroRomano().getNumeroRomano() + ".pdf");
+	}
+
+	private void baixarPdf(byte[] bytes, String nomeArquivo) {
+		if (bytes == null || bytes.length == 0) {
+			FacesUtil.addErrorMessage("Arquivo não encontrado.");
+			return;
+		}
+		try {
+			response.setContentType("application/pdf");
+			response.setHeader("Content-Disposition", "attachment; filename=\"" + nomeArquivo + "\"");
+			response.getOutputStream().write(bytes);
+			response.getOutputStream().flush();
+			facesContext.responseComplete();
+		} catch (Exception e) {
+			FacesUtil.addErrorMessage("Não foi possível baixar o arquivo.");
+		}
+	}
+
 	/**
 	 * Gera e baixa o PDF dos crachás de um papel direto do dashboard, usando o
 	 * MESMO modelo configurado no retiro que a tela de relatório
