@@ -85,6 +85,26 @@ public class PesquisaInscricaoBean implements Serializable {
 				boolean asc = sortOrder != SortOrder.DESCENDING;
 				return repository.filtradosInscricaoPaginado(filter, first, pageSize, sortField, asc);
 			}
+
+			/**
+			 * Converte o rowKey (Evento.id) de volta no objeto ao selecionar a linha.
+			 * Obrigatório em LazyDataModel: o PrimeFaces não usa o algoritmo básico de
+			 * rowKey para modelos lazy. Buscamos na página já carregada para reaproveitar
+			 * a projeção e não recarregar a imagem (blob EAGER) da inscrição.
+			 */
+			@Override
+			@SuppressWarnings("unchecked")
+			public Evento getRowData(String rowKey) {
+				List<Evento> pagina = (List<Evento>) getWrappedData();
+				if (pagina != null) {
+					for (Evento evento : pagina) {
+						if (evento.getId() != null && evento.getId().toString().equals(rowKey)) {
+							return evento;
+						}
+					}
+				}
+				return null;
+			}
 		};
 	}
 
