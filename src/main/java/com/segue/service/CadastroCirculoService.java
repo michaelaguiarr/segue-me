@@ -33,8 +33,15 @@ public class CadastroCirculoService implements Serializable {
 		for (Evento e : circulo.getEventos()) {
 			if (e.getCasal() == null) {
 				e.setCirculo(circulo);
-				if (e.getFuncao() != null) {
+				// A Lista de Seguimistas e os relatórios/crachás leem o círculo de
+				// Seguidor.circulo / Seguidor.corCirculo (NÃO de Evento.circulo). Um
+				// seguimista tem funcao == null (é assim que se identifica um
+				// seguimista), então o guard antigo "if (funcao != null)" nunca
+				// sincronizava e ele aparecia "sem círculo" na lista mesmo estando
+				// no círculo. Sincroniza sempre que houver seguidor.
+				if (e.getSeguidor() != null) {
 					e.getSeguidor().setCirculo(circulo);
+					e.getSeguidor().setCorCirculo(circulo.getCorCirculo());
 					cadastroSeguidorService.salvar(e.getSeguidor());
 				}
 				eventoRepository.guardar(e);
@@ -48,7 +55,10 @@ public class CadastroCirculoService implements Serializable {
 		for (Evento e : circulo.getEventos()) {
 			if (e.getCasal() == null || e.getFuncao() == null) {
 				e.setCirculo(null);
-				e.getSeguidor().setCirculo(null);
+				if (e.getSeguidor() != null) {
+					e.getSeguidor().setCirculo(null);
+					e.getSeguidor().setCorCirculo(null);
+				}
 				eventoRepository.guardar(e);
 			}
 		}
@@ -59,7 +69,10 @@ public class CadastroCirculoService implements Serializable {
 	public void removerSeguimista(Evento e) throws NegocioException {
 		if (e.getCasal() == null || e.getFuncao() == null) {
 			e.setCirculo(null);
-			e.getSeguidor().setCirculo(null);
+			if (e.getSeguidor() != null) {
+				e.getSeguidor().setCirculo(null);
+				e.getSeguidor().setCorCirculo(null);
+			}
 			eventoRepository.guardar(e);
 		}
 	}
