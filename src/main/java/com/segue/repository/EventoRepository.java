@@ -64,6 +64,18 @@ public class EventoRepository implements Serializable {
 	}
 
 	public Evento guardar(Evento evento) {
+		// Um crachá nunca deve nascer NULL: nasce PENDENTE (a imprimir). A coluna
+		// tem DEFAULT true no banco, mas o Hibernate inclui a coluna no INSERT
+		// (sem @DynamicInsert) e gravaria NULL quando o cadastro não seta o valor
+		// — é o caso da inscrição do seguimista (ver CadastroEventoService e
+		// CadastroEventoInscritoService, que não chamam setCracha). Um cracha=NULL
+		// é contado como IMPRESSO (impressos = total - pendentes, e NULL não é
+		// "= true"), mas o botão "Não impresso" usa "cracha = false" e ignora o
+		// NULL — por isso não dava baixa. Aqui garantimos o invariante em todas as
+		// vias de gravação; os já impressos (false) e pendentes (true) são preservados.
+		if (evento.getCracha() == null) {
+			evento.setCracha(true);
+		}
 		Evento novo = manager.merge(evento);
 		manager.flush();
 		return novo;
