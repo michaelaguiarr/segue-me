@@ -106,6 +106,26 @@ public class PesquisaSeguidorBean implements Serializable {
 				boolean asc = sortOrder != SortOrder.DESCENDING;
 				return repository.filtradosPaginado(filter, first, pageSize, sortField, asc);
 			}
+
+			/**
+			 * Converte o rowKey (Seguidor.id) de volta no objeto ao selecionar a linha.
+			 * Obrigatório em LazyDataModel: o PrimeFaces não usa o algoritmo básico de
+			 * rowKey para modelos lazy. Buscamos na página já carregada para reaproveitar
+			 * a projeção e não recarregar a imagem (blob EAGER).
+			 */
+			@Override
+			@SuppressWarnings("unchecked")
+			public Seguidor getRowData(String rowKey) {
+				List<Seguidor> pagina = (List<Seguidor>) getWrappedData();
+				if (pagina != null) {
+					for (Seguidor seguidor : pagina) {
+						if (seguidor.getId() != null && seguidor.getId().toString().equals(rowKey)) {
+							return seguidor;
+						}
+					}
+				}
+				return null;
+			}
 		};
 	}
 
