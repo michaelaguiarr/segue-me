@@ -65,6 +65,26 @@ public class PesquisaPalestranteConvidadoBean implements Serializable {
 				boolean asc = sortOrder != SortOrder.DESCENDING;
 				return repository.filtradosPaginado(filter, first, pageSize, sortField, asc);
 			}
+
+			/**
+			 * Converte o rowKey (PalestranteConvidado.id) de volta no objeto ao selecionar
+			 * a linha. Obrigatório em LazyDataModel: o PrimeFaces não usa o algoritmo básico
+			 * de rowKey para modelos lazy. Buscamos na página já carregada para reaproveitar
+			 * a projeção e não recarregar a imagem (blob EAGER).
+			 */
+			@Override
+			@SuppressWarnings("unchecked")
+			public PalestranteConvidado getRowData(String rowKey) {
+				List<PalestranteConvidado> pagina = (List<PalestranteConvidado>) getWrappedData();
+				if (pagina != null) {
+					for (PalestranteConvidado convidado : pagina) {
+						if (convidado.getId() != null && convidado.getId().toString().equals(rowKey)) {
+							return convidado;
+						}
+					}
+				}
+				return null;
+			}
 		};
 	}
 
