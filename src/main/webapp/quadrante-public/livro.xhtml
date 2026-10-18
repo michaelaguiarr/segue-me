@@ -1,0 +1,27 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:o="http://omnifaces.org/ui" template="/WEB-INF/template/template-public.xhtml">
+
+	<ui:define name="title">Quadrante do Encontro</ui:define>
+
+	<f:metadata>
+		<o:viewParam name="segueMe" value="#{quadrantePublicoBean.segueMe}" />
+		<f:viewAction action="#{quadrantePublicoBean.gerar()}" />
+	</f:metadata>
+
+	<ui:define name="content">
+		<!-- Quando o link é válido e o PDF é gerado, a resposta já foi
+		     completada (responseComplete()) e este HTML nunca chega a ser
+		     enviado — este bloco só aparece no caso de erro/link inválido. -->
+		<h:panelGroup layout="block" styleClass="ui-g-12" rendered="#{quadrantePublicoBean.indisponivel}">
+			<div class="card card-w-title" style="max-width:520px;margin:40px auto;text-align:center;">
+				<h1>Quadrante não disponível</h1>
+				<p>O link informado é inválido ou o quadrante deste encontro ainda não foi gerado.
+					Fale com a coordenação do encontro.</p>
+			</div>
+		</h:panelGroup>
+	</ui:define>
+
+</ui:composition>

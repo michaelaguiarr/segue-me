@@ -270,13 +270,18 @@
 		</p:confirmDialog>
 
 		<!-- Editar o padroeiro(a) — lápis ao lado do nome -->
-		<p:dialog id="dlgPadroeiro" widgetVar="dlgPadroeiro" header="Padroeiro(a) do encontro" modal="true" width="420"
+		<p:dialog id="dlgPadroeiro" widgetVar="dlgPadroeiro" header="Padroeiro(a) e lema do encontro" modal="true" width="420"
 			showEffect="fade" hideEffect="fade" responsive="true">
 			<h:form id="formPadroeiro">
 				<div class="dg-edit-body">
 					<div class="dg-edit-row">
 						<p:outputLabel value="Nome do padroeiro(a)" for="inPadroeiro" />
 						<p:inputText id="inPadroeiro" value="#{dashboardBean.editSegueMe.padroeiro}" maxlength="100" style="width:100%" />
+					</div>
+					<div class="dg-edit-row">
+						<p:outputLabel value="Lema do encontro (opcional)" for="inLema" />
+						<p:inputTextarea id="inLema" value="#{dashboardBean.editSegueMe.lema}" maxlength="180" rows="2" autoResize="false" style="width:100%"
+							placeholder="Ex.: Sob o olhar de Clara, seguimos a Cristo com simplicidade e fé." />
 					</div>
 				</div>
 				<div class="dg-edit-foot">
@@ -309,6 +314,24 @@
 					<p:commandButton value="Cancelar" type="button" styleClass="dg-btn" onclick="PF('dlgDatas').hide()" />
 					<p:commandButton value="Salvar" icon="fa fa-check" ajax="false" styleClass="dg-btn green-btn"
 						action="#{dashboardBean.salvarEdicao}" />
+				</div>
+			</h:form>
+		</p:dialog>
+
+		<!-- Compartilhar o quadrante online — QR Code (link público, sem login) -->
+		<p:dialog id="dlgQrQuadrante" widgetVar="dlgQrQuadrante" header="Compartilhar quadrante" modal="true" width="420"
+			showEffect="fade" hideEffect="fade" responsive="true">
+			<h:form id="formQrQuadrante">
+				<div style="text-align:center;margin-bottom:14px;">
+					<p:barcode value="#{dashboardBean.linkQuadrantePublico}" type="qr" />
+				</div>
+				<p style="font-size:13px;color:#6e5f52;margin:0 0 6px;">Link direto, sem necessidade de login — compartilhe com seguimistas e coordenadores:</p>
+				<h:inputText value="#{dashboardBean.linkQuadrantePublico}" readonly="true" style="width:100%" onclick="this.select();" />
+				<div class="dg-edit-foot">
+					<p:commandButton value="Baixar cartão p/ imprimir (15×14cm)" icon="fa fa-image" ajax="false"
+						styleClass="dg-btn dg-prep-btn" action="#{dashboardBean.gerarSantinhoQuadrante}"
+						title="PNG pronto pra gráfica, com a padroeira, o lema e o QR Code" />
+					<p:commandButton value="Fechar" type="button" styleClass="dg-btn" onclick="PF('dlgQrQuadrante').hide()" />
 				</div>
 			</h:form>
 		</p:dialog>
@@ -415,6 +438,9 @@
 								<p:commandButton value="Gerar quadrante completo" icon="fa fa-book" style="width:100%"
 									styleClass="dg-btn green-btn" ajax="false" action="#{dashboardBean.gerarLivroEncontro}"
 										title="PDF único na ordem: capa + história + quadrante de seguimistas + seguidores + palestrantes" />
+								<p:commandButton value="Compartilhar quadrante (QR Code)" icon="fa fa-qrcode" style="width:100%"
+									styleClass="dg-btn" type="button" onclick="PF('dlgQrQuadrante').show()"
+									title="Mostra um QR Code e um link públicos (sem login) para seguimistas e coordenadores verem o quadrante completo pelo celular" />
 								<div class="dg-chips-label">Ou gere cada peça (ordem do livro)</div>
 								<div class="dg-chip-rows">
 								<div class="dg-chip-row"><span class="dg-chip-tag">Arquivos</span>

@@ -1,5 +1,7 @@
 package com.segue.controller;
 
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -14,7 +16,9 @@ import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.imageio.ImageIO;
 import javax.persistence.EntityManager;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.hibernate.Session;
@@ -39,6 +43,7 @@ import com.segue.util.report.ExecutorAniversariantesPdf;
 import com.segue.util.report.ExecutorCrachaEquipe;
 import com.segue.util.report.ExecutorLivroEncontro;
 import com.segue.util.report.ExecutorRelatorioDownload;
+import com.segue.util.report.GeradorCartaoQuadrante;
 
 import net.sf.jasperreports.engine.JRParameter;
 
@@ -92,6 +97,9 @@ public class DashboardBean implements Serializable {
 
 	@Inject
 	private HttpServletResponse response;
+
+	@Inject
+	private HttpServletRequest request;
 
 	private Usuario usuarioLogado;
 	private SegueMe segueMe;
@@ -520,6 +528,77 @@ public class DashboardBean implements Serializable {
 			}
 		} catch (Exception e) {
 			FacesUtil.addErrorMessage("Não foi possível gerar o livro do encontro.");
+		}
+	}
+
+	/**
+	 * Link público (sem login) para o PDF do "Livro do Encontro" deste retiro —
+	 * servido por {@code QuadrantePublicoBean}/{@code quadrante-public/livro.xhtml},
+	 * liberado em {@code SecurityConfig}. Usado no QR Code/link compartilhado com
+	 * seguimistas e coordenadores. Monta a URL a partir da requisição atual,
+	 * preferindo os cabeçalhos {@code X-Forwarded-Proto}/{@code X-Forwarded-Host}
+	 * (presentes quando há um proxy reverso fazendo terminação TLS na frente do
+	 * Tomcat/JBoss, como em produção) — sem eles, cairia em {@code http://} mesmo
+	 * atrás de um proxy HTTPS.
+	 */
+	public String getLinkQuadrantePublico() {
+		if (segueMe == null) {
+			return "";
+		}
+		String scheme = primeiroNaoVazio(request.getHeader("X-Forwarded-Proto"), request.getScheme());
+		String host = primeiroNaoVazio(request.getHeader("X-Forwarded-Host"), enderecoComPorta());
+		return scheme + "://" + host + request.getContextPath() + "/quadrante-public/livro.xhtml?segueMe="
+				+ segueMe.getId();
+	}
+
+	private String enderecoComPorta() {
+		String scheme = request.getScheme();
+		int porta = request.getServerPort();
+		boolean portaPadrao = ("http".equals(scheme) && porta == 80) || ("https".equals(scheme) && porta == 443);
+		return request.getServerName() + (portaPadrao ? "" : ":" + porta);
+	}
+
+	private String primeiroNaoVazio(String a, String b) {
+		return a != null && !a.trim().isEmpty() ? a : b;
+	}
+
+	/**
+	 * Gera e baixa o "santinho do quadrante": uma imagem PNG de 15×14cm (300dpi)
+	 * pra imprimir e colar com o QR Code do link público do quadrante — pensado
+	 * pra seguimistas e coordenadores. Usa a mesma imagem da padroeira, o mesmo
+	 * logo e o mesmo link público já usados no diálogo de compartilhar. Botão
+	 * NÃO-AJAX, pois escreve a imagem direto na resposta HTTP.
+	 */
+	public void gerarSantinhoQuadrante() {
+		if (segueMe == null) {
+			return;
+		}
+		try {
+			fotoService.materializarImagensSegueMe(segueMe);
+			String webappRoot = facesContext.getExternalContext().getRealPath("/");
+			BufferedImage padroeiraImg = carregarImagem(
+					new File(webappRoot, "resources/temp/segueMe/" + segueMe.getId() + ".jpg"));
+			BufferedImage logoImg = carregarImagem(new File(webappRoot, "resources/images/segue-me.png"));
+			byte[] png = GeradorCartaoQuadrante.gerar(segueMe, getLinkQuadrantePublico(), padroeiraImg, logoImg);
+			response.setContentType("image/png");
+			response.setHeader("Content-Disposition",
+					"attachment; filename=\"Santinho" + segueMe.getNumeroRomano().getNumeroRomano() + ".png\"");
+			response.getOutputStream().write(png);
+			response.getOutputStream().flush();
+			facesContext.responseComplete();
+		} catch (Exception e) {
+			FacesUtil.addErrorMessage("Não foi possível gerar o cartão do quadrante.");
+		}
+	}
+
+	private BufferedImage carregarImagem(File arquivo) {
+		try {
+			if (!arquivo.isFile()) {
+				return null;
+			}
+			return ImageIO.read(arquivo);
+		} catch (Exception e) {
+			return null;
 		}
 	}
 

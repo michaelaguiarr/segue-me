@@ -47,6 +47,15 @@
 			<version>2.1.7</version>
 		</dependency>
 
+		<!-- Necessário para <p:barcode type="qr"> do PrimeFaces 6.1, que declara
+		     esta dependência (e o ZXing que ela traz) como "provided" — não é
+		     resolvida transitivamente, então precisa ser declarada aqui. -->
+		<dependency>
+			<groupId>net.glxn</groupId>
+			<artifactId>qrgen</artifactId>
+			<version>1.4</version>
+		</dependency>
+
 
 		<dependency>
 			<groupId>org.jboss.logging</groupId>

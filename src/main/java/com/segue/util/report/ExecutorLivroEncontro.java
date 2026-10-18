@@ -47,13 +47,26 @@ public class ExecutorLivroEncontro implements Work {
 	private final Long segueMeId;
 	private final HttpServletResponse response;
 	private final String nomeArquivoSaida;
+	private final boolean inline;
 
 	private boolean relatorioGerado;
 
 	public ExecutorLivroEncontro(Long segueMeId, HttpServletResponse response, String nomeArquivoSaida) {
+		this(segueMeId, response, nomeArquivoSaida, false);
+	}
+
+	/**
+	 * @param inline quando {@code true}, grava {@code Content-Disposition: inline}
+	 *               em vez de {@code attachment} — usado no link público (QR Code),
+	 *               pra o PDF abrir direto no navegador do celular em vez de só
+	 *               baixar.
+	 */
+	public ExecutorLivroEncontro(Long segueMeId, HttpServletResponse response, String nomeArquivoSaida,
+			boolean inline) {
 		this.segueMeId = segueMeId;
 		this.response = response;
 		this.nomeArquivoSaida = nomeArquivoSaida;
+		this.inline = inline;
 	}
 
 	@Override
@@ -86,7 +99,8 @@ public class ExecutorLivroEncontro implements Work {
 			}
 
 			response.setContentType("application/pdf");
-			response.setHeader("Content-Disposition", "attachment; filename=\"" + this.nomeArquivoSaida + "\"");
+			response.setHeader("Content-Disposition",
+					(inline ? "inline" : "attachment") + "; filename=\"" + this.nomeArquivoSaida + "\"");
 
 			concatenar(pdfs, response.getOutputStream());
 		} catch (Exception e) {
