@@ -35,6 +35,7 @@ public class SegueMe implements Serializable {
 	private Date dtInicio;
 	private Date dtFim;
 	private String padroeiro;
+	private String lema;
 	private String nomeclatura;
 	@Column(columnDefinition = "BOOLEAN DEFAULT true")
 	private boolean ativo = true;
@@ -113,6 +114,17 @@ public class SegueMe implements Serializable {
 
 	public void setPadroeiro(String padroeiro) {
 		this.padroeiro = padroeiro;
+	}
+
+	/** Lema/tema do encontro — opcional, informado pela coordenação (nunca gerado automático). */
+	@Length(max = 180)
+	@Column(length = 180)
+	public String getLema() {
+		return lema;
+	}
+
+	public void setLema(String lema) {
+		this.lema = lema;
 	}
 
 	@NotNull
