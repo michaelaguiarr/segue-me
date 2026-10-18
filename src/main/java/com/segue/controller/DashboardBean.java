@@ -591,6 +591,28 @@ public class DashboardBean implements Serializable {
 		}
 	}
 
+	/**
+	 * Gera e baixa SÓ a imagem do QR Code (sem o cartão completo) — mais leve e
+	 * rápida, pra quando a coordenação quer colar o código em algo próprio.
+	 * Botão NÃO-AJAX.
+	 */
+	public void gerarQrCodeImagem() {
+		if (segueMe == null) {
+			return;
+		}
+		try {
+			byte[] png = GeradorCartaoQuadrante.gerarApenasQr(getLinkQuadrantePublico(), 1000);
+			response.setContentType("image/png");
+			response.setHeader("Content-Disposition",
+					"attachment; filename=\"QRCodeQuadrante" + segueMe.getNumeroRomano().getNumeroRomano() + ".png\"");
+			response.getOutputStream().write(png);
+			response.getOutputStream().flush();
+			facesContext.responseComplete();
+		} catch (Exception e) {
+			FacesUtil.addErrorMessage("Não foi possível gerar o QR Code.");
+		}
+	}
+
 	private BufferedImage carregarImagem(File arquivo) {
 		try {
 			if (!arquivo.isFile()) {
