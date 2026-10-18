@@ -306,6 +306,16 @@ public final class GeradorCartaoQuadrante {
 		desenharTextoEspacado(g2, legenda, fCaption, pt(0.3f), x + lado / 2f, y + lado + mm(1.4f) + pt(5f));
 	}
 
+	/**
+	 * Gera só a imagem do QR Code (sem o cartão completo — sem fontes
+	 * customizadas, sem imagem da padroeira), pra quando a coordenação só quer
+	 * imprimir/colar o código em algo próprio. Bem mais leve/rápido que
+	 * {@link #gerar} porque não toca em {@code Font.createFont} nem em imagens.
+	 */
+	public static byte[] gerarApenasQr(String link, int tamanhoPx) throws IOException {
+		return QRCode.from(link).to(ImageType.PNG).withSize(tamanhoPx, tamanhoPx).stream().toByteArray();
+	}
+
 	private static BufferedImage gerarQrCode(String link, int tamanhoPx) {
 		try {
 			ByteArrayOutputStream stream = QRCode.from(link).to(ImageType.PNG).withSize(tamanhoPx, tamanhoPx)

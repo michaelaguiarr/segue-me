@@ -327,7 +327,10 @@
 				</div>
 				<p style="font-size:13px;color:#6e5f52;margin:0 0 6px;">Link direto, sem necessidade de login — compartilhe com seguimistas e coordenadores:</p>
 				<h:inputText value="#{dashboardBean.linkQuadrantePublico}" readonly="true" style="width:100%" onclick="this.select();" />
-				<div class="dg-edit-foot">
+				<div class="dg-edit-foot" style="flex-wrap:wrap;">
+					<p:commandButton value="Baixar só o QR Code" icon="fa fa-qrcode" ajax="false"
+						styleClass="dg-btn" action="#{dashboardBean.gerarQrCodeImagem}"
+						title="PNG só com o QR Code, sem o cartão — pra colar em algo próprio" />
 					<p:commandButton value="Baixar cartão p/ imprimir (15×14cm)" icon="fa fa-image" ajax="false"
 						styleClass="dg-btn dg-prep-btn" action="#{dashboardBean.gerarSantinhoQuadrante}"
 						title="PNG pronto pra gráfica, com a padroeira, o lema e o QR Code" />
