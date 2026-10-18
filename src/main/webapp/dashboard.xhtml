@@ -717,6 +717,11 @@
 				<div class="dg-sec-head">
 					<h2>Aniversariantes de #{dashboardBean.mesAtualNome}</h2>
 					<div class="s">Seguimistas e seguidores de serviço · atenção a quem faz no dia</div>
+					<h:form>
+						<p:commandButton value="Imprimir" icon="fa fa-print" ajax="false" styleClass="dg-btn dg-btn-sm"
+							action="#{dashboardBean.gerarAniversariantes}"
+							title="PDF com os aniversariantes do mês: seguimistas, seguidores de serviço e casais de serviço" />
+					</h:form>
 				</div>
 				<h:panelGroup rendered="#{dashboardBean.temAniversarianteHoje}">
 					<div class="dg-bday-banner">

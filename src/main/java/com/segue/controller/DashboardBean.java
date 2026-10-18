@@ -35,6 +35,7 @@ import com.segue.service.FotoService;
 import com.segue.util.jsf.FacesUtil;
 import org.primefaces.event.FileUploadEvent;
 
+import com.segue.util.report.ExecutorAniversariantesPdf;
 import com.segue.util.report.ExecutorCrachaEquipe;
 import com.segue.util.report.ExecutorLivroEncontro;
 import com.segue.util.report.ExecutorRelatorioDownload;
@@ -519,6 +520,34 @@ public class DashboardBean implements Serializable {
 			}
 		} catch (Exception e) {
 			FacesUtil.addErrorMessage("Não foi possível gerar o livro do encontro.");
+		}
+	}
+
+	/**
+	 * Gera e baixa o PDF dos aniversariantes do mês (seguimistas, seguidores de
+	 * serviço e casais), a partir dos dados já carregados pelo
+	 * {@code inicializar()} — sem precisar de um modelo Jasper, mas no MESMO
+	 * estilo "do encontro" dos demais relatórios (logo, foto do padroeiro, fundo
+	 * e rodapé do retiro). Botão NÃO-AJAX, pois escreve o PDF direto na resposta
+	 * HTTP.
+	 */
+	public void gerarAniversariantes() {
+		if (segueMe == null) {
+			return;
+		}
+		try {
+			fotoService.materializarImagensSegueMe(segueMe);
+			String webappRoot = facesContext.getExternalContext().getRealPath("/");
+			byte[] pdf = ExecutorAniversariantesPdf.gerar(segueMe, webappRoot, mesAtualNome, aniversariantesSeguimistas,
+					aniversariantesServico, aniversariantesCasaisNascimento, aniversariantesCasamento);
+			response.setContentType("application/pdf");
+			response.setHeader("Content-Disposition", "attachment; filename=\"Aniversariantes"
+					+ segueMe.getNumeroRomano().getNumeroRomano() + ".pdf\"");
+			response.getOutputStream().write(pdf);
+			response.getOutputStream().flush();
+			facesContext.responseComplete();
+		} catch (Exception e) {
+			FacesUtil.addErrorMessage("Não foi possível gerar o PDF dos aniversariantes.");
 		}
 	}
 
