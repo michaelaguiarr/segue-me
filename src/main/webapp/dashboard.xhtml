@@ -339,6 +339,64 @@
 			</h:form>
 		</p:dialog>
 
+		<!-- Trabalhos do círculo: 3 PDFs de atividade/dinâmica preparados pela coordenação -->
+		<p:dialog id="dlgTrabalhosCirculo" widgetVar="dlgTrabalhosCirculo"
+			header="Trabalhos do círculo #{dashboardBean.editCirculo.corCirculo.descricao}" modal="true" width="480"
+			showEffect="fade" hideEffect="fade" responsive="true">
+			<h:form id="formTrabalhosCirculo">
+				<div class="dg-edit-body">
+					<div class="dg-edit-anexo">
+						<span class="lbl"><i class="fa fa-file-pdf-o"></i>Trabalho 1</span>
+						<span class="st">
+							<p:commandButton value="Baixar" icon="fa fa-download" ajax="false" styleClass="dg-btn"
+								rendered="#{dashboardBean.editCirculo.trabalho1 != null}" action="#{dashboardBean.baixarTrabalho1}" />
+							<p:commandButton icon="fa fa-trash-o" styleClass="dg-trash" rendered="#{dashboardBean.editCirculo.trabalho1 != null}"
+								action="#{dashboardBean.removerTrabalho1}" title="Remover o trabalho 1">
+								<p:confirm header="Remover trabalho" message="Remover o trabalho 1 deste círculo?" icon="fa fa-trash-o" />
+							</p:commandButton>
+							<p:fileUpload rendered="#{dashboardBean.editCirculo.trabalho1 == null}" fileUploadListener="#{dashboardBean.anexarTrabalho1}"
+								mode="advanced" auto="true" label="Anexar" allowTypes="/(\.|\/)(pdf)$/" sizeLimit="10485760"
+								invalidFileMessage="Envie um PDF" styleClass="dg-chip-upload"
+								oncomplete="window.location.reload()" title="Anexar o trabalho 1 (PDF)" />
+						</span>
+					</div>
+					<div class="dg-edit-anexo">
+						<span class="lbl"><i class="fa fa-file-pdf-o"></i>Trabalho 2</span>
+						<span class="st">
+							<p:commandButton value="Baixar" icon="fa fa-download" ajax="false" styleClass="dg-btn"
+								rendered="#{dashboardBean.editCirculo.trabalho2 != null}" action="#{dashboardBean.baixarTrabalho2}" />
+							<p:commandButton icon="fa fa-trash-o" styleClass="dg-trash" rendered="#{dashboardBean.editCirculo.trabalho2 != null}"
+								action="#{dashboardBean.removerTrabalho2}" title="Remover o trabalho 2">
+								<p:confirm header="Remover trabalho" message="Remover o trabalho 2 deste círculo?" icon="fa fa-trash-o" />
+							</p:commandButton>
+							<p:fileUpload rendered="#{dashboardBean.editCirculo.trabalho2 == null}" fileUploadListener="#{dashboardBean.anexarTrabalho2}"
+								mode="advanced" auto="true" label="Anexar" allowTypes="/(\.|\/)(pdf)$/" sizeLimit="10485760"
+								invalidFileMessage="Envie um PDF" styleClass="dg-chip-upload"
+								oncomplete="window.location.reload()" title="Anexar o trabalho 2 (PDF)" />
+						</span>
+					</div>
+					<div class="dg-edit-anexo">
+						<span class="lbl"><i class="fa fa-file-pdf-o"></i>Trabalho 3</span>
+						<span class="st">
+							<p:commandButton value="Baixar" icon="fa fa-download" ajax="false" styleClass="dg-btn"
+								rendered="#{dashboardBean.editCirculo.trabalho3 != null}" action="#{dashboardBean.baixarTrabalho3}" />
+							<p:commandButton icon="fa fa-trash-o" styleClass="dg-trash" rendered="#{dashboardBean.editCirculo.trabalho3 != null}"
+								action="#{dashboardBean.removerTrabalho3}" title="Remover o trabalho 3">
+								<p:confirm header="Remover trabalho" message="Remover o trabalho 3 deste círculo?" icon="fa fa-trash-o" />
+							</p:commandButton>
+							<p:fileUpload rendered="#{dashboardBean.editCirculo.trabalho3 == null}" fileUploadListener="#{dashboardBean.anexarTrabalho3}"
+								mode="advanced" auto="true" label="Anexar" allowTypes="/(\.|\/)(pdf)$/" sizeLimit="10485760"
+								invalidFileMessage="Envie um PDF" styleClass="dg-chip-upload"
+								oncomplete="window.location.reload()" title="Anexar o trabalho 3 (PDF)" />
+						</span>
+					</div>
+				</div>
+				<div class="dg-edit-foot">
+					<p:commandButton value="Fechar" type="button" styleClass="dg-btn" onclick="PF('dlgTrabalhosCirculo').hide()" />
+				</div>
+			</h:form>
+		</p:dialog>
+
 		<!-- Sem evento associado -->
 		<h:panelGroup layout="block" styleClass="dg" rendered="#{dashboardBean.semEvento}">
 			<div class="dg-event"><div class="t"><h1>Bem-vindo ao Segue-Me</h1>
@@ -655,6 +713,10 @@
 												<p:commandButton value="Lista" icon="fa fa-list" ajax="false" styleClass="dg-rowbtn"
 														title="Imprimir a relação (lista) dos seguimistas deste círculo"
 														action="#{dashboardBean.gerarListaCirculo(c.circuloId, c.corLabel)}" />
+													<p:commandButton value="Trabalhos" icon="fa fa-paperclip" styleClass="dg-rowbtn"
+														title="Anexar/baixar os 3 trabalhos (PDF) deste círculo"
+														action="#{dashboardBean.abrirTrabalhosCirculo(c.circuloId)}"
+														update=":formTrabalhosCirculo" oncomplete="PF('dlgTrabalhosCirculo').show()" />
 													<p:commandButton value="Quadrante" icon="fa fa-th-large" ajax="false" styleClass="dg-rowbtn"
 														title="Imprimir o quadrante deste círculo"
 														action="#{dashboardBean.gerarQuadranteCirculo(c.circuloId, c.corLabel)}" />

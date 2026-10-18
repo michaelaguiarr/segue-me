@@ -23,10 +23,12 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.hibernate.Session;
 
+import com.segue.model.Circulo;
 import com.segue.model.CorCirculo;
 import com.segue.model.SegueMe;
 import com.segue.model.StatusInscricao;
 import com.segue.model.Usuario;
+import com.segue.repository.CirculoRepository;
 import com.segue.repository.EventoRepository;
 import com.segue.repository.SegueMeRepository;
 import com.segue.security.Seguranca;
@@ -72,6 +74,9 @@ public class DashboardBean implements Serializable {
 	private SegueMeRepository segueMeRepository;
 
 	@Inject
+	private CirculoRepository circuloRepository;
+
+	@Inject
 	private CadastroEjcService cadastroEjcService;
 
 	@Inject
@@ -112,6 +117,8 @@ public class DashboardBean implements Serializable {
 	private String imagemPadroeiroPath;
 	/** Cópia FRESCA do Segue-Me (por id) usada só nos diálogos de edição — não o snapshot do login. */
 	private SegueMe editSegueMe;
+	/** Cópia FRESCA do Círculo (por id) usada só no diálogo de trabalhos. */
+	private Circulo editCirculo;
 
 	private List<Cracha> crachas = new ArrayList<>();
 	private long totalCrachas;
@@ -812,6 +819,130 @@ public class DashboardBean implements Serializable {
 
 	public SegueMe getEditSegueMe() {
 		return editSegueMe;
+	}
+
+	// ===== Trabalhos do círculo (3 PDFs por círculo, anexados separadamente) =====
+
+	/** Carrega uma cópia FRESCA do Círculo (por id) para o diálogo de trabalhos. */
+	public void abrirTrabalhosCirculo(Integer circuloId) {
+		if (circuloId != null) {
+			this.editCirculo = circuloRepository.porId(circuloId);
+		}
+	}
+
+	/** Baixa o PDF do trabalho 1 deste círculo (fresco do banco). */
+	public void baixarTrabalho1() {
+		if (editCirculo == null) {
+			return;
+		}
+		baixarArquivo(circuloRepository.arquivoTrabalho1(editCirculo.getId()), "application/pdf",
+				"Trabalho1-" + editCirculo.getCorCirculo().name() + ".pdf");
+	}
+
+	/** Baixa o PDF do trabalho 2 deste círculo (fresco do banco). */
+	public void baixarTrabalho2() {
+		if (editCirculo == null) {
+			return;
+		}
+		baixarArquivo(circuloRepository.arquivoTrabalho2(editCirculo.getId()), "application/pdf",
+				"Trabalho2-" + editCirculo.getCorCirculo().name() + ".pdf");
+	}
+
+	/** Baixa o PDF do trabalho 3 deste círculo (fresco do banco). */
+	public void baixarTrabalho3() {
+		if (editCirculo == null) {
+			return;
+		}
+		baixarArquivo(circuloRepository.arquivoTrabalho3(editCirculo.getId()), "application/pdf",
+				"Trabalho3-" + editCirculo.getCorCirculo().name() + ".pdf");
+	}
+
+	/** Anexa o trabalho 1 (PDF) direto: valida, grava e recarrega. */
+	public void anexarTrabalho1(FileUploadEvent event) {
+		byte[] bytes = event.getFile().getContents();
+		if (!ehPdf(bytes)) {
+			flashErro("O trabalho 1 precisa ser um PDF.");
+			return;
+		}
+		aplicarAnexoCirculo(c -> c.setTrabalho1(bytes), "Trabalho 1 anexado.");
+	}
+
+	/** Anexa o trabalho 2 (PDF) direto: valida, grava e recarrega. */
+	public void anexarTrabalho2(FileUploadEvent event) {
+		byte[] bytes = event.getFile().getContents();
+		if (!ehPdf(bytes)) {
+			flashErro("O trabalho 2 precisa ser um PDF.");
+			return;
+		}
+		aplicarAnexoCirculo(c -> c.setTrabalho2(bytes), "Trabalho 2 anexado.");
+	}
+
+	/** Anexa o trabalho 3 (PDF) direto: valida, grava e recarrega. */
+	public void anexarTrabalho3(FileUploadEvent event) {
+		byte[] bytes = event.getFile().getContents();
+		if (!ehPdf(bytes)) {
+			flashErro("O trabalho 3 precisa ser um PDF.");
+			return;
+		}
+		aplicarAnexoCirculo(c -> c.setTrabalho3(bytes), "Trabalho 3 anexado.");
+	}
+
+	/**
+	 * Carrega o Círculo FRESCO por id, aplica só o anexo alterado e persiste direto
+	 * via {@code circuloRepository.guardar} (agora {@code @Transactional}) — NÃO
+	 * via {@code CadastroCirculoService.salvar}, que também resincroniza todo
+	 * seguidor/evento do círculo (reaproveitando {@code CadastroSeguidorService},
+	 * cuja busca por nome+nascimento pode estourar {@code NonUniqueResultException}
+	 * em dados com homônimos) — desnecessário e arriscado só pra anexar um PDF.
+	 */
+	private void aplicarAnexoCirculo(java.util.function.Consumer<Circulo> mutacao, String msg) {
+		if (editCirculo == null) {
+			return;
+		}
+		try {
+			Circulo fresco = circuloRepository.porId(editCirculo.getId());
+			mutacao.accept(fresco);
+			this.editCirculo = circuloRepository.guardar(fresco);
+			mensagemFlash(msg);
+		} catch (Exception e) {
+			flashErro("Não foi possível anexar: " + e.getMessage());
+		}
+	}
+
+	/** Remove o trabalho 1 deste círculo (confirmar antes). */
+	public String removerTrabalho1() {
+		return removerAnexoCirculo(c -> c.setTrabalho1(null), "Trabalho 1 removido.");
+	}
+
+	/** Remove o trabalho 2 deste círculo (confirmar antes). */
+	public String removerTrabalho2() {
+		return removerAnexoCirculo(c -> c.setTrabalho2(null), "Trabalho 2 removido.");
+	}
+
+	/** Remove o trabalho 3 deste círculo (confirmar antes). */
+	public String removerTrabalho3() {
+		return removerAnexoCirculo(c -> c.setTrabalho3(null), "Trabalho 3 removido.");
+	}
+
+	/** Zera um anexo no Círculo FRESCO por id, persiste e recarrega o dashboard. */
+	private String removerAnexoCirculo(java.util.function.Consumer<Circulo> mutacao, String msg) {
+		if (editCirculo == null) {
+			return null;
+		}
+		try {
+			Circulo fresco = circuloRepository.porId(editCirculo.getId());
+			mutacao.accept(fresco);
+			circuloRepository.guardar(fresco);
+			mensagemFlash(msg);
+		} catch (Exception e) {
+			FacesUtil.addErrorMessage("Não foi possível remover: " + e.getMessage());
+			return null;
+		}
+		return "/dashboard.xhtml?faces-redirect=true";
+	}
+
+	public Circulo getEditCirculo() {
+		return editCirculo;
 	}
 
 	/**
