@@ -50,6 +50,11 @@ public class Circulo implements Serializable {
 
 	private byte[] imagem;
 
+	/** PDFs externos dos 3 "trabalhos" (atividade/dinâmica) deste círculo, anexados separadamente. */
+	private byte[] trabalho1;
+	private byte[] trabalho2;
+	private byte[] trabalho3;
+
 	@OneToMany(mappedBy = "circulo")
 	private List<Evento> eventos = new ArrayList<>();
 
@@ -119,6 +124,30 @@ public class Circulo implements Serializable {
 
 	public void setImagem(byte[] imagem) {
 		this.imagem = imagem;
+	}
+
+	public byte[] getTrabalho1() {
+		return trabalho1;
+	}
+
+	public void setTrabalho1(byte[] trabalho1) {
+		this.trabalho1 = trabalho1;
+	}
+
+	public byte[] getTrabalho2() {
+		return trabalho2;
+	}
+
+	public void setTrabalho2(byte[] trabalho2) {
+		this.trabalho2 = trabalho2;
+	}
+
+	public byte[] getTrabalho3() {
+		return trabalho3;
+	}
+
+	public void setTrabalho3(byte[] trabalho3) {
+		this.trabalho3 = trabalho3;
 	}
 
 	public List<Evento> getEventos() {

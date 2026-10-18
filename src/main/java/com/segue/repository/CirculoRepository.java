@@ -52,8 +52,27 @@ public class CirculoRepository implements Serializable {
 				+ "Order by corCirculo desc", Circulo.class).getResultList();
 	}
 
+	@Transactional
 	public Circulo guardar(Circulo circulo) {
 		return circulo = manager.merge(circulo);
+	}
+
+	/** Bytes do PDF do trabalho 1 deste círculo (fresco do banco, sem carregar a entidade inteira), ou null. */
+	public byte[] arquivoTrabalho1(Integer circuloId) {
+		return (byte[]) manager.createQuery("SELECT c.trabalho1 FROM Circulo c WHERE c.id = :id")
+				.setParameter("id", circuloId).getSingleResult();
+	}
+
+	/** Bytes do PDF do trabalho 2 deste círculo (fresco do banco), ou null. */
+	public byte[] arquivoTrabalho2(Integer circuloId) {
+		return (byte[]) manager.createQuery("SELECT c.trabalho2 FROM Circulo c WHERE c.id = :id")
+				.setParameter("id", circuloId).getSingleResult();
+	}
+
+	/** Bytes do PDF do trabalho 3 deste círculo (fresco do banco), ou null. */
+	public byte[] arquivoTrabalho3(Integer circuloId) {
+		return (byte[]) manager.createQuery("SELECT c.trabalho3 FROM Circulo c WHERE c.id = :id")
+				.setParameter("id", circuloId).getSingleResult();
 	}
 
 	@Transactional
